@@ -56,7 +56,7 @@ class _AppRootState extends State<AppRoot> {
   bool _loading = true;
   bool _showTest = true;
   String? _mbti;
-  int? _ennea;
+  String? _ennea;
 
   @override
   void initState() { super.initState(); _check(); }
@@ -65,11 +65,11 @@ class _AppRootState extends State<AppRoot> {
     final prefs = await SharedPreferences.getInstance();
     final done = prefs.getBool('test_done') ?? false;
     final mbti = prefs.getString('mbti');
-    final ennea = prefs.getInt('ennea');
+    final ennea = prefs.getString('ennea');
     setState(() { _showTest = !done; _mbti = mbti; _ennea = ennea; _loading = false; });
   }
 
-  void _onTestDone(String mbti, int ennea) {
+  void _onTestDone(String mbti, String ennea) {
     setState(() { _showTest = false; _mbti = mbti; _ennea = ennea; });
   }
 
@@ -77,13 +77,13 @@ class _AppRootState extends State<AppRoot> {
   Widget build(BuildContext context) {
     if (_loading) return const SizedBox();
     if (_showTest) return FirstTestFlow(onDone: _onTestDone);
-    return MainShell(mbti: _mbti ?? 'ENFJ', ennea: _ennea ?? 5);
+    return MainShell(mbti: _mbti ?? 'ENFJ', ennea: _ennea ?? '5w4');
   }
 }
 
 // ──────── FLOW: Test → Celebration → Main ────────
 class FirstTestFlow extends StatefulWidget {
-  final void Function(String mbti, int ennea) onDone;
+  final void Function(String mbti, String ennea) onDone;
   const FirstTestFlow({super.key, required this.onDone});
   @override
   State<FirstTestFlow> createState() => _FirstTestFlowState();
@@ -125,13 +125,14 @@ class _FirstTestFlowState extends State<FirstTestFlow> {
     if (_q < _questions.length - 1) {
       setState(() => _q++);
     } else {
+      setState(() {});
       _finish();
     }
   }
 
   void _finish() {
     final mbti = '${_e>=_i?"E":"I"}${_s>=_n?"S":"N"}${_t>=_f?"T":"F"}${_j>=_p?"J":"P"}';
-    final ennea = 5; // Hardcoded for MVP
+    final ennea = '5w4';
     widget.onDone(mbti, ennea);
   }
 
@@ -221,7 +222,7 @@ class _FirstTestFlowState extends State<FirstTestFlow> {
 // ──────── NAMING CELEBRATION ────────
 class NamingCelebration extends StatefulWidget {
   final String mbti;
-  final int ennea;
+  final String ennea;
   final VoidCallback onContinue;
   const NamingCelebration({super.key, required this.mbti, required this.ennea, required this.onContinue});
   @override
@@ -240,7 +241,7 @@ class _NamingCelebrationState extends State<NamingCelebration> {
     SharedPreferences.getInstance().then((p) {
       p.setBool('test_done', true);
       p.setString('mbti', widget.mbti);
-      p.setInt('ennea', widget.ennea);
+      p.setString('ennea', widget.ennea);
     });
   }
 
@@ -391,7 +392,7 @@ class _Tab {
 // ──────── MAIN SHELL ────────
 class MainShell extends StatefulWidget {
   final String mbti;
-  final int ennea;
+  final String ennea;
   const MainShell({super.key, required this.mbti, required this.ennea});
   @override
   State<MainShell> createState() => _MainShellState();
