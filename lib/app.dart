@@ -54,7 +54,7 @@ class _MainShellState extends State<MainShell> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Color.lerp(AppColors.background, _tabs[_tab].accent, 0.04)!,
       // AppBar with tab accent color tint
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(52),
