@@ -3,7 +3,9 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../core/theme.dart';
 
 class MyTypeScreen extends StatelessWidget {
-  const MyTypeScreen({super.key});
+  final Color accent;
+  final Color accentBg;
+  const MyTypeScreen({super.key, required this.accent, required this.accentBg});
 
   @override
   Widget build(BuildContext context) {
@@ -12,133 +14,78 @@ class MyTypeScreen extends StatelessWidget {
       child: Column(
         children: [
           const SizedBox(height: 8),
-          // Hero
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 24),
-            child: Column(
-              children: [
-                Container(
-                  width: 80, height: 80,
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.08),
-                    borderRadius: BorderRadius.circular(24),
-                  ),
-                  child: const Center(child: Text('🧠', style: TextStyle(fontSize: 40))),
-                ),
-                const SizedBox(height: 12),
-                Text('高級KAM L',
-                  style: GoogleFonts.notoSerifTc(
-                    fontSize: 32, fontWeight: FontWeight.w900,
-                    color: AppColors.cta)),
-                const SizedBox(height: 6),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text('ENFJ · 5w4', style: TextStyle(
-                    fontSize: 13, fontWeight: FontWeight.w600,
-                    color: AppColors.primary)),
-                ),
-                const SizedBox(height: 12),
-                Text('「你睇到人哋睇唔到嘅 pattern」',
-                  style: TextStyle(fontSize: 14, fontStyle: FontStyle.italic,
-                    color: AppColors.textSecondary)),
-              ],
-            ),
-          ),
-          // Actions
-          Row(
+          Column(
             children: [
-              Expanded(
-                child: _ActionBtn('📤  Share', AppColors.cta, Colors.white),
+              Container(
+                width: 72, height: 72,
+                decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(20), border: Border.all(color: AppColors.border)),
+                child: const Center(child: Text('🧠', style: TextStyle(fontSize: 38))),
               ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _ActionBtn('✏️ 轉 tagline', AppColors.primary.withValues(alpha: 0.1), AppColors.primary),
+              const SizedBox(height: 10),
+              Text('高級KAM L', style: GoogleFonts.notoSerifTc(fontSize: 32, fontWeight: FontWeight.w900, color: accent)),
+              const SizedBox(height: 6),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+                decoration: BoxDecoration(color: accentBg, borderRadius: BorderRadius.circular(20)),
+                child: Text('ENFJ · 5w4', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: accent)),
+              ),
+              const SizedBox(height: 8),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(14), border: Border.all(color: AppColors.border)),
+                child: Text('「你睇到人哋睇唔到嘅 pattern」', textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 13, fontStyle: FontStyle.italic, color: AppColors.textSecondary)),
               ),
             ],
           ),
-          const SizedBox(height: 24),
-          // Friends
-          Text('朋友嘅型', style: GoogleFonts.notoSerifTc(
-            fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.primary)),
+          const SizedBox(height: 16),
+          Row(children: [
+            Expanded(child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              decoration: BoxDecoration(color: accent, borderRadius: BorderRadius.circular(18)),
+              child: const Center(child: Text('📤 Share', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.white))),
+            )),
+            const SizedBox(width: 8),
+            Expanded(child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              decoration: BoxDecoration(color: AppColors.background, borderRadius: BorderRadius.circular(18)),
+              child: const Center(child: Text('✏️ 轉 tagline', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textPrimary))),
+            )),
+          ]),
+          const SizedBox(height: 20),
+          Text('朋友嘅型', style: GoogleFonts.notoSerifTc(fontSize: 14, fontWeight: FontWeight.w700, color: accent)),
           const SizedBox(height: 10),
-          _FriendRow('🎯', '行動先鋒', 'ESTP · 7w8'),
+          _friendRow('🎯', '行動先鋒', 'ESTP · 7w8'),
           const SizedBox(height: 8),
-          _AddFriend(),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              border: Border.all(color: AppColors.border, width: 1.5),
+              borderRadius: BorderRadius.circular(16),
+              color: AppColors.surface,
+            ),
+            child: const Center(child: Text('+ 邀請朋友', style: TextStyle(fontSize: 13, color: AppColors.textSecondary))),
+          ),
           const SizedBox(height: 32),
         ],
       ),
     );
   }
-}
 
-class _ActionBtn extends StatelessWidget {
-  final String text;
-  final Color bg;
-  final Color fg;
-  const _ActionBtn(this.text, this.bg, this.fg);
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Center(child: Text(text, style: TextStyle(
-        fontSize: 13, fontWeight: FontWeight.w600, color: fg))),
-    );
-  }
-}
-
-class _FriendRow extends StatelessWidget {
-  final String emoji, name, type;
-  const _FriendRow(this.emoji, this.name, this.type);
-  @override
-  Widget build(BuildContext context) {
+  Widget _friendRow(String emoji, String name, String type) {
     return Container(
       padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Row(
-        children: [
-          Text(emoji, style: const TextStyle(fontSize: 24)),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(name, style: const TextStyle(
-                  fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.primary)),
-                Text(type, style: const TextStyle(fontSize: 11, color: AppColors.textMuted)),
-              ],
-            ),
-          ),
-          const Text('+', style: TextStyle(fontSize: 18, color: AppColors.textMuted)),
-        ],
-      ),
-    );
-  }
-}
-
-class _AddFriend extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        border: Border.all(color: AppColors.border, width: 1.5),
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: const Center(
-        child: Text('+ 邀請朋友', style: TextStyle(fontSize: 13, color: AppColors.textMuted)),
-      ),
+      decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(16), border: Border.all(color: AppColors.border)),
+      child: Row(children: [
+        Text(emoji, style: const TextStyle(fontSize: 24)),
+        const SizedBox(width: 10),
+        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text(name, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
+          Text(type, style: const TextStyle(fontSize: 11, color: AppColors.textMuted)),
+        ])),
+        const Text('+', style: TextStyle(fontSize: 18, color: AppColors.textMuted)),
+      ]),
     );
   }
 }

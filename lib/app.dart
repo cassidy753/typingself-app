@@ -25,6 +25,23 @@ class TypingselfApp extends StatelessWidget {
   }
 }
 
+// Each tab gets its own accent color from the Daebi palette
+class TabConfig {
+  final String icon;
+  final String label;
+  final Color accent;    // tab accent color
+  final Color accentBg;  // 15% opacity background
+
+  const TabConfig(this.icon, this.label, this.accent, this.accentBg);
+}
+
+const _tabs = [
+  TabConfig('🌤️', '今日',  Color(0xFF9B72AA), Color(0x209B72AA)), // Soft Purple
+  TabConfig('🔎', '發掘',  Color(0xFFD4A843), Color(0x20D4A843)), // Warm Mustard
+  TabConfig('🎭', '我個型', Color(0xFFE0785A), Color(0x20E0785A)), // Muted Coral
+  TabConfig('💖', '支持',  Color(0xFF8FA87A), Color(0x208FA87A)), // Soft Sage
+];
+
 class MainShell extends StatefulWidget {
   const MainShell({super.key});
   @override
@@ -33,59 +50,58 @@ class MainShell extends StatefulWidget {
 
 class _MainShellState extends State<MainShell> {
   int _tab = 0;
-  final _pages = const [
-    QuoteScreen(), ExploreScreen(), MyTypeScreen(), SupportScreen(),
-  ];
-
-  static const _tabs = [
-    ('🌤️', '今日'),
-    ('🔎', '發掘'),
-    ('🎭', '我個型'),
-    ('💖', '支持'),
-  ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
+      // AppBar with tab accent color tint
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(52),
         child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: SizedBox(
-              height: 52,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        width: 34, height: 34,
-                        decoration: BoxDecoration(
-                          color: AppColors.surface,
-                          borderRadius: BorderRadius.circular(10),
+          child: Container(
+            decoration: BoxDecoration(
+              color: AppColors.surface.withValues(alpha: 0.9),
+              border: Border(
+                bottom: BorderSide(color: _tabs[_tab].accent.withValues(alpha: 0.15)),
+              ),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: SizedBox(
+                height: 52,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          width: 34, height: 34,
+                          decoration: BoxDecoration(
+                            color: _tabs[_tab].accentBg,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: const Center(child: Text('🧠', style: TextStyle(fontSize: 18))),
                         ),
-                        child: const Center(child: Text('🧠', style: TextStyle(fontSize: 18))),
-                      ),
-                      const SizedBox(width: 6),
-                      Text('型得你',
-                        style: GoogleFonts.notoSerifTc(
-                          fontSize: 18, fontWeight: FontWeight.w900,
-                          color: AppColors.textPrimary,
-                        )),
-                    ],
-                  ),
-                  Container(
-                    width: 34, height: 34,
-                    decoration: BoxDecoration(
-                      color: AppColors.surface,
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: AppColors.border),
+                        const SizedBox(width: 6),
+                        Text('型得你',
+                          style: GoogleFonts.notoSerifTc(
+                            fontSize: 18, fontWeight: FontWeight.w900,
+                            color: AppColors.textPrimary,
+                          )),
+                      ],
                     ),
-                    child: const Center(child: Text('⚙️', style: TextStyle(fontSize: 16))),
-                  ),
-                ],
+                    Container(
+                      width: 34, height: 34,
+                      decoration: BoxDecoration(
+                        color: AppColors.surface,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: AppColors.border),
+                      ),
+                      child: const Center(child: Text('⚙️', style: TextStyle(fontSize: 16))),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -93,9 +109,9 @@ class _MainShellState extends State<MainShell> {
       ),
       body: AnimatedSwitcher(
         duration: const Duration(milliseconds: 300),
-        child: _pages[_tab],
+        child: _buildScreen(_tab),
       ),
-      // Bottom nav: pill style, no hard line, subtle shadow
+      // Bottom nav: pill style, no hard line
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: AppColors.surface,
@@ -121,9 +137,20 @@ class _MainShellState extends State<MainShell> {
     );
   }
 
+  Widget _buildScreen(int i) {
+    // Pass the tab accent color to each screen
+    switch (i) {
+      case 0: return QuoteScreen(key: ValueKey('q'), accent: _tabs[0].accent, accentBg: _tabs[0].accentBg);
+      case 1: return ExploreScreen(key: ValueKey('e'), accent: _tabs[1].accent, accentBg: _tabs[1].accentBg);
+      case 2: return MyTypeScreen(key: ValueKey('m'), accent: _tabs[2].accent, accentBg: _tabs[2].accentBg);
+      case 3: return SupportScreen(key: ValueKey('s'), accent: _tabs[3].accent, accentBg: _tabs[3].accentBg);
+      default: return const SizedBox();
+    }
+  }
+
   Widget _navItem(int i) {
     final active = _tab == i;
-    final (icon, label) = _tabs[i];
+    final t = _tabs[i];
     return GestureDetector(
       onTap: () => setState(() => _tab = i),
       child: AnimatedContainer(
@@ -131,7 +158,7 @@ class _MainShellState extends State<MainShell> {
         curve: Curves.easeOutCubic,
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
         decoration: BoxDecoration(
-          color: active ? AppColors.background : Colors.transparent,
+          color: active ? t.accentBg : Colors.transparent,
           borderRadius: BorderRadius.circular(16),
         ),
         child: Column(
@@ -141,15 +168,15 @@ class _MainShellState extends State<MainShell> {
               duration: const Duration(milliseconds: 300),
               style: TextStyle(
                 fontSize: active ? 22 : 20,
-                color: active ? AppColors.cta : AppColors.textMuted,
+                color: active ? t.accent : AppColors.textMuted,
               ),
-              child: Text(icon),
+              child: Text(t.icon),
             ),
             const SizedBox(height: 3),
-            Text(label, style: TextStyle(
+            Text(t.label, style: TextStyle(
               fontSize: 11,
               fontWeight: active ? FontWeight.w700 : FontWeight.w400,
-              color: active ? AppColors.textPrimary : AppColors.textMuted,
+              color: active ? t.accent : AppColors.textMuted,
             )),
           ],
         ),
