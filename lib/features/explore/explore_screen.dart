@@ -80,11 +80,11 @@ class _ExploreItem extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
             decoration: BoxDecoration(
-              color: AppColors.secondary.withValues(alpha: 0.12),
+              color: AppColors.cta.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Text(badge, style: const TextStyle(
-              fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.secondary)),
+              fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.cta)),
           ),
         ],
       ),

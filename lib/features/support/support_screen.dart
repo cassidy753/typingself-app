@@ -70,7 +70,7 @@ class SupportScreen extends StatelessWidget {
                   width: double.infinity,
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   decoration: BoxDecoration(
-                    color: AppColors.secondary,
+                    color: AppColors.cta,
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: const Center(child: Text('即時加入', style: TextStyle(
@@ -120,7 +120,7 @@ class SupportScreen extends StatelessWidget {
     return Column(
       children: [
         Text(num, style: GoogleFonts.notoSerifTc(
-          fontSize: 28, fontWeight: FontWeight.w900, color: AppColors.secondary)),
+          fontSize: 28, fontWeight: FontWeight.w900, color: AppColors.cta)),
         Text(label, style: const TextStyle(fontSize: 11, color: AppColors.textMuted)),
       ],
     );
@@ -161,7 +161,7 @@ class SupportScreen extends StatelessWidget {
             ),
           ),
           Text(price, style: const TextStyle(
-            fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.secondary)),
+            fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.cta)),
         ],
       ),
     );

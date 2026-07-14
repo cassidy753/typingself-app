@@ -30,7 +30,7 @@ class MyTypeScreen extends StatelessWidget {
                 Text('高級KAM L',
                   style: GoogleFonts.notoSerifTc(
                     fontSize: 32, fontWeight: FontWeight.w900,
-                    color: AppColors.secondary)),
+                    color: AppColors.cta)),
                 const SizedBox(height: 6),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
@@ -53,7 +53,7 @@ class MyTypeScreen extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: _ActionBtn('📤  Share', AppColors.secondary, Colors.white),
+                child: _ActionBtn('📤  Share', AppColors.cta, Colors.white),
               ),
               const SizedBox(width: 8),
               Expanded(

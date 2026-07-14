@@ -86,13 +86,13 @@ class _Pill extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       decoration: BoxDecoration(
         color: coral
-          ? AppColors.secondary.withValues(alpha: 0.12)
+          ? AppColors.cta.withValues(alpha: 0.12)
           : AppColors.primary.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Text(text, style: TextStyle(
         fontSize: 12, fontWeight: FontWeight.w600,
-        color: coral ? AppColors.secondary : AppColors.primary,
+        color: coral ? AppColors.cta : AppColors.primary,
       )),
     );
   }
@@ -118,7 +118,7 @@ class _QuoteCard extends StatelessWidget {
       child: Column(
         children: [
           Text('❝', style: TextStyle(
-            fontSize: 48, color: AppColors.secondary.withValues(alpha: 0.2),
+            fontSize: 48, color: AppColors.cta.withValues(alpha: 0.2),
             fontFamily: 'Noto Serif TC', height: 0.6,
           )),
           const SizedBox(height: 12),

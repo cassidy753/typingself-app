@@ -14,7 +14,6 @@ void main() {
 
 class TypingselfApp extends StatelessWidget {
   const TypingselfApp({super.key});
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -35,10 +34,14 @@ class MainShell extends StatefulWidget {
 class _MainShellState extends State<MainShell> {
   int _tab = 0;
   final _pages = const [
-    QuoteScreen(),
-    ExploreScreen(),
-    MyTypeScreen(),
-    SupportScreen(),
+    QuoteScreen(), ExploreScreen(), MyTypeScreen(), SupportScreen(),
+  ];
+
+  static const _tabs = [
+    ('🌤️', '今日'),
+    ('🔎', '發掘'),
+    ('🎭', '我個型'),
+    ('💖', '支持'),
   ];
 
   @override
@@ -46,37 +49,41 @@ class _MainShellState extends State<MainShell> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(56),
+        preferredSize: const Size.fromHeight(52),
         child: SafeArea(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: SizedBox(
-              height: 56,
+              height: 52,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Row(
                     children: [
-                      const Text('🧠', style: TextStyle(fontSize: 22)),
-                      const SizedBox(width: 8),
+                      Container(
+                        width: 34, height: 34,
+                        decoration: BoxDecoration(
+                          color: AppColors.surface,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Center(child: Text('🧠', style: TextStyle(fontSize: 18))),
+                      ),
+                      const SizedBox(width: 6),
                       Text('型得你',
                         style: GoogleFonts.notoSerifTc(
-                          fontSize: 20, fontWeight: FontWeight.w900,
-                          color: AppColors.primary,
+                          fontSize: 18, fontWeight: FontWeight.w900,
+                          color: AppColors.textPrimary,
                         )),
                     ],
                   ),
-                  GestureDetector(
-                    onTap: () => _showSettings(context),
-                    child: Container(
-                      width: 36, height: 36,
-                      decoration: BoxDecoration(
-                        color: AppColors.surface,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.border),
-                      ),
-                      child: const Center(child: Text('⚙️', style: TextStyle(fontSize: 18))),
+                  Container(
+                    width: 34, height: 34,
+                    decoration: BoxDecoration(
+                      color: AppColors.surface,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: AppColors.border),
                     ),
+                    child: const Center(child: Text('⚙️', style: TextStyle(fontSize: 16))),
                   ),
                 ],
               ),
@@ -88,21 +95,25 @@ class _MainShellState extends State<MainShell> {
         duration: const Duration(milliseconds: 300),
         child: _pages[_tab],
       ),
+      // Bottom nav: pill style, no hard line, subtle shadow
       bottomNavigationBar: Container(
-        decoration: const BoxDecoration(
-          border: Border(top: BorderSide(color: AppColors.border)),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 20,
+              offset: const Offset(0, -4),
+            ),
+          ],
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         ),
         child: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+            padding: const EdgeInsets.fromLTRB(12, 8, 12, 14),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _navItem(0, '🌅', '今日'),
-                _navItem(1, '🔍', '探索'),
-                _navItem(2, '🧠', '我個型'),
-                _navItem(3, '💜', '支持'),
-              ],
+              children: List.generate(4, (i) => _navItem(i)),
             ),
           ),
         ),
@@ -110,90 +121,38 @@ class _MainShellState extends State<MainShell> {
     );
   }
 
-  Widget _navItem(int i, String icon, String label) {
+  Widget _navItem(int i) {
     final active = _tab == i;
+    final (icon, label) = _tabs[i];
     return GestureDetector(
       onTap: () => setState(() => _tab = i),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOutCubic,
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
         decoration: BoxDecoration(
-          color: active ? AppColors.primary.withValues(alpha: 0.08) : Colors.transparent,
-          borderRadius: BorderRadius.circular(12),
+          color: active ? AppColors.background : Colors.transparent,
+          borderRadius: BorderRadius.circular(16),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(icon, style: TextStyle(
-              fontSize: 22,
-              color: active ? AppColors.secondary : AppColors.textMuted,
-            )),
-            const SizedBox(height: 2),
+            AnimatedDefaultTextStyle(
+              duration: const Duration(milliseconds: 300),
+              style: TextStyle(
+                fontSize: active ? 22 : 20,
+                color: active ? AppColors.cta : AppColors.textMuted,
+              ),
+              child: Text(icon),
+            ),
+            const SizedBox(height: 3),
             Text(label, style: TextStyle(
               fontSize: 11,
-              fontWeight: active ? FontWeight.w600 : FontWeight.w400,
-              color: active ? AppColors.primary : AppColors.textMuted,
+              fontWeight: active ? FontWeight.w700 : FontWeight.w400,
+              color: active ? AppColors.textPrimary : AppColors.textMuted,
             )),
           ],
         ),
-      ),
-    );
-  }
-
-  void _showSettings(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (_) => const _SettingsSheet(),
-    );
-  }
-}
-
-class _SettingsSheet extends StatelessWidget {
-  const _SettingsSheet();
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(width: 40, height: 4,
-            decoration: BoxDecoration(
-              color: AppColors.border,
-              borderRadius: BorderRadius.circular(2),
-            )),
-          const SizedBox(height: 20),
-          Text('設定', style: GoogleFonts.notoSerifTc(
-            fontSize: 20, fontWeight: FontWeight.w700, color: AppColors.primary,
-          )),
-          const SizedBox(height: 20),
-          _settingRow('🌓', '深色模式', '跟隨系統'),
-          _settingRow('🌐', '語言', '繁體中文（香港）'),
-          _settingRow('🔔', '通知', '已開啟'),
-          _settingRow('👤', '切換用戶', ''),
-          const Divider(height: 24),
-          _settingRow('📄', '私隱政策', ''),
-          _settingRow('ℹ️', '版本 1.0.0', ''),
-        ],
-      ),
-    );
-  }
-  Widget _settingRow(String icon, String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        children: [
-          Text(icon, style: const TextStyle(fontSize: 18)),
-          const SizedBox(width: 12),
-          Expanded(child: Text(label,
-            style: const TextStyle(fontSize: 15, color: AppColors.textPrimary))),
-          if (value.isNotEmpty)
-            Text(value, style: const TextStyle(fontSize: 13, color: AppColors.textMuted)),
-          const SizedBox(width: 8),
-          const Text('›', style: TextStyle(fontSize: 18, color: AppColors.textMuted)),
-        ],
       ),
     );
   }
