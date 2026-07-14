@@ -1,0 +1,52 @@
+name: typing_self
+description: 型得你 — Cantonese personality self-discovery app
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # State Management
+  riverpod: ^2.5.0
+  flutter_riverpod: ^2.5.0
+
+  # Backend
+  supabase_flutter: ^2.3.0
+
+  # Notifications
+
+  # Local Storage
+  shared_preferences: ^2.2.0
+  sqflite: ^2.3.0
+  path_provider: ^2.1.0
+
+  # Payments
+  purchases_flutter: ^10.4.1
+
+  # UI
+  google_fonts: ^6.1.0
+  flutter_animate: ^4.5.0
+  share_plus: ^7.2.0
+  cached_network_image: ^3.3.0
+  flutter_local_notifications: ^17.0.0
+
+  # Utilities
+  intl: ^0.19.0
+  uuid: ^4.3.0
+  url_launcher: ^6.2.0
+  http: ^1.6.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/quotes/
+    - assets/images/
