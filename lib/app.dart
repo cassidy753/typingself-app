@@ -20,27 +20,49 @@ class TypingselfApp extends StatelessWidget {
       title: '型得你',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
-      home: const MainShell(),
+      home: const FixedFrame(child: MainShell()),
     );
   }
 }
 
-// Each tab gets its own accent color from the Daebi palette
-class TabConfig {
-  final String icon;
-  final String label;
-  final Color accent;    // tab accent color
-  final Color accentBg;  // 15% opacity background
+/// Locks the app to a fixed mobile dimension (390×844) in a centered frame.
+/// Only applies on web/desktop; mobile runs full-screen normally.
+class FixedFrame extends StatelessWidget {
+  final Widget child;
+  const FixedFrame({super.key, required this.child});
 
-  const TabConfig(this.icon, this.label, this.accent, this.accentBg);
+  @override
+  Widget build(BuildContext context) {
+    // Use LayoutBuilder to detect if we're on a wide screen
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // If screen is wider than phone width, center the phone frame
+        if (constraints.maxWidth > 420) {
+          return Scaffold(
+            backgroundColor: const Color(0xFF3A2C22),
+            body: Center(
+              child: SizedBox(
+                width: 390,
+                height: constraints.maxHeight,
+                child: child,
+              ),
+            ),
+          );
+        }
+        // Mobile: full screen
+        return child;
+      },
+    );
+  }
 }
 
-const _tabs = [
-  TabConfig('🌤️', '今日',  Color(0xFF9B72AA), Color(0x209B72AA)), // Soft Purple
-  TabConfig('🔎', '發掘',  Color(0xFFD4A843), Color(0x20D4A843)), // Warm Mustard
-  TabConfig('🎭', '我個型', Color(0xFFE0785A), Color(0x20E0785A)), // Muted Coral
-  TabConfig('💖', '支持',  Color(0xFF8FA87A), Color(0x208FA87A)), // Soft Sage
-];
+class _Tab {
+  final String icon;
+  final String label;
+  final Color accent;
+  final Color accentBg;
+  const _Tab(this.icon, this.label, this.accent, this.accentBg);
+}
 
 class MainShell extends StatefulWidget {
   const MainShell({super.key});
@@ -49,13 +71,25 @@ class MainShell extends StatefulWidget {
 }
 
 class _MainShellState extends State<MainShell> {
-  int _tab = 0;
+  int _tab = 1; // Start on tab 1 (發掘 = test) instead of 0
+
+  @override
+  void initState() {
+    super.initState();
+    // Open the test directly on first launch by checking if user exists
+    _checkFirstLaunch();
+  }
+
+  Future<void> _checkFirstLaunch() async {
+    // For MVP: always show the test tab first.
+    // In production: check SharedPreferences for existing user.
+    setState(() => _tab = 1);
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Color.lerp(AppColors.background, _tabs[_tab].accent, 0.15)!,
-      // AppBar with tab accent color tint
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(52),
         child: SafeArea(
@@ -111,7 +145,6 @@ class _MainShellState extends State<MainShell> {
         duration: const Duration(milliseconds: 300),
         child: _buildScreen(_tab),
       ),
-      // Bottom nav: pill style, no hard line
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: AppColors.surface,
@@ -137,13 +170,20 @@ class _MainShellState extends State<MainShell> {
     );
   }
 
+  static const _tabs = <_Tab>[
+    _Tab('🌤️', '今日',  Color(0xFF9B72AA), Color(0x209B72AA)),
+    _Tab('🔎', '發掘',  Color(0xFFD4A843), Color(0x20D4A843)),
+    _Tab('🎭', '我個型', Color(0xFFE0785A), Color(0x20E0785A)),
+    _Tab('💖', '支持',  Color(0xFF8FA87A), Color(0x208FA87A)),
+  ];
+
   Widget _buildScreen(int i) {
-    // Pass the tab accent color to each screen
+    final t = _tabs[i];
     switch (i) {
-      case 0: return QuoteScreen(key: ValueKey('q'), accent: _tabs[0].accent, accentBg: _tabs[0].accentBg);
-      case 1: return ExploreScreen(key: ValueKey('e'), accent: _tabs[1].accent, accentBg: _tabs[1].accentBg);
-      case 2: return MyTypeScreen(key: ValueKey('m'), accent: _tabs[2].accent, accentBg: _tabs[2].accentBg);
-      case 3: return SupportScreen(key: ValueKey('s'), accent: _tabs[3].accent, accentBg: _tabs[3].accentBg);
+      case 0: return QuoteScreen(key: ValueKey('q'), accent: t.accent, accentBg: t.accentBg);
+      case 1: return ExploreScreen(key: ValueKey('e'), accent: t.accent, accentBg: t.accentBg);
+      case 2: return MyTypeScreen(key: ValueKey('m'), accent: t.accent, accentBg: t.accentBg);
+      case 3: return SupportScreen(key: ValueKey('s'), accent: t.accent, accentBg: t.accentBg);
       default: return const SizedBox();
     }
   }
