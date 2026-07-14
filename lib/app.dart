@@ -54,16 +54,16 @@ class _MainShellState extends State<MainShell> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color.lerp(AppColors.background, _tabs[_tab].accent, 0.04)!,
+      backgroundColor: Color.lerp(AppColors.background, _tabs[_tab].accent, 0.15)!,
       // AppBar with tab accent color tint
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(52),
         child: SafeArea(
           child: Container(
             decoration: BoxDecoration(
-              color: AppColors.surface.withValues(alpha: 0.9),
+              color: _tabs[_tab].accent.withValues(alpha: 0.08),
               border: Border(
-                bottom: BorderSide(color: _tabs[_tab].accent.withValues(alpha: 0.15)),
+                bottom: BorderSide(color: _tabs[_tab].accent.withValues(alpha: 0.2)),
               ),
             ),
             child: Padding(
