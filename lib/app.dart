@@ -246,7 +246,15 @@ class _NamingCelebrationState extends State<NamingCelebration> {
 
   @override
   Widget build(BuildContext context) {
-    final name = _result ?? NamingEngine.getName('ENFJ', '5')!;
+    // Safe fallback if name lookup fails
+    PersonalityName defaultName(String mbti, String ennea) {
+      return PersonalityName(
+        mbti: mbti, enneagram: ennea, healthLevel: 'healthy',
+        nameCanto: '探索者', tagline: '你仲喺度了解緊自己，慢慢嚟',
+        encourage: '每一步都係發現', emoji: '🧠',
+      );
+    }
+    final name = _result ?? NamingEngine.getName('ENFJ', '5') ?? defaultName('ENFJ', '5');
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
@@ -413,7 +421,7 @@ class _MainShellState extends State<MainShell> {
 
     final t = _tabs[_tab];
     return Scaffold(
-      backgroundColor: Color.lerp(AppColors.background, t.accent, 0.15)!,
+      backgroundColor: Color.lerp(AppColors.background, t.accent, 0.15) ?? AppColors.background,
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(52),
         child: SafeArea(
