@@ -54,14 +54,14 @@ class _QuoteScreenState extends ConsumerState<QuoteScreen> with SingleTickerProv
             Container(
               padding: const EdgeInsets.all(6),
               decoration: BoxDecoration(
-                color: AppTheme.purpleLight,
+                color: AppColors.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Icon(Icons.auto_stories, color: AppTheme.purple, size: 18),
+              child: const Icon(Icons.auto_stories, color: AppColors.primary, size: 18),
             ),
             const SizedBox(width: 10),
             Text('今日一句', style: GoogleFonts.notoSerifHk(
-              fontSize: 20, fontWeight: FontWeight.w900, color: AppTheme.textPrimary,
+              fontSize: 20, fontWeight: FontWeight.w900, color: AppColors.textPrimary,
             )),
           ],
         ),
@@ -81,14 +81,14 @@ class _QuoteScreenState extends ConsumerState<QuoteScreen> with SingleTickerProv
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                         decoration: BoxDecoration(
-                          color: AppTheme.purpleLight,
+                          color: AppColors.primary.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
                           _categoryLabel(_quote!.category),
                           style: GoogleFonts.notoSansHk(
                             fontSize: 12, fontWeight: FontWeight.w600,
-                            color: AppTheme.purple,
+                            color: AppColors.primary,
                           ),
                         ),
                       ),
@@ -100,7 +100,7 @@ class _QuoteScreenState extends ConsumerState<QuoteScreen> with SingleTickerProv
                         width: double.infinity,
                         padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 40),
                         decoration: BoxDecoration(
-                          color: AppTheme.cardBg,
+                          color: AppColors.surface,
                           borderRadius: BorderRadius.circular(28),
                           boxShadow: [
                             BoxShadow(
@@ -120,7 +120,7 @@ class _QuoteScreenState extends ConsumerState<QuoteScreen> with SingleTickerProv
                             // Decorative quote mark
                             Text('"', style: GoogleFonts.notoSerifHk(
                               fontSize: 64, fontWeight: FontWeight.w900,
-                              color: AppTheme.purple.withValues(alpha: 0.15),
+                              color: AppColors.primary.withValues(alpha: 0.15),
                               height: 0.6,
                             )),
                             const SizedBox(height: 8),
@@ -130,7 +130,7 @@ class _QuoteScreenState extends ConsumerState<QuoteScreen> with SingleTickerProv
                               style: GoogleFonts.notoSerifHk(
                                 fontSize: 22,
                                 fontWeight: FontWeight.w700,
-                                color: AppTheme.textPrimary,
+                                color: AppColors.textPrimary,
                                 height: 1.6,
                               ),
                             ),
@@ -139,14 +139,14 @@ class _QuoteScreenState extends ConsumerState<QuoteScreen> with SingleTickerProv
                               Container(
                                 width: 40,
                                 height: 2,
-                                color: AppTheme.purple.withValues(alpha: 0.2),
+                                color: AppColors.primary.withValues(alpha: 0.2),
                               ),
                               const SizedBox(height: 12),
                               Text(
                                 '— ${_quote!.source}',
                                 style: GoogleFonts.notoSansHk(
                                   fontSize: 13,
-                                  color: AppTheme.textMuted,
+                                  color: AppColors.textMuted,
                                   fontStyle: FontStyle.italic,
                                 ),
                               ),
@@ -168,8 +168,8 @@ class _QuoteScreenState extends ConsumerState<QuoteScreen> with SingleTickerProv
                             fontSize: 14, fontWeight: FontWeight.w600,
                           )),
                           style: OutlinedButton.styleFrom(
-                            foregroundColor: AppTheme.textSecondary,
-                            side: BorderSide(color: AppTheme.textMuted.withValues(alpha: 0.3)),
+                            foregroundColor: AppColors.textSecondary,
+                            side: BorderSide(color: AppColors.textMuted.withValues(alpha: 0.3)),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(16),
                             ),
@@ -185,7 +185,7 @@ class _QuoteScreenState extends ConsumerState<QuoteScreen> with SingleTickerProv
                         child: Container(
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
-                            color: AppTheme.purpleLight.withValues(alpha: 0.5),
+                            color: AppColors.primary.withValues(alpha: 0.1).withValues(alpha: 0.5),
                             borderRadius: BorderRadius.circular(16),
                           ),
                           child: Row(
@@ -196,11 +196,11 @@ class _QuoteScreenState extends ConsumerState<QuoteScreen> with SingleTickerProv
                                 child: Text(
                                   '今日你點？撳低心情記錄低',
                                   style: GoogleFonts.notoSansHk(
-                                    fontSize: 13, color: AppTheme.purple,
+                                    fontSize: 13, color: AppColors.primary,
                                   ),
                                 ),
                               ),
-                              Icon(Icons.chevron_right, color: AppTheme.purple.withValues(alpha: 0.5), size: 20),
+                              Icon(Icons.chevron_right, color: AppColors.primary.withValues(alpha: 0.5), size: 20),
                             ],
                           ),
                         ),

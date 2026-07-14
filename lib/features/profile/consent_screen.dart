@@ -30,7 +30,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.bg,
+      backgroundColor: AppColors.background,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(24),
@@ -41,22 +41,22 @@ class _ConsentScreenState extends State<ConsentScreen> {
               Container(
                 width: 80, height: 80,
                 decoration: BoxDecoration(
-                  color: AppTheme.purpleLight,
+                  color: AppColors.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(24),
                 ),
-                child: const Icon(Icons.shield_outlined, size: 40, color: AppTheme.purple),
+                child: const Icon(Icons.shield_outlined, size: 40, color: AppColors.primary),
               ),
               const SizedBox(height: 24),
 
               Text('你嘅私隱，我哋重視',
                 style: GoogleFonts.notoSerifHk(
-                  fontSize: 28, fontWeight: FontWeight.w900, color: AppTheme.textPrimary,
+                  fontSize: 28, fontWeight: FontWeight.w900, color: AppColors.textPrimary,
                 )),
               const SizedBox(height: 12),
 
               Text('型得你收集以下資料：',
                 style: GoogleFonts.notoSansHk(
-                  fontSize: 15, color: AppTheme.textSecondary,
+                  fontSize: 15, color: AppColors.textSecondary,
                 )),
               const SizedBox(height: 16),
 
@@ -68,18 +68,18 @@ class _ConsentScreenState extends State<ConsentScreen> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: AppTheme.purpleLight.withValues(alpha: 0.5),
+                  color: AppColors.primary.withValues(alpha: 0.1).withValues(alpha: 0.5),
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.verified_user, color: AppTheme.purple, size: 20),
+                    const Icon(Icons.verified_user, color: AppColors.primary, size: 20),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
                         '我哋唔會賣你嘅數據。你可以隨時刪除帳戶及所有資料。',
                         style: GoogleFonts.notoSansHk(
-                          fontSize: 13, color: AppTheme.purple, height: 1.4,
+                          fontSize: 13, color: AppColors.primary, height: 1.4,
                         ),
                       ),
                     ),
@@ -94,9 +94,9 @@ class _ConsentScreenState extends State<ConsentScreen> {
                 value: _agreed,
                 onChanged: (v) => setState(() => _agreed = v ?? false),
                 title: Text('我同意收集以上資料作個人化用途',
-                  style: GoogleFonts.notoSansHk(fontSize: 14, color: AppTheme.textPrimary)),
+                  style: GoogleFonts.notoSansHk(fontSize: 14, color: AppColors.textPrimary)),
                 controlAffinity: ListTileControlAffinity.leading,
-                activeColor: AppTheme.purple,
+                activeColor: AppColors.primary,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
               const SizedBox(height: 16),
@@ -107,7 +107,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
                 child: FilledButton(
                   onPressed: _agreed ? _accept : null,
                   style: FilledButton.styleFrom(
-                    backgroundColor: AppTheme.purple,
+                    backgroundColor: AppColors.primary,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   ),
                   child: Text('同意並開始使用',
@@ -120,7 +120,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
               TextButton(
                 onPressed: _skip,
                 child: Text('暫時唔用住（每日語句 + mood 仍可用）',
-                  style: GoogleFonts.notoSansHk(fontSize: 12, color: AppTheme.textMuted)),
+                  style: GoogleFonts.notoSansHk(fontSize: 12, color: AppColors.textMuted)),
               ),
 
               const Spacer(),
@@ -137,10 +137,10 @@ class _ConsentScreenState extends State<ConsentScreen> {
       child: Row(
         children: [
           const SizedBox(width: 24),
-          Icon(Icons.check_circle, size: 16, color: AppTheme.purple.withValues(alpha: 0.6)),
+          Icon(Icons.check_circle, size: 16, color: AppColors.primary.withValues(alpha: 0.6)),
           const SizedBox(width: 8),
           Text(text, style: GoogleFonts.notoSansHk(
-            fontSize: 14, color: AppTheme.textPrimary)),
+            fontSize: 14, color: AppColors.textPrimary)),
         ],
       ),
     );

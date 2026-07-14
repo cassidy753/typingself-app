@@ -53,7 +53,7 @@ class _MainShellState extends State<MainShell> {
       ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
-          color: AppTheme.cardBg,
+          color: AppColors.surface,
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.04),
@@ -77,7 +77,7 @@ class _MainShellState extends State<MainShell> {
                     duration: const Duration(milliseconds: 200),
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     decoration: BoxDecoration(
-                      color: active ? AppTheme.purpleLight : Colors.transparent,
+                      color: active ? AppColors.primary.withValues(alpha: 0.1) : Colors.transparent,
                       borderRadius: BorderRadius.circular(14),
                     ),
                     child: Row(
@@ -86,12 +86,12 @@ class _MainShellState extends State<MainShell> {
                         Icon(
                           active ? t.activeIcon : t.icon,
                           size: 20,
-                          color: active ? AppTheme.purple : AppTheme.textMuted,
+                          color: active ? AppColors.primary : AppColors.textMuted,
                         ),
                         if (active) ...[
                           const SizedBox(width: 6),
                           Text(t.label, style: GoogleFonts.notoSansHk(
-                            fontSize: 12, fontWeight: FontWeight.w600, color: AppTheme.purple,
+                            fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.primary,
                           )),
                         ],
                       ],

@@ -26,14 +26,14 @@ class _NamingScreenState extends ConsumerState<NamingScreen> {
             Container(
               padding: const EdgeInsets.all(6),
               decoration: BoxDecoration(
-                color: AppTheme.purpleLight,
+                color: AppColors.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: const Text('🧠'),
             ),
             const SizedBox(width: 10),
             Text('型得你', style: GoogleFonts.notoSerifHk(
-              fontSize: 20, fontWeight: FontWeight.w900, color: AppTheme.textPrimary,
+              fontSize: 20, fontWeight: FontWeight.w900, color: AppColors.textPrimary,
             )),
           ],
         ),
@@ -54,19 +54,19 @@ class _NamingScreenState extends ConsumerState<NamingScreen> {
 
           // Hero text
           Text('你係邊型？', style: GoogleFonts.notoSerifHk(
-            fontSize: 32, fontWeight: FontWeight.w900, color: AppTheme.textPrimary,
+            fontSize: 32, fontWeight: FontWeight.w900, color: AppColors.textPrimary,
           )),
           const SizedBox(height: 8),
           Text(
             '揀你嘅 MBTI 同 Enneagram，睇下你個地道廣東話名',
-            style: GoogleFonts.notoSansHk(fontSize: 14, color: AppTheme.textSecondary),
+            style: GoogleFonts.notoSansHk(fontSize: 14, color: AppColors.textSecondary),
           ),
 
           const SizedBox(height: 40),
 
           // MBTI
           Text('MBTI 類型', style: GoogleFonts.notoSansHk(
-            fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.textSecondary,
+            fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textSecondary,
           )),
           const SizedBox(height: 8),
           _buildDropdown(
@@ -80,7 +80,7 @@ class _NamingScreenState extends ConsumerState<NamingScreen> {
 
           // Enneagram
           Text('九型人格', style: GoogleFonts.notoSansHk(
-            fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.textSecondary,
+            fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textSecondary,
           )),
           const SizedBox(height: 8),
           _buildDropdown(
@@ -99,7 +99,7 @@ class _NamingScreenState extends ConsumerState<NamingScreen> {
             child: FilledButton(
               onPressed: (_mbti != null && _enneagram != null) ? _generate : null,
               style: FilledButton.styleFrom(
-                backgroundColor: AppTheme.purple,
+                backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                 elevation: 0,
@@ -131,9 +131,9 @@ class _NamingScreenState extends ConsumerState<NamingScreen> {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: AppTheme.cardBg,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.textMuted.withValues(alpha: 0.2)),
+        border: Border.all(color: AppColors.textMuted.withValues(alpha: 0.2)),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: DropdownButtonHideUnderline(
@@ -141,7 +141,7 @@ class _NamingScreenState extends ConsumerState<NamingScreen> {
           value: value,
           isExpanded: true,
           hint: Text(hint, style: GoogleFonts.notoSansHk(
-            fontSize: 15, color: AppTheme.textMuted,
+            fontSize: 15, color: AppColors.textMuted,
           )),
           items: items.map((t) => DropdownMenuItem(
             value: t,
@@ -169,14 +169,14 @@ class _NamingScreenState extends ConsumerState<NamingScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 40),
             decoration: BoxDecoration(
               gradient: const LinearGradient(
-                colors: [AppTheme.purple, Color(0xFF5B21B6)],
+                colors: [AppColors.primary, Color(0xFF5B21B6)],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
               borderRadius: BorderRadius.circular(28),
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.purple.withValues(alpha: 0.3),
+                  color: AppColors.primary.withValues(alpha: 0.3),
                   blurRadius: 32,
                   offset: const Offset(0, 12),
                 ),
@@ -240,7 +240,7 @@ class _NamingScreenState extends ConsumerState<NamingScreen> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppTheme.purpleLight,
+                color: AppColors.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Row(
@@ -251,7 +251,7 @@ class _NamingScreenState extends ConsumerState<NamingScreen> {
                     child: Text(
                       name.encourage,
                       style: GoogleFonts.notoSansHk(
-                        fontSize: 14, color: AppTheme.purple,
+                        fontSize: 14, color: AppColors.primary,
                       ),
                     ),
                   ),
@@ -272,7 +272,7 @@ class _NamingScreenState extends ConsumerState<NamingScreen> {
                 fontSize: 15, fontWeight: FontWeight.w600,
               )),
               style: FilledButton.styleFrom(
-                backgroundColor: AppTheme.purple,
+                backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 elevation: 0,
@@ -286,7 +286,7 @@ class _NamingScreenState extends ConsumerState<NamingScreen> {
           TextButton(
             onPressed: () => setState(() { _result = null; _mbti = null; _enneagram = null; }),
             child: Text('再試其他組合', style: GoogleFonts.notoSansHk(
-              fontSize: 13, color: AppTheme.textMuted,
+              fontSize: 13, color: AppColors.textMuted,
             )),
           ),
 
