@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap');
+  
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: #111;
+    font-family: 'Noto Sans TC', sans-serif;
+  }
+  
+  .post {
+    width: 576px;
+    height: 1024px;
+    background: linear-gradient(180deg, #1a1a1a 0%, #2a1f1a 50%, #3a2820 100%);
+    position: relative;
+    overflow: hidden;
+    border-radius: 20px;
+  }
+  
+  /* Decorative elements */
+  .brain-icon {
+    position: absolute;
+    top: 40px;
+    right: 40px;
+    font-size: 48px;
+    opacity: 0.3;
+  }
+  
+  .accent-line {
+    position: absolute;
+    left: 40px;
+    top: 120px;
+    width: 60px;
+    height: 3px;
+    background: #c97b5d;
+    border-radius: 2px;
+  }
+  
+  /* Main title */
+  .title {
+    position: absolute;
+    left: 40px;
+    top: 160px;
+    right: 40px;
+    color: #f0e6dc;
+    font-size: 38px;
+    font-weight: 900;
+    line-height: 1.4;
+    letter-spacing: 1px;
+  }
+  
+  .title .highlight {
+    color: #c97b5d;
+  }
+  
+  /* Subtitle */
+  .subtitle {
+    position: absolute;
+    left: 40px;
+    top: 400px;
+    right: 40px;
+    color: #b8a89c;
+    font-size: 22px;
+    font-weight: 400;
+    line-height: 1.6;
+    opacity: 0.9;
+  }
+  
+  .subtitle .type {
+    color: #c97b5d;
+    font-weight: 700;
+  }
+  
+  /* Brand */
+  .brand {
+    position: absolute;
+    bottom: 50px;
+    left: 40px;
+    right: 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+  
+  .brand-name {
+    color: #f0e6dc;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 2px;
+  }
+  
+  .brand-tag {
+    color: #8a7a6e;
+    font-size: 13px;
+    font-weight: 400;
+    letter-spacing: 1px;
+  }
+  
+  /* Decorative dots */
+  .dot-1 {
+    position: absolute;
+    bottom: 100px;
+    right: 60px;
+    width: 8px;
+    height: 8px;
+    background: #c97b5d;
+    border-radius: 50%;
+    opacity: 0.4;
+  }
+  .dot-2 {
+    position: absolute;
+    bottom: 120px;
+    right: 80px;
+    width: 5px;
+    height: 5px;
+    background: #c97b5d;
+    border-radius: 50%;
+    opacity: 0.3;
+  }
+</style>
+</head>
+<body>
+<div class="post">
+  <div class="brain-icon">🧠</div>
+  <div class="accent-line"></div>
+  
+  <div class="title">
+    你知唔知你既<br>
+    <span class="highlight">MBTI</span> 同 <span class="highlight">九型人格</span><br>
+    可以一齊用？
+  </div>
+  
+  <div class="subtitle">
+    <span class="type">ENFJ 5w4</span> —— 唔係一個type咁簡單<br>
+    你既認知功能 + 核心動機 = 完整既你
+  </div>
+  
+  <div class="brand">
+    <span class="brand-name">型得你</span>
+    <span class="brand-tag">#了解自己唔係一個type咁簡單</span>
+  </div>
+  
+  <div class="dot-1"></div>
+  <div class="dot-2"></div>
+</div>
+</body>
+</html>
