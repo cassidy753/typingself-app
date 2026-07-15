@@ -61,7 +61,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: const Icon(Icons.person, color: AppColors.primary, size: 18),
             ),
             const SizedBox(width: 10),
-            Text('我', style: GoogleFonts.notoSerifHk(
+            Text('我', style: GoogleFonts.notoSerifTc(
               fontSize: 20, fontWeight: FontWeight.w900, color: AppColors.textPrimary,
             )),
           ],
@@ -86,10 +86,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   child: const Icon(Icons.person, size: 36, color: AppColors.primary),
                 ),
                 const SizedBox(height: 12),
-                Text('未登入', style: GoogleFonts.notoSansHk(fontSize: 18, fontWeight: FontWeight.w700)),
+                Text('未登入', style: GoogleFonts.notoSansTc(fontSize: 18, fontWeight: FontWeight.w700)),
                 const SizedBox(height: 4),
                 Text('登入後 sync 資料 + 解鎖付費功能',
-                  style: GoogleFonts.notoSansHk(fontSize: 13, color: AppColors.textSecondary)),
+                  style: GoogleFonts.notoSansTc(fontSize: 13, color: AppColors.textSecondary)),
                 const SizedBox(height: 20),
                 SizedBox(
                   width: double.infinity, height: 48,
@@ -97,7 +97,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     onPressed: () {}, // TODO: Auth
                     icon: const Icon(Icons.login, size: 18),
                     label: Text('登入 / 註冊',
-                      style: GoogleFonts.notoSansHk(fontSize: 14, fontWeight: FontWeight.w600)),
+                      style: GoogleFonts.notoSansTc(fontSize: 14, fontWeight: FontWeight.w600)),
                     style: FilledButton.styleFrom(
                       backgroundColor: AppColors.primary,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
@@ -111,7 +111,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     onPressed: () {},
                     icon: const Icon(Icons.g_mobiledata, size: 18),
                     label: Text('用 Google 繼續',
-                      style: GoogleFonts.notoSansHk(fontSize: 14)),
+                      style: GoogleFonts.notoSansTc(fontSize: 14)),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: AppColors.textPrimary,
                       side: BorderSide(color: AppColors.textMuted.withValues(alpha: 0.3)),
@@ -136,7 +136,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('我嘅星座', style: GoogleFonts.notoSansHk(
+                Text('我嘅星座', style: GoogleFonts.notoSansTc(
                   fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
                 const SizedBox(height: 12),
                 DropdownButtonHideUnderline(
@@ -144,11 +144,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     value: _zodiac,
                     isExpanded: true,
                     hint: Text('揀你嘅太陽星座…',
-                      style: GoogleFonts.notoSansHk(fontSize: 14, color: AppColors.textMuted)),
+                      style: GoogleFonts.notoSansTc(fontSize: 14, color: AppColors.textMuted)),
                     items: ZodiacService.signs.map((s) => DropdownMenuItem(
                       value: s,
                       child: Text('${ZodiacService.signEmoji[s] ?? ''} $s',
-                        style: GoogleFonts.notoSansHk(fontSize: 15)),
+                        style: GoogleFonts.notoSansTc(fontSize: 15)),
                     )).toList(),
                     onChanged: (v) {
                       if (v != null) _setZodiac(v);
@@ -173,10 +173,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text('$_zodiac ${ZodiacService.signTraits[_zodiac]?['element'] ?? ''}象',
-                                style: GoogleFonts.notoSansHk(
+                                style: GoogleFonts.notoSansTc(
                                   fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.primary)),
                               Text('守護星：${ZodiacService.signTraits[_zodiac]?['planet'] ?? ''}',
-                                style: GoogleFonts.notoSansHk(
+                                style: GoogleFonts.notoSansTc(
                                   fontSize: 13, color: AppColors.primary.withValues(alpha: 0.7))),
                             ],
                           ),
@@ -203,12 +203,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             child: Column(
               children: [
-                Text('型得你 Premium', style: GoogleFonts.notoSerifHk(
+                Text('型得你 Premium', style: GoogleFonts.notoSerifTc(
                   fontSize: 20, fontWeight: FontWeight.w900, color: Colors.white)),
                 const SizedBox(height: 8),
                 Text('解鎖完整人格測試 + 心理健康分析 + 個人化語句',
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.notoSansHk(
+                  style: GoogleFonts.notoSansTc(
                     fontSize: 13, color: Colors.white.withValues(alpha: 0.85))),
                 const SizedBox(height: 16),
                 _premiumRow('🧠', 'MBTI + Enneagram 完整測試'),
@@ -225,8 +225,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       foregroundColor: AppColors.primary,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                     ),
-                    child: Text('HK\$22 解鎖入門版',
-                      style: GoogleFonts.notoSansHk(fontSize: 16, fontWeight: FontWeight.w700)),
+                    child: Text('HK\$8/月 解鎖Premium',
+                      style: GoogleFonts.notoSansTc(fontSize: 16, fontWeight: FontWeight.w700)),
                   ),
                 ),
               ],
@@ -246,7 +246,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('私隱與資料', style: GoogleFonts.notoSansHk(
+                Text('私隱與資料', style: GoogleFonts.notoSansTc(
                   fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
                 const SizedBox(height: 12),
                 _menuItem(Icons.download_outlined, '下載我的資料', () {}),
@@ -270,7 +270,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       child: Row(children: [
         Text(emoji, style: const TextStyle(fontSize: 16)),
         const SizedBox(width: 8),
-        Text(text, style: GoogleFonts.notoSansHk(
+        Text(text, style: GoogleFonts.notoSansTc(
           fontSize: 13, color: Colors.white.withValues(alpha: 0.9))),
       ]),
     );
@@ -280,7 +280,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return ListTile(
       contentPadding: EdgeInsets.zero,
       leading: Icon(icon, color: color ?? AppColors.textSecondary, size: 20),
-      title: Text(text, style: GoogleFonts.notoSansHk(
+      title: Text(text, style: GoogleFonts.notoSansTc(
         fontSize: 14, color: color ?? AppColors.textPrimary)),
       trailing: Icon(Icons.chevron_right, color: AppColors.textMuted, size: 18),
       onTap: onTap,

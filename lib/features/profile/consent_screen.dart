@@ -49,13 +49,13 @@ class _ConsentScreenState extends State<ConsentScreen> {
               const SizedBox(height: 24),
 
               Text('你嘅私隱，我哋重視',
-                style: GoogleFonts.notoSerifHk(
+                style: GoogleFonts.notoSerifTc(
                   fontSize: 28, fontWeight: FontWeight.w900, color: AppColors.textPrimary,
                 )),
               const SizedBox(height: 12),
 
               Text('型得你收集以下資料：',
-                style: GoogleFonts.notoSansHk(
+                style: GoogleFonts.notoSansTc(
                   fontSize: 15, color: AppColors.textSecondary,
                 )),
               const SizedBox(height: 16),
@@ -78,7 +78,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
                     Expanded(
                       child: Text(
                         '我哋唔會賣你嘅數據。你可以隨時刪除帳戶及所有資料。',
-                        style: GoogleFonts.notoSansHk(
+                        style: GoogleFonts.notoSansTc(
                           fontSize: 13, color: AppColors.primary, height: 1.4,
                         ),
                       ),
@@ -94,7 +94,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
                 value: _agreed,
                 onChanged: (v) => setState(() => _agreed = v ?? false),
                 title: Text('我同意收集以上資料作個人化用途',
-                  style: GoogleFonts.notoSansHk(fontSize: 14, color: AppColors.textPrimary)),
+                  style: GoogleFonts.notoSansTc(fontSize: 14, color: AppColors.textPrimary)),
                 controlAffinity: ListTileControlAffinity.leading,
                 activeColor: AppColors.primary,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -111,7 +111,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   ),
                   child: Text('同意並開始使用',
-                    style: GoogleFonts.notoSansHk(fontSize: 16, fontWeight: FontWeight.w600)),
+                    style: GoogleFonts.notoSansTc(fontSize: 16, fontWeight: FontWeight.w600)),
                 ),
               ),
               const SizedBox(height: 12),
@@ -120,7 +120,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
               TextButton(
                 onPressed: _skip,
                 child: Text('暫時唔用住（每日語句 + mood 仍可用）',
-                  style: GoogleFonts.notoSansHk(fontSize: 12, color: AppColors.textMuted)),
+                  style: GoogleFonts.notoSansTc(fontSize: 12, color: AppColors.textMuted)),
               ),
 
               const Spacer(),
@@ -139,7 +139,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
           const SizedBox(width: 24),
           Icon(Icons.check_circle, size: 16, color: AppColors.primary.withValues(alpha: 0.6)),
           const SizedBox(width: 8),
-          Text(text, style: GoogleFonts.notoSansHk(
+          Text(text, style: GoogleFonts.notoSansTc(
             fontSize: 14, color: AppColors.textPrimary)),
         ],
       ),

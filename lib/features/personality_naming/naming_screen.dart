@@ -32,7 +32,7 @@ class _NamingScreenState extends ConsumerState<NamingScreen> {
               child: const Text('🧠'),
             ),
             const SizedBox(width: 10),
-            Text('型得你', style: GoogleFonts.notoSerifHk(
+            Text('型得你', style: GoogleFonts.notoSerifTc(
               fontSize: 20, fontWeight: FontWeight.w900, color: AppColors.textPrimary,
             )),
           ],
@@ -53,19 +53,19 @@ class _NamingScreenState extends ConsumerState<NamingScreen> {
           const SizedBox(height: 24),
 
           // Hero text
-          Text('你係邊型？', style: GoogleFonts.notoSerifHk(
+          Text('你係邊型？', style: GoogleFonts.notoSerifTc(
             fontSize: 32, fontWeight: FontWeight.w900, color: AppColors.textPrimary,
           )),
           const SizedBox(height: 8),
           Text(
             '揀你嘅 MBTI 同 Enneagram，睇下你個地道廣東話名',
-            style: GoogleFonts.notoSansHk(fontSize: 14, color: AppColors.textSecondary),
+            style: GoogleFonts.notoSansTc(fontSize: 14, color: AppColors.textSecondary),
           ),
 
           const SizedBox(height: 40),
 
           // MBTI
-          Text('MBTI 類型', style: GoogleFonts.notoSansHk(
+          Text('MBTI 類型', style: GoogleFonts.notoSansTc(
             fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textSecondary,
           )),
           const SizedBox(height: 8),
@@ -79,7 +79,7 @@ class _NamingScreenState extends ConsumerState<NamingScreen> {
           const SizedBox(height: 24),
 
           // Enneagram
-          Text('九型人格', style: GoogleFonts.notoSansHk(
+          Text('九型人格', style: GoogleFonts.notoSansTc(
             fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textSecondary,
           )),
           const SizedBox(height: 8),
@@ -109,7 +109,7 @@ class _NamingScreenState extends ConsumerState<NamingScreen> {
                 children: [
                   const Icon(Icons.auto_awesome, size: 20),
                   const SizedBox(width: 8),
-                  Text('睇我個名', style: GoogleFonts.notoSansHk(
+                  Text('睇我個名', style: GoogleFonts.notoSansTc(
                     fontSize: 16, fontWeight: FontWeight.w700,
                   )),
                 ],
@@ -140,12 +140,12 @@ class _NamingScreenState extends ConsumerState<NamingScreen> {
         child: DropdownButton<String>(
           value: value,
           isExpanded: true,
-          hint: Text(hint, style: GoogleFonts.notoSansHk(
+          hint: Text(hint, style: GoogleFonts.notoSansTc(
             fontSize: 15, color: AppColors.textMuted,
           )),
           items: items.map((t) => DropdownMenuItem(
             value: t,
-            child: Text(t, style: GoogleFonts.notoSansHk(
+            child: Text(t, style: GoogleFonts.notoSansTc(
               fontSize: 15, fontWeight: FontWeight.w500,
             )),
           )).toList(),
@@ -189,7 +189,7 @@ class _NamingScreenState extends ConsumerState<NamingScreen> {
                 Text(
                   name.nameCanto,
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.notoSerifHk(
+                  style: GoogleFonts.notoSerifTc(
                     fontSize: 36,
                     fontWeight: FontWeight.w900,
                     color: Colors.white,
@@ -205,7 +205,7 @@ class _NamingScreenState extends ConsumerState<NamingScreen> {
                   ),
                   child: Text(
                     '${name.mbti} · ${name.enneagram}',
-                    style: GoogleFonts.notoSansHk(
+                    style: GoogleFonts.notoSansTc(
                       fontSize: 14, fontWeight: FontWeight.w600,
                       color: Colors.white.withValues(alpha: 0.9),
                     ),
@@ -221,7 +221,7 @@ class _NamingScreenState extends ConsumerState<NamingScreen> {
                   child: Text(
                     '「${name.tagline}」',
                     textAlign: TextAlign.center,
-                    style: GoogleFonts.notoSerifHk(
+                    style: GoogleFonts.notoSerifTc(
                       fontSize: 16,
                       fontStyle: FontStyle.italic,
                       color: Colors.white.withValues(alpha: 0.95),
@@ -250,7 +250,7 @@ class _NamingScreenState extends ConsumerState<NamingScreen> {
                   Expanded(
                     child: Text(
                       name.encourage,
-                      style: GoogleFonts.notoSansHk(
+                      style: GoogleFonts.notoSansTc(
                         fontSize: 14, color: AppColors.primary,
                       ),
                     ),
@@ -268,7 +268,7 @@ class _NamingScreenState extends ConsumerState<NamingScreen> {
             child: FilledButton.icon(
               onPressed: () => ShareCard.share(context, name),
               icon: const Icon(Icons.share, size: 18),
-              label: Text('分享俾朋友', style: GoogleFonts.notoSansHk(
+              label: Text('分享俾朋友', style: GoogleFonts.notoSansTc(
                 fontSize: 15, fontWeight: FontWeight.w600,
               )),
               style: FilledButton.styleFrom(
@@ -285,7 +285,7 @@ class _NamingScreenState extends ConsumerState<NamingScreen> {
           // Try again
           TextButton(
             onPressed: () => setState(() { _result = null; _mbti = null; _enneagram = null; }),
-            child: Text('再試其他組合', style: GoogleFonts.notoSansHk(
+            child: Text('再試其他組合', style: GoogleFonts.notoSansTc(
               fontSize: 13, color: AppColors.textMuted,
             )),
           ),
@@ -304,7 +304,7 @@ class _NamingScreenState extends ConsumerState<NamingScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('呢個 combo 未命名，遲啲會有！',
-            style: GoogleFonts.notoSansHk(fontSize: 13)),
+            style: GoogleFonts.notoSansTc(fontSize: 13)),
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),

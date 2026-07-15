@@ -1,11 +1,11 @@
 {
-    "name": "typing_self",
-    "short_name": "typing_self",
+    "name": "型得你 — Typingself",
+    "short_name": "型得你",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#F5EDE0",
+    "theme_color": "#5C4033",
+    "description": "了解自己，贏返自己 — 人格測試、心理健康、每日鼓勵語句",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

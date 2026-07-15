@@ -33,8 +33,8 @@ class PaymentService {
   }
 
   static Map<String, String> get products => {
-    'entry_assessment': 'HK\$22 — 完整人格測試',
-    'premium_report': 'HK\$68 — 詳細分析報告',
-    'quarterly_tracking': 'HK\$38/季 — 季度追蹤',
+    'monthly': 'HK\$8/月 — 完整人格測試',
+    'report': 'HK\$18 — 詳細分析報告',
+    'annual': 'HK\$80/年 — Premium',
   };
 }

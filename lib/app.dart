@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -9,6 +8,8 @@ import 'features/explore/explore_screen.dart';
 import 'features/my_type/my_type_screen.dart';
 import 'features/support/support_screen.dart';
 import 'features/personality_naming/naming_engine.dart';
+import 'features/assessment/assessment_intro_screen.dart';
+import 'features/assessment/decision_tree_engine.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -57,6 +58,7 @@ class _AppRootState extends State<AppRoot> {
   bool _showTest = true;
   String? _mbti;
   String? _ennea;
+  final DecisionTreeEngine _engine = DecisionTreeEngine();
 
   @override
   void initState() { super.initState(); _check(); }
@@ -76,150 +78,17 @@ class _AppRootState extends State<AppRoot> {
   @override
   Widget build(BuildContext context) {
     if (_loading) return const SizedBox();
-    if (_showTest) return FirstTestFlow(onDone: _onTestDone);
+    if (_showTest) {
+      return AssessmentIntroScreen(
+        engine: _engine,
+        onComplete: _onTestDone,
+      );
+    }
     return MainShell(mbti: _mbti ?? 'ENFJ', ennea: _ennea ?? '5w4');
   }
 }
 
-// ──────── FLOW: Test → Celebration → Main ────────
-class FirstTestFlow extends StatefulWidget {
-  final void Function(String mbti, String ennea) onDone;
-  const FirstTestFlow({super.key, required this.onDone});
-  @override
-  State<FirstTestFlow> createState() => _FirstTestFlowState();
-}
-
-class _FirstTestFlowState extends State<FirstTestFlow> {
-  int _q = 0;
-  String _result = '';
-  int _e = 0, _i = 0, _s = 0, _n = 0, _t = 0, _f = 0, _j = 0, _p = 0;
-
-  static const _questions = [
-    ['朋友傷心嗰陣，你會…', ['即刻去安慰佢', '靜靜陪喺身邊', '幫佢分析問題', '分享自己經歷'], [2,0,1,1]],  // Fe/Fi
-    ['放假嗰日，你通常…', ['約人出去癲', '自己 Hea 一日', '做有意義嘅事', '計劃下星期'], [2,0,1,1]], // E/I
-    ['做決定靠咩？', ['直覺', '數據分析', '朋友意見', '求其啦'], [1,0,2,0]], // T/F
-    ['你覺得自己…', ['外向有 energy', '內向但豐富', '兩樣都有啲', '睇情況'], [2,1,1,0]], // E/I
-    ['去旅行你會…', ['plan 到盡', '去到先算', 'plan 大方向', '跟朋友安排'], [1,0,2,1]], // J/P
-    ['你朋友點形容你？', ['好有創意', '好實際', '好理性', '好感性'], [0,1,2,2]], // N/S + T/F
-    ['面對壓力嗰陣…', ['搵人傾訴', '收埋自己', '分析點解決', '做嘢分散注意'], [2,0,1,1]], // Fe/Fi
-    ['你記性好嘅係…', ['人臉同故事', '數字同日期', '感受同氣氛', '細節同邏輯'], [0,1,2,1]], // N/S
-    ['你覺得自己係…', ['完美主義', '和平主義', '成就导向', '忠誠可靠'], [1,2,0,1]], // Enneagram proxy
-    ['工作上你傾向…', ['帶領團隊', '專注執行', '分析策略', '協調溝通'], [2,0,1,1]], // Te/Ti
-    ['你點睇新事物？', ['興奮想試', '小心觀察', '研究清楚先', '冇興趣'], [2,0,1,0]], // Ne/Si
-    ['最後一題：你係…', ['多啲諗將來', '多啲記過去', '多啲關注當下', '多啲分析規律'], [0,1,2,0]], // N/S
-  ];
-
-  void _answer(int optIdx) {
-    final scores = _questions[_q][2] as List<int>;
-    final val = scores[optIdx];
-    // Simplified: route scores to dimensions based on question index
-    if (_q == 0 || _q == 6) { if (val > 0) _f += val; else _t += 1; }
-    else if (_q == 1 || _q == 3) { if (val > 0) _e += val; else _i += 1; }
-    else if (_q == 2) { if (val > 1) _f += val; else _t += val; }
-    else if (_q == 4) { if (val > 0) _j += val; else _p += 1; }
-    else if (_q == 5 || _q == 7) { if (val > 1) _s += val; else _n += val; }
-    else if (_q == 8) { /* enneagram-ish */ }
-    else if (_q == 9) { if (val > 0) _t += val; else _f += 1; }
-    else if (_q == 10 || _q == 11) { if (val > 0) _n += val; else _s += 1; }
-
-    if (_q < _questions.length - 1) {
-      setState(() => _q++);
-    } else {
-      setState(() {});
-      _finish();
-    }
-  }
-
-  void _finish() {
-    final mbti = '${_e>=_i?"E":"I"}${_s>=_n?"S":"N"}${_t>=_f?"T":"F"}${_j>=_p?"J":"P"}';
-    final ennea = '5w4';
-    widget.onDone(mbti, ennea);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final q = _questions[_q][0] as String;
-    final opts = _questions[_q][1] as List<String>;
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Column(
-            children: [
-              const SizedBox(height: 24),
-              Row(
-                children: [
-                  GestureDetector(
-                    onTap: _q > 0 ? () => setState(() => _q--) : null,
-                    child: Text('‹', style: TextStyle(fontSize: 24, color: _q > 0 ? AppColors.textPrimary : AppColors.textMuted)),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('問題 ${_q+1} / ${_questions.length}', style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
-                        const SizedBox(height: 6),
-                        Container(
-                          height: 6,
-                          decoration: BoxDecoration(color: AppColors.border, borderRadius: BorderRadius.circular(3)),
-                          child: FractionallySizedBox(
-                            alignment: Alignment.centerLeft,
-                            widthFactor: (_q + 1) / _questions.length,
-                            child: Container(decoration: BoxDecoration(color: AppColors.cta, borderRadius: BorderRadius.circular(3))),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 40),
-              Text(q, textAlign: TextAlign.center,
-                style: GoogleFonts.notoSerifTc(fontSize: 20, fontWeight: FontWeight.w700, color: AppColors.textPrimary, height: 1.6)),
-              const SizedBox(height: 28),
-              ...opts.map((opt) => Padding(
-                padding: const EdgeInsets.only(bottom: 10),
-                child: SizedBox(
-                  width: double.infinity,
-                  child: TextButton(
-                    onPressed: () => _answer(opts.indexOf(opt)),
-                    style: TextButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
-                      backgroundColor: AppColors.surface,
-                      foregroundColor: AppColors.textPrimary,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(24),
-                        side: BorderSide(color: AppColors.border),
-                      ),
-                      textStyle: GoogleFonts.notoSansTc(fontSize: 15, fontWeight: FontWeight.w600),
-                    ),
-                    child: Align(alignment: Alignment.centerLeft, child: Text(opt)),
-                  ),
-                ),
-              )),
-              const Spacer(),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  TextButton(
-                    onPressed: _finish,
-                    child: Text('是但啦，略過 →', style: TextStyle(fontSize: 13, color: AppColors.textMuted)),
-                  ),
-                  Text('${_q+1}/${_questions.length}', style: TextStyle(fontSize: 12, color: AppColors.textMuted)),
-                ],
-              ),
-              const SizedBox(height: 16),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// ──────── NAMING CELEBRATION ────────
+// ──────── FLOW: Naming Celebration → Main ────────
 class NamingCelebration extends StatefulWidget {
   final String mbti;
   final String ennea;
@@ -255,7 +124,7 @@ class _NamingCelebrationState extends State<NamingCelebration> {
         encourage: '每一步都係發現', emoji: '🧠',
       );
     }
-    final name = _result ?? NamingEngine.getName('ENFJ', '5') ?? defaultName('ENFJ', '5');
+    final name = _result ?? NamingEngine.getName('ENFJ', '5w4') ?? defaultName('ENFJ', '5w4');
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
@@ -279,7 +148,7 @@ class _NamingCelebrationState extends State<NamingCelebration> {
                   color: AppColors.cta.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(20),
                 ),
-                child: Text('${widget.mbti} · ${widget.ennea}w${widget.ennea}',
+                child: Text('${widget.mbti} · ${widget.ennea}',
                   style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.cta)),
               ),
               const SizedBox(height: 24),
@@ -400,7 +269,6 @@ class MainShell extends StatefulWidget {
 
 class _MainShellState extends State<MainShell> {
   int _tab = 0;
-  bool _showCelebration = true;
 
   static const _tabs = <_Tab>[
     _Tab('🌤️', '今日',  Color(0xFF9B72AA), Color(0x209B72AA)),
@@ -411,15 +279,6 @@ class _MainShellState extends State<MainShell> {
 
   @override
   Widget build(BuildContext context) {
-    // Show naming celebration first
-    if (_showCelebration) {
-      return NamingCelebration(
-        mbti: widget.mbti,
-        ennea: widget.ennea,
-        onContinue: () => setState(() => _showCelebration = false),
-      );
-    }
-
     final t = _tabs[_tab];
     return Scaffold(
       backgroundColor: Color.lerp(AppColors.background, t.accent, 0.15) ?? AppColors.background,
