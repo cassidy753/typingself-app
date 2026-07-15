@@ -180,11 +180,26 @@ class DecisionTreeEngine {
       AnswerOption(text: '有啲唔似', scores: {'Verify': -1}),
       AnswerOption(text: '完全唔係我', scores: {'Verify': -2}),
     ]),
-    const Question(id: 'verify_mbti_2', text: '你身邊嘅人通常點形容你？', phase: AssessmentPhase.mbtiVerification, options: [
-      AnswerOption(text: '好識同人溝通', scores: {'E': 1, 'F': 1, 'Verify': 1}),
-      AnswerOption(text: '好有自己諗法', scores: {'I': 1, 'N': 1, 'T': 1, 'Verify': 1}),
-      AnswerOption(text: '好可靠穩陣', scores: {'S': 1, 'J': 1, 'Verify': 1}),
-      AnswerOption(text: '好有創意', scores: {'N': 1, 'P': 1, 'Verify': 1}),
+    // ─── Clarifying questions when user rejects MBTI type ───
+    const Question(id: 'clarity_ei', text: '你覺得自己偏向同人相處定係自己獨處多啲？', phase: AssessmentPhase.mbtiVerification, options: [
+      AnswerOption(text: '同人一齊我會充電', scores: {'E': 3, 'Verify': 1}),
+      AnswerOption(text: '一個人先係真正休息', scores: {'I': 3, 'Verify': 1}),
+      AnswerOption(text: '兩樣都要，睇情況', scores: {'Verify': 1}),
+    ]),
+    const Question(id: 'clarity_sn', text: '你平時信直覺定信事實多啲？', phase: AssessmentPhase.mbtiVerification, options: [
+      AnswerOption(text: '信事實數據同親眼所見', scores: {'S': 3, 'Verify': 1}),
+      AnswerOption(text: '信直覺同可能性', scores: {'N': 3, 'Verify': 1}),
+      AnswerOption(text: '兩樣都參考，但偏向事實', scores: {'S': 1, 'Verify': 1}),
+    ]),
+    const Question(id: 'clarity_tf', text: '做重要決定時，你用咩做首要考慮？', phase: AssessmentPhase.mbtiVerification, options: [
+      AnswerOption(text: '邏輯同效率，結果最重要', scores: {'T': 3, 'Verify': 1}),
+      AnswerOption(text: '人哋嘅感受同關係', scores: {'F': 3, 'Verify': 1}),
+      AnswerOption(text: '兩樣都考慮，但偏向理性', scores: {'T': 1, 'Verify': 1}),
+    ]),
+    const Question(id: 'clarity_jp', text: '你鍾意計劃好定係隨心所欲？', phase: AssessmentPhase.mbtiVerification, options: [
+      AnswerOption(text: '有計劃先安樂', scores: {'J': 3, 'Verify': 1}),
+      AnswerOption(text: '隨心先自在', scores: {'P': 3, 'Verify': 1}),
+      AnswerOption(text: '有大方向但留有彈性', scores: {'J': 1, 'P': 1, 'Verify': 1}),
     ]),
 
     // ═══ Phase 3: Enneagram ═══
@@ -344,15 +359,45 @@ class DecisionTreeEngine {
       'verify_ennea'
     )).length;
 
-    if (state.phase == AssessmentPhase.mbti && inPhase >= 6) {
+    // ─── MBTI Phase: minimum 8 questions before verification ───
+    if (state.phase == AssessmentPhase.mbti && inPhase >= 8) {
       state.predictedMbti = state.mbtiString;
       _advancePhase();
-    } else if (state.phase == AssessmentPhase.mbtiVerification && (state.mbtiVerified || inPhase >= 2)) {
+    }
+    // ─── MBTI Verification: handle "唔似" → targeted follow-up ───
+    else if (state.phase == AssessmentPhase.mbtiVerification) {
+      final lastAnswer = state.history.isNotEmpty ? state.history.last : null;
+      final isRejected = lastAnswer != null &&
+          lastAnswer.questionId == 'verify_mbti' &&
+          (lastAnswer.scores.values.any((v) => v <= -1));
+
+      if (isRejected && inPhase < 4) {
+        // User said "唔似" — route to targeted follow-up questions instead of advancing
+        // Stay in current phase, more targeted questions coming
+        return;
+      }
+      if (state.mbtiVerified || inPhase >= 3) {
+        _advancePhase();
+      }
+    }
+    // ─── Enneagram Phase ───
+    else if (state.phase == AssessmentPhase.enneagram && inPhase >= 4) {
       _advancePhase();
-    } else if (state.phase == AssessmentPhase.enneagram && inPhase >= 4) {
-      _advancePhase();
-    } else if (state.phase == AssessmentPhase.enneagramVerification && (state.enneaVerified || inPhase >= 1)) {
-      state.phase = AssessmentPhase.result;
+    }
+    // ─── Enneagram Verification ───
+    else if (state.phase == AssessmentPhase.enneagramVerification) {
+      final lastAnswer = state.history.isNotEmpty ? state.history.last : null;
+      final isRejected = lastAnswer != null &&
+          lastAnswer.questionId.startsWith('verify_ennea') &&
+          (lastAnswer.scores.values.any((v) => v <= -1));
+
+      if (isRejected && inPhase < 3) {
+        // User said "唔係" — targeted follow-up
+        return;
+      }
+      if (state.enneaVerified || inPhase >= 2) {
+        state.phase = AssessmentPhase.result;
+      }
     }
   }
 
