@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'core/theme.dart';
@@ -133,15 +134,23 @@ class _NamingCelebrationState extends State<NamingCelebration> {
           child: Column(
             children: [
               const Spacer(flex: 2),
-              // Emoji
-              Text(name.emoji, style: const TextStyle(fontSize: 80)),
+              // 1. Emoji — scale elasticOut 600ms, immediate
+              Text(name.emoji, style: const TextStyle(fontSize: 80))
+                .animate()
+                .scaleXY(
+                  begin: 0, end: 1,
+                  duration: 600.ms,
+                  curve: Curves.elasticOut,
+                ),
               const SizedBox(height: 12),
-              // Name
+              // 2. Name — fadeIn + slideX, delay 200ms
               Text(name.nameCanto, style: GoogleFonts.notoSerifTc(
                 fontSize: 40, fontWeight: FontWeight.w900, color: AppColors.cta,
-              )),
+              )).animate(delay: 200.ms)
+                .fadeIn(duration: 300.ms)
+                .slideX(begin: -0.03, duration: 300.ms),
               const SizedBox(height: 8),
-              // Type tag
+              // 3. Type tag — scale, delay 400ms
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                 decoration: BoxDecoration(
@@ -150,15 +159,19 @@ class _NamingCelebrationState extends State<NamingCelebration> {
                 ),
                 child: Text('${widget.mbti} · ${widget.ennea}',
                   style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.cta)),
-              ),
+              ).animate(delay: 400.ms)
+                .scale(duration: 400.ms),
               const SizedBox(height: 24),
-              // Tagline selection
+              // 4. Tagline header — delay 450ms
               Align(
                 alignment: Alignment.centerLeft,
                 child: Text('揀一句最代表你嘅 tagline：',
                   style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
-              ),
+              ).animate(delay: 450.ms)
+                .fadeIn(duration: 300.ms)
+                .slideX(begin: -0.02, duration: 300.ms),
               const SizedBox(height: 10),
+              // 5. Taglines — interval 150ms each
               ...List.generate(4, (i) => GestureDetector(
                 onTap: () => setState(() => _selectedTagline = i),
                 child: Container(
@@ -178,63 +191,70 @@ class _NamingCelebrationState extends State<NamingCelebration> {
                     fontWeight: _selectedTagline == i ? FontWeight.w600 : FontWeight.w400,
                   )),
                 ),
-              )),
+              ).animate(delay: Duration(milliseconds: 550 + i * 150))
+                .fadeIn(duration: 300.ms)
+                .slideX(begin: 0.03, duration: 300.ms)),
               const SizedBox(height: 24),
-              // Share button
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () => _share(name),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.cta,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 18),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-                    textStyle: GoogleFonts.notoSansTc(fontSize: 16, fontWeight: FontWeight.w600),
-                  ),
-                  child: const Text('📤 Share 俾朋友'),
-                ),
-              ),
-              const SizedBox(height: 12),
-              // Notification prompt
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Column(
-                  children: [
-                    Text('想每日收到一句鼓勵？',
-                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
-                    const SizedBox(height: 4),
-                    Text('我哋會喺每日早上 8 點推送語句俾你',
-                      style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
-                    const SizedBox(height: 10),
-                    SizedBox(
-                      width: double.infinity,
-                      child: TextButton(
-                        onPressed: () {},
-                        style: TextButton.styleFrom(
-                          backgroundColor: AppColors.cta,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                          textStyle: GoogleFonts.notoSansTc(fontSize: 14, fontWeight: FontWeight.w600),
-                        ),
-                        child: const Text('好呀'),
+              // 6. Buttons section — delay 800ms
+              Column(
+                children: [
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () => _share(name),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.cta,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 18),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                        textStyle: GoogleFonts.notoSansTc(fontSize: 16, fontWeight: FontWeight.w600),
                       ),
+                      child: const Text('📤 Share 俾朋友'),
                     ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 12),
-              // Skip / Continue
-              TextButton(
-                onPressed: widget.onContinue,
-                child: Text('開始使用型得你 →', style: TextStyle(fontSize: 14, color: AppColors.textMuted)),
-              ),
+                  ),
+                  const SizedBox(height: 12),
+                  // Notification prompt
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Column(
+                      children: [
+                        Text('想每日收到一句鼓勵？',
+                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
+                        const SizedBox(height: 4),
+                        Text('我哋會喺每日早上 8 點推送語句俾你',
+                          style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                        const SizedBox(height: 10),
+                        SizedBox(
+                          width: double.infinity,
+                          child: TextButton(
+                            onPressed: () {},
+                            style: TextButton.styleFrom(
+                              backgroundColor: AppColors.cta,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                              textStyle: GoogleFonts.notoSansTc(fontSize: 14, fontWeight: FontWeight.w600),
+                            ),
+                            child: const Text('好呀'),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  // Skip / Continue
+                  TextButton(
+                    onPressed: widget.onContinue,
+                    child: Text('開始使用型得你 →', style: TextStyle(fontSize: 14, color: AppColors.textMuted)),
+                  ),
+                ],
+              ).animate(delay: 800.ms)
+                .fadeIn(duration: 500.ms),
               const Spacer(),
             ],
           ),
@@ -271,10 +291,10 @@ class _MainShellState extends State<MainShell> {
   int _tab = 0;
 
   static const _tabs = <_Tab>[
-    _Tab('🌤️', '今日',  Color(0xFF9B72AA), Color(0x209B72AA)),
-    _Tab('🔎', '發掘',  Color(0xFFD4A843), Color(0x20D4A843)),
-    _Tab('🎭', '我個型', Color(0xFFE0785A), Color(0x20E0785A)),
-    _Tab('💖', '支持',  Color(0xFF8FA87A), Color(0x208FA87A)),
+    _Tab('🏠', '首頁',  Color(0xFF9B72AA), Color(0x209B72AA)),
+    _Tab('📚', '知識',  Color(0xFFD4A843), Color(0x20D4A843)),
+    _Tab('🛠', '工具',  Color(0xFFE0785A), Color(0x20E0785A)),
+    _Tab('👤', '我嘅',  Color(0xFF8FA87A), Color(0x208FA87A)),
   ];
 
   @override
@@ -348,9 +368,9 @@ class _MainShellState extends State<MainShell> {
     final t = _tabs[_tab];
     switch (_tab) {
       case 0: return QuoteScreen(key: const ValueKey('q'), accent: t.accent, accentBg: t.accentBg);
-      case 1: return ExploreScreen(key: const ValueKey('e'), accent: t.accent, accentBg: t.accentBg);
-      case 2: return MyTypeScreen(key: const ValueKey('m'), accent: t.accent, accentBg: t.accentBg);
-      case 3: return SupportScreen(key: const ValueKey('s'), accent: t.accent, accentBg: t.accentBg);
+      case 1: return ExploreScreen(key: const ValueKey('k'), accent: t.accent, accentBg: t.accentBg);
+      case 2: return ExploreScreen(key: const ValueKey('t'), accent: t.accent, accentBg: t.accentBg);
+      case 3: return SupportScreen(key: const ValueKey('p'), accent: t.accent, accentBg: t.accentBg);
       default: return const SizedBox();
     }
   }
