@@ -11,6 +11,7 @@ import 'features/personality_naming/naming_engine.dart';
 import 'features/assessment/assessment_intro_screen.dart';
 import 'features/assessment/decision_tree_engine.dart';
 import 'features/shadow_report/shadow_detector_screen.dart';
+import 'features/typesoul/typesoul_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -57,6 +58,7 @@ class AppRoot extends StatefulWidget {
 class _AppRootState extends State<AppRoot> {
   bool _loading = true;
   bool _showTest = true;
+  bool _showTypeSoul = false;
   bool _showShadowDetector = false;
   String? _mbti;
   String? _ennea;
@@ -74,7 +76,11 @@ class _AppRootState extends State<AppRoot> {
   }
 
   void _onTestDone(String mbti, String ennea) {
-    setState(() { _showTest = false; _showShadowDetector = true; _mbti = mbti; _ennea = ennea; });
+    setState(() { _showTest = false; _showTypeSoul = true; _mbti = mbti; _ennea = ennea; });
+  }
+
+  void _onTypeSoulDone() {
+    setState(() { _showTypeSoul = false; _showShadowDetector = true; });
   }
 
   void _onShadowDone() {
@@ -88,6 +94,13 @@ class _AppRootState extends State<AppRoot> {
       return AssessmentIntroScreen(
         engine: _engine,
         onComplete: _onTestDone,
+      );
+    }
+    if (_showTypeSoul) {
+      return TypeSoulScreen(
+        mbti: _mbti ?? 'ENFJ',
+        ennea: _ennea ?? '5w4',
+        onContinue: _onTypeSoulDone,
       );
     }
     if (_showShadowDetector) {
