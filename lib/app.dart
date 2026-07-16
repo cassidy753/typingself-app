@@ -6,9 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'core/theme.dart';
 import 'features/daily_quote/quote_screen.dart';
 import 'features/explore/explore_screen.dart';
-import 'features/growth/progress_screen.dart';
-import 'features/my_type/my_type_screen.dart';
-import 'features/support/support_screen.dart';
+import 'features/profile/profile_screen.dart';
 import 'features/personality_naming/naming_engine.dart';
 import 'features/assessment/assessment_intro_screen.dart';
 import 'features/assessment/decision_tree_engine.dart';
@@ -121,7 +119,6 @@ class _NamingCelebrationState extends State<NamingCelebration> {
   void initState() {
     super.initState();
     _result = NamingEngine.getName(widget.mbti, '${widget.ennea}');
-    // Save test result
     SharedPreferences.getInstance().then((p) {
       p.setBool('test_done', true);
       p.setString('mbti', widget.mbti);
@@ -131,7 +128,6 @@ class _NamingCelebrationState extends State<NamingCelebration> {
 
   @override
   Widget build(BuildContext context) {
-    // Safe fallback if name lookup fails
     PersonalityName defaultName(String mbti, String ennea) {
       return PersonalityName(
         mbti: mbti, enneagram: ennea, healthLevel: 'healthy',
@@ -148,23 +144,16 @@ class _NamingCelebrationState extends State<NamingCelebration> {
           child: Column(
             children: [
               const Spacer(flex: 2),
-              // 1. Emoji — scale elasticOut 600ms, immediate
               Text(name.emoji, style: const TextStyle(fontSize: 80))
                 .animate()
-                .scaleXY(
-                  begin: 0, end: 1,
-                  duration: 600.ms,
-                  curve: Curves.elasticOut,
-                ),
+                .scaleXY(begin: 0, end: 1, duration: 600.ms, curve: Curves.elasticOut),
               const SizedBox(height: 12),
-              // 2. Name — fadeIn + slideX, delay 200ms
               Text(name.nameCanto, style: GoogleFonts.notoSerifTc(
                 fontSize: 40, fontWeight: FontWeight.w900, color: AppColors.cta,
               )).animate(delay: 200.ms)
                 .fadeIn(duration: 300.ms)
                 .slideX(begin: -0.03, duration: 300.ms),
               const SizedBox(height: 8),
-              // 3. Type tag — scale, delay 400ms
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                 decoration: BoxDecoration(
@@ -173,19 +162,14 @@ class _NamingCelebrationState extends State<NamingCelebration> {
                 ),
                 child: Text('${widget.mbti} · ${widget.ennea}',
                   style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.cta)),
-              ).animate(delay: 400.ms)
-                .scale(duration: 400.ms),
+              ).animate(delay: 400.ms).scale(duration: 400.ms),
               const SizedBox(height: 24),
-              // 4. Tagline header — delay 450ms
               Align(
                 alignment: Alignment.centerLeft,
                 child: Text('揀一句最代表你嘅 tagline：',
                   style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
-              ).animate(delay: 450.ms)
-                .fadeIn(duration: 300.ms)
-                .slideX(begin: -0.02, duration: 300.ms),
+              ).animate(delay: 450.ms).fadeIn(duration: 300.ms).slideX(begin: -0.02, duration: 300.ms),
               const SizedBox(height: 10),
-              // 5. Taglines — interval 150ms each
               ...List.generate(4, (i) => GestureDetector(
                 onTap: () => setState(() => _selectedTagline = i),
                 child: Container(
@@ -209,7 +193,6 @@ class _NamingCelebrationState extends State<NamingCelebration> {
                 .fadeIn(duration: 300.ms)
                 .slideX(begin: 0.03, duration: 300.ms)),
               const SizedBox(height: 24),
-              // 6. Buttons section — delay 800ms
               Column(
                 children: [
                   SizedBox(
@@ -227,7 +210,6 @@ class _NamingCelebrationState extends State<NamingCelebration> {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  // Notification prompt
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(16),
@@ -261,14 +243,12 @@ class _NamingCelebrationState extends State<NamingCelebration> {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  // Skip / Continue
                   TextButton(
                     onPressed: widget.onContinue,
                     child: Text('開始使用型得你 →', style: TextStyle(fontSize: 14, color: AppColors.textMuted)),
                   ),
                 ],
-              ).animate(delay: 800.ms)
-                .fadeIn(duration: 500.ms),
+              ).animate(delay: 800.ms).fadeIn(duration: 500.ms),
               const Spacer(),
             ],
           ),
@@ -278,14 +258,13 @@ class _NamingCelebrationState extends State<NamingCelebration> {
   }
 
   void _share(PersonalityName name) {
-    // Placeholder: would open native share sheet
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('📤 Share card: ${name.nameCanto} — ${name.tagline}')),
     );
   }
 }
 
-// ──────── TAB CONFIG ────────
+// ──────── 3-TAB CONFIG ────────
 class _Tab {
   final String icon, label;
   final Color accent, accentBg;
@@ -305,10 +284,9 @@ class _MainShellState extends State<MainShell> {
   int _tab = 0;
 
   static const _tabs = <_Tab>[
-    _Tab('🏠', '首頁',  Color(0xFF9B72AA), Color(0x209B72AA)),
-    _Tab('📚', '知識',  Color(0xFFD4A843), Color(0x20D4A843)),
-    _Tab('🌱', '成長',  Color(0xFF8FA87A), Color(0x208FA87A)),
-    _Tab('👤', '我嘅',  Color(0xFFE0785A), Color(0x20E0785A)),
+    _Tab('🏠', '首頁',  Color(0xFF9B72AA), Color(0x209B72AA)),  // Purple
+    _Tab('🔍', '發掘',  Color(0xFFD4A843), Color(0x20D4A843)),  // Mustard
+    _Tab('👤', '我嘅',  Color(0xFFE0785A), Color(0x20E0785A)),  // Coral
   ];
 
   @override
@@ -370,7 +348,7 @@ class _MainShellState extends State<MainShell> {
             padding: const EdgeInsets.fromLTRB(12, 8, 12, 14),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: List.generate(4, (i) => _navItem(i)),
+              children: List.generate(3, (i) => _navItem(i)),
             ),
           ),
         ),
@@ -381,16 +359,9 @@ class _MainShellState extends State<MainShell> {
   Widget _buildScreen() {
     final t = _tabs[_tab];
     switch (_tab) {
-      case 0: return QuoteScreen(key: const ValueKey('q'), accent: t.accent, accentBg: t.accentBg);
-      case 1: return ExploreScreen(key: const ValueKey('k'), accent: t.accent, accentBg: t.accentBg);
-      case 2: return GrowthProgressScreen(
-        key: const ValueKey('g'),
-        mbti: widget.mbti,
-        ennea: widget.ennea,
-        accent: t.accent,
-        accentBg: t.accentBg,
-      );
-      case 3: return SupportScreen(key: const ValueKey('p'), accent: t.accent, accentBg: t.accentBg);
+      case 0: return QuoteScreen(key: const ValueKey('q'), accent: t.accent, accentBg: t.accentBg, mbti: widget.mbti, ennea: widget.ennea);
+      case 1: return ExploreScreen(key: const ValueKey('k'), accent: t.accent, accentBg: t.accentBg, mbti: widget.mbti, ennea: widget.ennea);
+      case 2: return ProfileScreen(key: const ValueKey('p'), accent: t.accent, accentBg: t.accentBg, mbti: widget.mbti, ennea: widget.ennea);
       default: return const SizedBox();
     }
   }
