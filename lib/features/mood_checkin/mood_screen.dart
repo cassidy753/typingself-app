@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'mood_service.dart';
 
@@ -124,7 +125,7 @@ class _MoodScreenState extends ConsumerState<MoodScreen> {
           ),
         ],
       ),
-    );
+    ).animate().fadeIn(duration: 400.ms).slideY(begin: -0.04, duration: 400.ms, curve: Curves.easeOutCubic);
   }
 
   Widget _buildMoodGrid(ColorScheme colorScheme) {
@@ -136,46 +137,65 @@ class _MoodScreenState extends ConsumerState<MoodScreen> {
             fontSize: 14,
             color: colorScheme.onSurface.withValues(alpha: 0.7),
           ),
-        ),
+        ).animate().fadeIn(duration: 300.ms),
         const SizedBox(height: 16),
         Wrap(
           spacing: 12,
           runSpacing: 12,
           alignment: WrapAlignment.center,
-          children: _moods.map((mood) {
+          children: _moods.asMap().entries.map((entry) {
+            final i = entry.key;
+            final mood = entry.value;
             final isSelected = _selectedMood == mood['emoji'];
             return GestureDetector(
               onTap: () => setState(() => _selectedMood = mood['emoji']),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                width: 80,
-                height: 100,
-                decoration: BoxDecoration(
-                  color: isSelected
-                      ? mood['color'] as Color
-                      : colorScheme.surfaceContainerHighest,
-                  borderRadius: BorderRadius.circular(20),
-                  border: isSelected
-                      ? Border.all(color: mood['color'] as Color, width: 2)
-                      : null,
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(mood['emoji'] as String, style: const TextStyle(fontSize: 32)),
-                    const SizedBox(height: 4),
-                    Text(
-                      mood['label'] as String,
-                      style: GoogleFonts.notoSansHk(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: isSelected ? Colors.white : colorScheme.onSurface,
+              child: AnimatedScale(
+                scale: isSelected ? 1.12 : 1.0,
+                duration: const Duration(milliseconds: 250),
+                curve: Curves.elasticOut,
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 250),
+                  width: 80,
+                  height: 100,
+                  decoration: BoxDecoration(
+                    color: isSelected
+                        ? mood['color'] as Color
+                        : colorScheme.surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(20),
+                    border: isSelected
+                        ? Border.all(color: mood['color'] as Color, width: 2)
+                        : null,
+                    boxShadow: isSelected
+                        ? [BoxShadow(
+                            color: (mood['color'] as Color).withValues(alpha: 0.3),
+                            blurRadius: 12,
+                            offset: const Offset(0, 4),
+                          )]
+                        : null,
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(mood['emoji'] as String,
+                        style: const TextStyle(fontSize: 32))
+                        .animate(target: isSelected ? 1 : 0)
+                        .shake(hz: isSelected ? 6 : 0, duration: 300.ms),
+                      const SizedBox(height: 4),
+                      Text(
+                        mood['label'] as String,
+                        style: GoogleFonts.notoSansHk(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: isSelected ? Colors.white : colorScheme.onSurface,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            );
+            ).animate(delay: Duration(milliseconds: 80 * i))
+              .fadeIn(duration: 300.ms)
+              .slideY(begin: 0.08, duration: 300.ms, curve: Curves.easeOutCubic);
           }).toList(),
         ),
       ],
@@ -192,39 +212,46 @@ class _MoodScreenState extends ConsumerState<MoodScreen> {
         filled: true,
         fillColor: colorScheme.surfaceContainerHighest,
       ),
-    );
+    ).animate().fadeIn(duration: 400.ms, delay: 300.ms).slideY(begin: 0.04, duration: 400.ms, curve: Curves.easeOutCubic);
   }
 
   Widget _buildSaveButton(ColorScheme colorScheme) {
-    return FilledButton.icon(
-      onPressed: _selectedMood != null && _todayMood == null
-          ? () async {
-              final label = _moods.firstWhere((m) => m['emoji'] == _selectedMood)['label'] as String;
-              final mood = MoodModel(
-                emoji: _selectedMood!,
-                label: label,
-                note: _noteController.text.isNotEmpty ? _noteController.text : null,
-              );
-              await _service.saveMood(mood);
-              await _load();
-              _noteController.clear();
-              if (mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('✅ 已記錄 — $_selectedMood $label'),
-                    behavior: SnackBarBehavior.floating,
-                  ),
+    final canSave = _selectedMood != null && _todayMood == null;
+    return AnimatedScale(
+      scale: canSave ? 1.0 : 0.97,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOutCubic,
+      child: FilledButton.icon(
+        onPressed: canSave
+            ? () async {
+                final label = _moods.firstWhere((m) => m['emoji'] == _selectedMood)['label'] as String;
+                final mood = MoodModel(
+                  emoji: _selectedMood!,
+                  label: label,
+                  note: _noteController.text.isNotEmpty ? _noteController.text : null,
                 );
+                await _service.saveMood(mood);
+                await _load();
+                _noteController.clear();
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('✅ 已記錄 — $_selectedMood $label'),
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
+                }
               }
-            }
-          : null,
-      icon: const Icon(Icons.check),
-      label: const Text('記錄今日心情'),
-      style: FilledButton.styleFrom(
-        minimumSize: const Size(double.infinity, 52),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            : null,
+        icon: Icon(canSave ? Icons.check_circle : Icons.check, 
+          size: canSave ? 22 : 20),
+        label: Text('記錄今日心情'),
+        style: FilledButton.styleFrom(
+          minimumSize: const Size(double.infinity, 52),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        ),
       ),
-    );
+    ).animate().fadeIn(duration: 400.ms, delay: 400.ms).slideY(begin: 0.04, duration: 400.ms, curve: Curves.easeOutCubic);
   }
 
   Widget _buildTrend(ColorScheme colorScheme) {
@@ -263,7 +290,8 @@ class _MoodScreenState extends ConsumerState<MoodScreen> {
               ),
             ],
           ),
-        );
+        ).animate().fadeIn(duration: 500.ms, delay: 500.ms)
+          .slideY(begin: 0.06, duration: 500.ms, curve: Curves.easeOutCubic);
       },
     );
   }

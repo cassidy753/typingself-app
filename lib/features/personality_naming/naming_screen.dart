@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/theme.dart';
 import 'naming_engine.dart';
@@ -39,7 +40,18 @@ class _NamingScreenState extends ConsumerState<NamingScreen> {
         ),
       ),
       body: SafeArea(
-        child: _result != null ? _buildResult() : _buildForm(),
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 400),
+          switchInCurve: Curves.easeOutCubic,
+          switchOutCurve: Curves.easeInCubic,
+          transitionBuilder: (child, animation) {
+            return FadeTransition(
+              opacity: animation,
+              child: child,
+            );
+          },
+          child: _result != null ? _buildResult() : _buildForm(),
+        ),
       ),
     );
   }
@@ -53,42 +65,57 @@ class _NamingScreenState extends ConsumerState<NamingScreen> {
           const SizedBox(height: 24),
 
           // Hero text
-          Text('你係邊型？', style: GoogleFonts.notoSerifTc(
-            fontSize: 32, fontWeight: FontWeight.w900, color: AppColors.textPrimary,
-          )),
-          const SizedBox(height: 8),
-          Text(
-            '揀你嘅 MBTI 同 Enneagram，睇下你個地道廣東話名',
-            style: GoogleFonts.notoSansTc(fontSize: 14, color: AppColors.textSecondary),
-          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('你係邊型？', style: GoogleFonts.notoSerifTc(
+                fontSize: 32, fontWeight: FontWeight.w900, color: AppColors.textPrimary,
+              )),
+              const SizedBox(height: 8),
+              Text(
+                '揀你嘅 MBTI 同 Enneagram，睇下你個地道廣東話名',
+                style: GoogleFonts.notoSansTc(fontSize: 14, color: AppColors.textSecondary),
+              ),
+            ],
+          ).animate().fadeIn(duration: 400.ms).slideX(begin: -0.02, duration: 400.ms, curve: Curves.easeOutCubic),
 
           const SizedBox(height: 40),
 
           // MBTI
-          Text('MBTI 類型', style: GoogleFonts.notoSansTc(
-            fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textSecondary,
-          )),
-          const SizedBox(height: 8),
-          _buildDropdown(
-            value: _mbti,
-            items: NamingEngine.mbtiTypes,
-            hint: '揀你嘅 MBTI…',
-            onChanged: (v) => setState(() => _mbti = v),
-          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('MBTI 類型', style: GoogleFonts.notoSansTc(
+                fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textSecondary,
+              )),
+              const SizedBox(height: 8),
+              _buildDropdown(
+                value: _mbti,
+                items: NamingEngine.mbtiTypes,
+                hint: '揀你嘅 MBTI…',
+                onChanged: (v) => setState(() => _mbti = v),
+              ),
+            ],
+          ).animate(delay: 200.ms).fadeIn(duration: 300.ms).slideX(begin: -0.02, duration: 300.ms, curve: Curves.easeOutCubic),
 
           const SizedBox(height: 24),
 
           // Enneagram
-          Text('九型人格', style: GoogleFonts.notoSansTc(
-            fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textSecondary,
-          )),
-          const SizedBox(height: 8),
-          _buildDropdown(
-            value: _enneagram,
-            items: NamingEngine.enneagramTypes,
-            hint: '揀你嘅九型人格…',
-            onChanged: (v) => setState(() => _enneagram = v),
-          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('九型人格', style: GoogleFonts.notoSansTc(
+                fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textSecondary,
+              )),
+              const SizedBox(height: 8),
+              _buildDropdown(
+                value: _enneagram,
+                items: NamingEngine.enneagramTypes,
+                hint: '揀你嘅九型人格…',
+                onChanged: (v) => setState(() => _enneagram = v),
+              ),
+            ],
+          ).animate(delay: 350.ms).fadeIn(duration: 300.ms).slideX(begin: -0.02, duration: 300.ms, curve: Curves.easeOutCubic),
 
           const Spacer(),
 
@@ -115,7 +142,7 @@ class _NamingScreenState extends ConsumerState<NamingScreen> {
                 ],
               ),
             ),
-          ),
+          ).animate(delay: 500.ms).fadeIn(duration: 400.ms).slideY(begin: 0.1, duration: 400.ms, curve: Curves.easeOutCubic),
 
           const SizedBox(height: 32),
         ],
@@ -184,7 +211,8 @@ class _NamingScreenState extends ConsumerState<NamingScreen> {
             ),
             child: Column(
               children: [
-                Text(name.emoji, style: const TextStyle(fontSize: 72)),
+                Text(name.emoji, style: const TextStyle(fontSize: 72))
+                  .animate(delay: 100.ms).scaleXY(begin: 0, end: 1, duration: 500.ms, curve: Curves.elasticOut),
                 const SizedBox(height: 16),
                 Text(
                   name.nameCanto,
@@ -195,7 +223,7 @@ class _NamingScreenState extends ConsumerState<NamingScreen> {
                     color: Colors.white,
                     height: 1.2,
                   ),
-                ),
+                ).animate(delay: 250.ms).fadeIn(duration: 400.ms).slideX(begin: -0.03, duration: 400.ms),
                 const SizedBox(height: 12),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
@@ -210,7 +238,7 @@ class _NamingScreenState extends ConsumerState<NamingScreen> {
                       color: Colors.white.withValues(alpha: 0.9),
                     ),
                   ),
-                ),
+                ).animate(delay: 400.ms).scale(duration: 400.ms),
                 const SizedBox(height: 24),
                 Container(
                   padding: const EdgeInsets.all(20),
@@ -228,10 +256,15 @@ class _NamingScreenState extends ConsumerState<NamingScreen> {
                       height: 1.6,
                     ),
                   ),
-                ),
+                ).animate(delay: 550.ms).fadeIn(duration: 400.ms).slideY(begin: 0.04, duration: 400.ms, curve: Curves.easeOutCubic),
               ],
             ),
-          ),
+          ).animate().scale(
+            begin: const Offset(0.92, 0.92),
+            end: const Offset(1, 1),
+            duration: 400.ms,
+            curve: Curves.easeOutCubic,
+          ).fadeIn(duration: 400.ms),
 
           const SizedBox(height: 20),
 
@@ -257,7 +290,7 @@ class _NamingScreenState extends ConsumerState<NamingScreen> {
                   ),
                 ],
               ),
-            ),
+            ).animate(delay: 700.ms).fadeIn(duration: 400.ms).slideY(begin: 0.04, duration: 400.ms, curve: Curves.easeOutCubic),
 
           const SizedBox(height: 20),
 
@@ -278,7 +311,7 @@ class _NamingScreenState extends ConsumerState<NamingScreen> {
                 elevation: 0,
               ),
             ),
-          ),
+          ).animate(delay: 850.ms).fadeIn(duration: 400.ms).slideY(begin: 0.04, duration: 400.ms, curve: Curves.easeOutCubic),
 
           const SizedBox(height: 12),
 
@@ -288,7 +321,7 @@ class _NamingScreenState extends ConsumerState<NamingScreen> {
             child: Text('再試其他組合', style: GoogleFonts.notoSansTc(
               fontSize: 13, color: AppColors.textMuted,
             )),
-          ),
+          ).animate(delay: 1000.ms).fadeIn(duration: 400.ms),
 
           const SizedBox(height: 32),
         ],
