@@ -252,7 +252,7 @@ class DecisionTreeEngine {
   };
 
   int get answeredCount => state.history.length;
-  int get totalEstimatedQuestions => 13;
+  int get totalEstimatedQuestions => 18;
 
   bool get hasMoreQuestions {
     if (state.phase == AssessmentPhase.result) return false;

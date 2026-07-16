@@ -59,7 +59,15 @@ class _AssessmentQuestionScreenState extends State<AssessmentQuestionScreen>
       _selectedOption = index;
     });
 
-    // Brief delay before moving to next question
+    // Check if user selected "完全唔係" (last option of verification questions)
+    final currentQ = _currentQuestion;
+    final isTotalReject = currentQ.id.startsWith('verify') && index == currentQ.options.length - 1;
+
+    if (isTotalReject) {
+      Future.delayed(const Duration(milliseconds: 400), () => _showRetestDialog());
+      return;
+    }
+
     Future.delayed(const Duration(milliseconds: 500), () {
       widget.engine.submitAnswer(index);
 
@@ -305,6 +313,85 @@ class _AssessmentQuestionScreenState extends State<AssessmentQuestionScreen>
                   color: AppColors.textMuted,
                 ),
               ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showRetestDialog() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.surface,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text('🔄', style: TextStyle(fontSize: 48)),
+            const SizedBox(height: 16),
+            Text('我哋會根據你既答案\n重新調整問題，再試多次？',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.notoSerifTc(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.textPrimary, height: 1.6),
+            ),
+            const SizedBox(height: 8),
+            Text('今次會更精準針對你既情況',
+              style: GoogleFonts.notoSansTc(fontSize: 14, color: AppColors.textSecondary),
+            ),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.of(ctx).pop();
+                  widget.engine.reset();
+                  setState(() {
+                    _currentQuestion = widget.engine.getCurrentQuestion();
+                    _answered = false;
+                    _selectedOption = null;
+                  });
+                  _slideCtrl.reset();
+                  _slideCtrl.forward();
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.cta,
+                  foregroundColor: Colors.white,
+                  padding: EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                  textStyle: GoogleFonts.notoSansTc(fontSize: 16, fontWeight: FontWeight.w600),
+                ),
+                child: Text('好，再試一次'),
+              ),
+            ),
+            const SizedBox(height: 10),
+            TextButton(
+              onPressed: () {
+                Navigator.of(ctx).pop();
+                // Submit the rejection and move on with adjusted questions
+                widget.engine.submitAnswer(_selectedOption!);
+                if (!widget.engine.hasMoreQuestions) {
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(
+                      builder: (_) => AssessmentResultScreen(
+                        mbti: widget.engine.state.mbtiString,
+                        ennea: widget.engine.state.enneagramKey,
+                        engine: widget.engine,
+                        onComplete: widget.onComplete,
+                      ),
+                    ),
+                  );
+                } else {
+                  setState(() {
+                    _currentQuestion = widget.engine.getCurrentQuestion();
+                    _answered = false;
+                    _selectedOption = null;
+                  });
+                  _slideCtrl.reset();
+                  _slideCtrl.forward();
+                }
+              },
+              child: Text('繼續用現有結果', style: TextStyle(color: AppColors.textMuted, fontSize: 14)),
             ),
           ],
         ),
