@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'core/theme.dart';
 import 'features/daily_quote/quote_screen.dart';
 import 'features/explore/explore_screen.dart';
+import 'features/growth/progress_screen.dart';
 import 'features/my_type/my_type_screen.dart';
 import 'features/support/support_screen.dart';
 import 'features/personality_naming/naming_engine.dart';
@@ -306,8 +307,8 @@ class _MainShellState extends State<MainShell> {
   static const _tabs = <_Tab>[
     _Tab('🏠', '首頁',  Color(0xFF9B72AA), Color(0x209B72AA)),
     _Tab('📚', '知識',  Color(0xFFD4A843), Color(0x20D4A843)),
-    _Tab('🛠', '工具',  Color(0xFFE0785A), Color(0x20E0785A)),
-    _Tab('👤', '我嘅',  Color(0xFF8FA87A), Color(0x208FA87A)),
+    _Tab('🌱', '成長',  Color(0xFF8FA87A), Color(0x208FA87A)),
+    _Tab('👤', '我嘅',  Color(0xFFE0785A), Color(0x20E0785A)),
   ];
 
   @override
@@ -382,7 +383,13 @@ class _MainShellState extends State<MainShell> {
     switch (_tab) {
       case 0: return QuoteScreen(key: const ValueKey('q'), accent: t.accent, accentBg: t.accentBg);
       case 1: return ExploreScreen(key: const ValueKey('k'), accent: t.accent, accentBg: t.accentBg);
-      case 2: return ExploreScreen(key: const ValueKey('t'), accent: t.accent, accentBg: t.accentBg);
+      case 2: return GrowthProgressScreen(
+        key: const ValueKey('g'),
+        mbti: widget.mbti,
+        ennea: widget.ennea,
+        accent: t.accent,
+        accentBg: t.accentBg,
+      );
       case 3: return SupportScreen(key: const ValueKey('p'), accent: t.accent, accentBg: t.accentBg);
       default: return const SizedBox();
     }
