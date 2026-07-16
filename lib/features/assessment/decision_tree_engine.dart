@@ -422,4 +422,61 @@ class DecisionTreeEngine {
     state.history.clear();
     state.predictedMbti = null;
   }
+
+  /// Undo the last answer — restores previous state.
+  /// Returns true if a question was undone, false if there's nothing to undo.
+  bool goBack() {
+    if (state.history.isEmpty) return false;
+
+    final last = state.history.removeLast();
+    // Reverse the scores
+    for (final entry in last.scores.entries) {
+      switch (entry.key) {
+        case 'E': state.e -= entry.value; break;
+        case 'I': state.i -= entry.value; break;
+        case 'S': state.s -= entry.value; break;
+        case 'N': state.n -= entry.value; break;
+        case 'T': state.t -= entry.value; break;
+        case 'F': state.f -= entry.value; break;
+        case 'J': state.j -= entry.value; break;
+        case 'P': state.p -= entry.value; break;
+        case 'Heart': state.heart -= entry.value; break;
+        case 'Head': state.head -= entry.value; break;
+        case 'Gut': state.gut -= entry.value; break;
+        case 'Verify': state.mbtiConfidence -= entry.value; break;
+        case 'EVerify': state.enneaConfidence -= entry.value; break;
+        default:
+          final tn = int.tryParse(entry.key);
+          if (tn != null && tn >= 1 && tn <= 9) {
+            state.enneaTypeScores[tn - 1] -= entry.value;
+          }
+      }
+    }
+
+    // Restore phase to what it was before this answer
+    // We need to find the phase of the previous question
+    state.currentQuestionIndex = state.history.length;
+
+    // Walk back through phases if we just cleared the last question of a phase
+    _fixPhaseAfterGoBack();
+    return true;
+  }
+
+  void _fixPhaseAfterGoBack() {
+    if (state.history.isEmpty) {
+      state.phase = AssessmentPhase.intro;
+      return;
+    }
+    // Get the phase of the last remaining answer
+    final lastQId = state.history.last.questionId;
+    if (lastQId.startsWith('mbti_')) {
+      state.phase = AssessmentPhase.mbti;
+    } else if (lastQId.startsWith('verify') || lastQId.startsWith('clarity')) {
+      state.phase = AssessmentPhase.mbtiVerification;
+    } else if (lastQId.startsWith('ennea_')) {
+      state.phase = AssessmentPhase.enneagram;
+    } else if (lastQId.startsWith('verify_ennea')) {
+      state.phase = AssessmentPhase.enneagramVerification;
+    }
+  }
 }

@@ -497,30 +497,11 @@ class _AssessmentResultScreenState
 
   void _retakeTest() {
     widget.engine.reset();
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (_) => _buildIntroScreen(),
-      ),
-    );
-  }
-
-  Widget _buildIntroScreen() {
-    // Import would be at top — use dynamic import pattern
-    // Actually let's import properly - let me use a Navigator approach instead
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const CircularProgressIndicator(color: AppColors.cta),
-            const SizedBox(height: 16),
-            Text('重新準備...',
-                style: GoogleFonts.notoSansTc(
-                    fontSize: 14, color: AppColors.textSecondary)),
-          ],
-        ),
-      ),
-    );
+    SharedPreferences.getInstance().then((prefs) {
+      prefs.setBool('test_done', false);
+      prefs.remove('mbti');
+      prefs.remove('ennea');
+    });
+    Navigator.of(context).popUntil((route) => route.isFirst);
   }
 }

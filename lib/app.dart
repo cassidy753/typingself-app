@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'core/theme.dart';
 import 'features/daily_quote/quote_screen.dart';
 import 'features/explore/explore_screen.dart';
 import 'features/profile/profile_screen.dart';
+import 'features/settings/settings_screen.dart';
 import 'features/personality_naming/naming_engine.dart';
 import 'features/assessment/assessment_intro_screen.dart';
 import 'features/assessment/decision_tree_engine.dart';
@@ -271,9 +273,15 @@ class _NamingCelebrationState extends State<NamingCelebration> {
   }
 
   void _share(PersonalityName name) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('📤 Share card: ${name.nameCanto} — ${name.tagline}')),
-    );
+    final text = '''
+我係 ${name.mbti} ${name.enneagram}：${name.nameCanto} ${name.emoji}
+
+${name.tagline}
+
+「型得你」— 了解自己，贏返自己
+下載：https://xingdeni.app
+''';
+    Share.share(text.trim(), subject: '型得你 — 我係${name.nameCanto}');
   }
 }
 
@@ -331,13 +339,30 @@ class _MainShellState extends State<MainShell> {
                       const SizedBox(width: 6),
                       Text('型得你', style: GoogleFonts.notoSerifTc(fontSize: 18, fontWeight: FontWeight.w900, color: AppColors.textPrimary)),
                     ]),
-                    Container(
-                      width: 34, height: 34,
-                      decoration: BoxDecoration(
-                        color: AppColors.surface, borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: AppColors.border),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => SettingsScreen(
+                              accent: t.accent,
+                              accentBg: t.accentBg,
+                              mbti: widget.mbti,
+                              ennea: widget.ennea,
+                              onRetakeTest: () {
+                                Navigator.of(context).popUntil((route) => route.isFirst);
+                              },
+                            ),
+                          ),
+                        );
+                      },
+                      child: Container(
+                        width: 34, height: 34,
+                        decoration: BoxDecoration(
+                          color: AppColors.surface, borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: AppColors.border),
+                        ),
+                        child: const Center(child: Text('⚙️', style: TextStyle(fontSize: 16))),
                       ),
-                      child: const Center(child: Text('⚙️', style: TextStyle(fontSize: 16))),
                     ),
                   ],
                 ),

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/theme.dart';
-import '../daily_quote/zodiac_service.dart';
 
 class ProfileScreen extends StatefulWidget {
   final Color accent;
@@ -16,29 +15,23 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  int _daysUsed = 0, _quotesSeen = 0, _testsDone = 0;
+  bool _shadowDone = false;
   bool _loaded = false;
-  bool _consented = false;
-  String? _zodiac;
 
   @override
   void initState() {
     super.initState();
-    _load();
-  }
-
-  Future<void> _load() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _consented = prefs.getBool('consent_given') ?? false;
-      _zodiac = prefs.getString('zodiac_sign');
-      _loaded = true;
+    SharedPreferences.getInstance().then((p) {
+      if (!mounted) return;
+      setState(() {
+        _daysUsed = p.getInt('days_used') ?? 1;
+        _quotesSeen = p.getInt('quotes_seen') ?? 1;
+        _testsDone = p.getBool('test_done') ?? false ? 1 : 0;
+        _shadowDone = p.getBool('shadow_report_viewed') ?? false;
+        _loaded = true;
+      });
     });
-  }
-
-  Future<void> _setZodiac(String sign) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('zodiac_sign', sign);
-    setState(() => _zodiac = sign);
   }
 
   @override
@@ -62,7 +55,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
           const SizedBox(height: 14),
 
           // ── 📊 使用統計 ──
-          _UsageStats(accent: widget.accent, accentBg: widget.accentBg),
+          _UsageStats(
+            daysUsed: _daysUsed,
+            quotesSeen: _quotesSeen,
+            testsDone: _testsDone,
+            shadowDone: _shadowDone,
+            accent: widget.accent,
+          ),
 
           const SizedBox(height: 14),
 
@@ -92,48 +91,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           const SizedBox(height: 8),
           _DonationSection(accent: widget.accent, accentBg: widget.accentBg),
 
-          const SizedBox(height: 14),
-
-          // ── ⚙️ 設定 ──
-          _SectionHeader('⚙️ 設定', widget.accent),
-          const SizedBox(height: 8),
-          _SettingsSection(
-            consented: _consented,
-            zodiac: _zodiac,
-            onConsentChanged: () => _showConsentDialog(),
-            onZodiacChanged: _setZodiac,
-            accent: widget.accent,
-            accentBg: widget.accentBg,
-          ),
-
           const SizedBox(height: 32),
-        ],
-      ),
-    );
-  }
-
-  void _showConsentDialog() {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text('資料使用同意', style: GoogleFonts.notoSansTc(fontSize: 17, fontWeight: FontWeight.w700)),
-        content: Text('我哋會用你嘅資料嚟提供個人化語句同分析。你嘅資料唔會分享俾第三方。',
-          style: GoogleFonts.notoSansTc(fontSize: 13, height: 1.5)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: Text('取消', style: TextStyle(color: AppColors.textMuted)),
-          ),
-          FilledButton(
-            onPressed: () {
-              SharedPreferences.getInstance().then((p) => p.setBool('consent_given', true));
-              setState(() => _consented = true);
-              Navigator.pop(ctx);
-            },
-            style: FilledButton.styleFrom(backgroundColor: AppColors.primary),
-            child: Text('同意'),
-          ),
         ],
       ),
     );
@@ -227,29 +185,17 @@ class _ProfileCard extends StatelessWidget {
 }
 
 // ── Usage Stats ──
-class _UsageStats extends StatefulWidget {
-  final Color accent, accentBg;
-  const _UsageStats({required this.accent, required this.accentBg});
-  @override
-  State<_UsageStats> createState() => _UsageStatsState();
-}
-
-class _UsageStatsState extends State<_UsageStats> {
-  int _daysUsed = 0, _quotesSeen = 0, _testsDone = 0;
-  bool _shadowDone = false;
-
-  @override
-  void initState() {
-    super.initState();
-    SharedPreferences.getInstance().then((p) {
-      setState(() {
-        _daysUsed = p.getInt('days_used') ?? 1;
-        _quotesSeen = p.getInt('quotes_seen') ?? 1;
-        _testsDone = p.getBool('test_done') ?? false ? 1 : 0;
-        _shadowDone = p.getBool('shadow_report_viewed') ?? false;
-      });
-    });
-  }
+class _UsageStats extends StatelessWidget {
+  final int daysUsed, quotesSeen, testsDone;
+  final bool shadowDone;
+  final Color accent;
+  const _UsageStats({
+    required this.daysUsed,
+    required this.quotesSeen,
+    required this.testsDone,
+    required this.shadowDone,
+    required this.accent,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -264,9 +210,9 @@ class _UsageStatsState extends State<_UsageStats> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _StatItem('$_daysUsed', '日使用', widget.accent),
-          _StatItem('$_quotesSeen', '句語句', widget.accent),
-          _StatItem('${_testsDone + (_shadowDone ? 1 : 0)}', '已完成', widget.accent),
+          _StatItem('$daysUsed', '日使用', accent),
+          _StatItem('$quotesSeen', '句語句', accent),
+          _StatItem('${testsDone + (shadowDone ? 1 : 0)}', '已完成', accent),
         ],
       ),
     );
@@ -341,13 +287,13 @@ class _MemberCard extends StatelessWidget {
             child: ElevatedButton(
               onPressed: () => _showComingSoon(context, 'Stage 3'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFE0785A),
-                foregroundColor: Colors.white,
+                backgroundColor: AppColors.disabled,
+                foregroundColor: AppColors.disabledText,
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
                 textStyle: GoogleFonts.notoSansTc(fontSize: 15, fontWeight: FontWeight.w700),
               ),
-              child: const Text('解鎖 Stage 3 — \$15'),
+              child: const Text('需要進一步解鎖'),
             ),
           ),
           const SizedBox(height: 6),
@@ -358,13 +304,13 @@ class _MemberCard extends StatelessWidget {
             child: OutlinedButton(
               onPressed: () => _showComingSoon(context, 'Stage 4'),
               style: OutlinedButton.styleFrom(
-                foregroundColor: const Color(0xFF9B72AA),
-                side: BorderSide(color: const Color(0xFF9B72AA).withValues(alpha: 0.3)),
+                foregroundColor: AppColors.disabledText,
+                side: BorderSide(color: AppColors.border),
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
                 textStyle: GoogleFonts.notoSansTc(fontSize: 14, fontWeight: FontWeight.w600),
               ),
-              child: const Text('Stage 4 月費 — \$28/月 或 \$168/年'),
+              child: const Text('需要進一步解鎖'),
             ),
           ),
 
@@ -421,11 +367,19 @@ class _ReportItem extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(title, style: GoogleFonts.notoSansTc(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
+              const SizedBox(height: 2),
               Text(desc, style: GoogleFonts.notoSansTc(fontSize: 12, color: AppColors.textSecondary)),
             ],
           ),
         ),
-        Text(price, style: GoogleFonts.notoSansTc(fontSize: 14, fontWeight: FontWeight.w700, color: accent)),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+          decoration: BoxDecoration(
+            color: AppColors.disabled,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Text('需要進一步解鎖', style: GoogleFonts.notoSansTc(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.disabledText)),
+        ),
       ]),
     );
   }
@@ -489,133 +443,6 @@ class _DonationSection extends StatelessWidget {
           border: Border.all(color: accent.withValues(alpha: 0.3)),
         ),
         child: Text(amount, style: GoogleFonts.notoSansTc(fontSize: 14, fontWeight: FontWeight.w600, color: accent)),
-      ),
-    );
-  }
-}
-
-// ── Settings Section ──
-class _SettingsSection extends StatelessWidget {
-  final bool consented;
-  final String? zodiac;
-  final VoidCallback onConsentChanged;
-  final ValueChanged<String> onZodiacChanged;
-  final Color accent, accentBg;
-  const _SettingsSection({
-    required this.consented,
-    required this.zodiac,
-    required this.onConsentChanged,
-    required this.onZodiacChanged,
-    required this.accent,
-    required this.accentBg,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.border),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Zodiac setting
-          Text('我嘅星座', style: GoogleFonts.notoSansTc(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
-          const SizedBox(height: 8),
-          DropdownButtonHideUnderline(
-            child: DropdownButton<String>(
-              value: zodiac,
-              isExpanded: true,
-              hint: Text('揀你嘅太陽星座…', style: GoogleFonts.notoSansTc(fontSize: 13, color: AppColors.textMuted)),
-              items: ZodiacService.signs.map((s) => DropdownMenuItem(
-                value: s,
-                child: Text('${ZodiacService.signEmoji[s] ?? ''} $s',
-                  style: GoogleFonts.notoSansTc(fontSize: 14)),
-              )).toList(),
-              onChanged: (v) { if (v != null) onZodiacChanged(v); },
-            ),
-          ),
-          if (zodiac != null) ...[
-            const SizedBox(height: 8),
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: accentBg,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Row(
-                children: [
-                  Text('${ZodiacService.signEmoji[zodiac]} ', style: const TextStyle(fontSize: 20)),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('$zodiac · ${ZodiacService.signTraits[zodiac]?['element'] ?? ''}象',
-                          style: GoogleFonts.notoSansTc(fontSize: 13, fontWeight: FontWeight.w600, color: accent)),
-                        Text('守護星：${ZodiacService.signTraits[zodiac]?['planet'] ?? ''}',
-                          style: GoogleFonts.notoSansTc(fontSize: 12, color: accent.withValues(alpha: 0.7))),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-          const Divider(height: 24),
-
-          // Consent
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('資料使用同意', style: GoogleFonts.notoSansTc(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
-                  Text('用於個人化語句同分析', style: GoogleFonts.notoSansTc(fontSize: 11, color: AppColors.textSecondary)),
-                ],
-              ),
-              Switch(
-                value: consented,
-                onChanged: (_) => onConsentChanged(),
-                activeColor: accent,
-              ),
-            ],
-          ),
-
-          const Divider(height: 16),
-
-          _SettingsItem(Icons.download_outlined, '下載我的資料', () {}),
-          const SizedBox(height: 4),
-          _SettingsItem(Icons.delete_outline, '刪除帳戶', () {}, color: Colors.redAccent),
-          const SizedBox(height: 4),
-          _SettingsItem(Icons.description_outlined, '私隱政策', () {}),
-          const SizedBox(height: 4),
-          _SettingsItem(Icons.info_outline, '版本 1.0.0', () {}),
-        ],
-      ),
-    );
-  }
-
-  Widget _SettingsItem(IconData icon, String text, VoidCallback onTap, {Color? color}) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 6),
-        child: Row(
-          children: [
-            Icon(icon, color: color ?? AppColors.textSecondary, size: 18),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(text, style: GoogleFonts.notoSansTc(fontSize: 13, color: color ?? AppColors.textPrimary)),
-            ),
-            Icon(Icons.chevron_right, color: AppColors.textMuted, size: 16),
-          ],
-        ),
       ),
     );
   }

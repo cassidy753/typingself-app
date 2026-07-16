@@ -321,7 +321,7 @@ class _PersonaPage extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  '向左滑睇你嘅陰影',
+                  '滑去下一頁',
                   style: GoogleFonts.notoSansTc(
                     fontSize: 11,
                     color: AppColors.textMuted,
@@ -502,7 +502,7 @@ class _ShadowPage extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  '向左滑睇防禦機制',
+                  '滑去下一頁',
                   style: GoogleFonts.notoSansTc(
                     fontSize: 11,
                     color: AppColors.textMuted,
@@ -580,7 +580,7 @@ class _DefensePage extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  '向左滑睇壓抑嘅功能',
+                  '滑去下一頁',
                   style: GoogleFonts.notoSansTc(
                     fontSize: 11,
                     color: AppColors.textMuted,

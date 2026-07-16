@@ -99,12 +99,20 @@ class _AssessmentQuestionScreenState extends State<AssessmentQuestionScreen>
   }
 
   void _goBack() {
-    if (widget.engine.answeredCount <= 1) {
+    final success = widget.engine.goBack();
+    if (!success) {
+      // No history — pop back to intro
       Navigator.of(context).pop();
       return;
     }
-    // Simple back: just go back if they're early in the flow
-    Navigator.of(context).pop();
+    // Reload the previous question with animation
+    setState(() {
+      _currentQuestion = widget.engine.getCurrentQuestion();
+      _answered = false;
+      _selectedOption = null;
+    });
+    _slideCtrl.reset();
+    _slideCtrl.forward();
   }
 
   @override
