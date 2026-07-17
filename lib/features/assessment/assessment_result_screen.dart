@@ -636,7 +636,7 @@ class _AssessmentResultScreenState
       }
     });
     widget.onComplete(widget.mbti, widget.ennea);
-    Navigator.of(context).popUntil((route) => route.isFirst);
+    Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);
   }
 
   void _retakeTest() {
