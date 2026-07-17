@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:share_plus/share_plus.dart';
 import '../../core/theme.dart';
 import '../daily_quote/zodiac_service.dart';
 
@@ -16,8 +17,6 @@ class QuoteScreen extends StatefulWidget {
 }
 
 class _QuoteScreenState extends State<QuoteScreen> {
-  int _daysUsed = 0;
-  int _quotesSeen = 0;
   bool _testDone = false;
   bool _shadowDone = false;
   String? _zodiac;
@@ -31,8 +30,6 @@ class _QuoteScreenState extends State<QuoteScreen> {
   Future<void> _loadStats() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      _daysUsed = prefs.getInt('days_used') ?? 1;
-      _quotesSeen = prefs.getInt('quotes_seen') ?? 1;
       _testDone = prefs.getBool('test_done') ?? false;
       _shadowDone = prefs.getBool('shadow_report_viewed') ?? false;
       _zodiac = prefs.getString('zodiac_sign');
@@ -52,7 +49,7 @@ class _QuoteScreenState extends State<QuoteScreen> {
           const SizedBox(height: 8),
 
           // ── Greeting Header ──
-          _GreetingHeader(accent: widget.accent, accentBg: widget.accentBg, mbti: widget.mbti, ennea: widget.ennea),
+          _GreetingHeader(mbti: widget.mbti, ennea: widget.ennea),
 
           const SizedBox(height: 16),
 
@@ -94,17 +91,6 @@ class _QuoteScreenState extends State<QuoteScreen> {
 
           const SizedBox(height: 16),
 
-          // ── Quick Stats ──
-          Row(
-            children: [
-              _StatCard('📅', '$_daysUsed 日', '使用型得你', widget.accent),
-              const SizedBox(width: 8),
-              _StatCard('💬', '$_quotesSeen 句', '已讀語句', widget.accent),
-              const SizedBox(width: 8),
-              _StatCard('🧠', '${widget.mbti}', '人格類型', widget.accent),
-            ],
-          ),
-
           const SizedBox(height: 32),
         ],
       ),
@@ -114,9 +100,8 @@ class _QuoteScreenState extends State<QuoteScreen> {
 
 // ── Greeting ──
 class _GreetingHeader extends StatelessWidget {
-  final Color accent, accentBg;
   final String mbti, ennea;
-  const _GreetingHeader({required this.accent, required this.accentBg, required this.mbti, required this.ennea});
+  const _GreetingHeader({required this.mbti, required this.ennea});
 
   @override
   Widget build(BuildContext context) {
@@ -134,14 +119,22 @@ class _GreetingHeader extends StatelessWidget {
       ),
       child: Row(
         children: [
+          // ── TS brand icon: gradient purple-pink circle with "TS" ──
           Container(
             width: 48, height: 48,
             decoration: BoxDecoration(
-              color: accentBg,
-              borderRadius: BorderRadius.circular(16),
+              gradient: const LinearGradient(
+                colors: [Color(0xFF9B59B6), Color(0xFFFF6B9D)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(24),
             ),
             child: Center(
-              child: Text(_getEmoji(mbti), style: const TextStyle(fontSize: 24)),
+              child: Text('TS', style: GoogleFonts.notoSansTc(
+                fontSize: 16, fontWeight: FontWeight.w800,
+                color: Colors.white, letterSpacing: -0.5,
+              )),
             ),
           ),
           const SizedBox(width: 14),
@@ -152,7 +145,7 @@ class _GreetingHeader extends StatelessWidget {
                 Text('$greeting，$name',
                   style: GoogleFonts.notoSerifTc(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
                 const SizedBox(height: 2),
-                Text('$mbti · $ennea  — 今日都係了解自己嘅一日',
+                Text('$mbti · $ennea',
                   style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
               ],
             ),
@@ -184,27 +177,6 @@ class _GreetingHeader extends StatelessWidget {
     }
   }
 
-  String _getEmoji(String mbti) {
-    switch (mbti) {
-      case 'ENFJ': return '🌟';
-      case 'INFJ': return '🌙';
-      case 'INTJ': return '♟️';
-      case 'ENTJ': return '👑';
-      case 'ENFP': return '🦋';
-      case 'INFP': return '🌈';
-      case 'ENTP': return '💡';
-      case 'INTP': return '🔍';
-      case 'ESFJ': return '🤝';
-      case 'ISFJ': return '🛡️';
-      case 'ESTJ': return '📋';
-      case 'ISTJ': return '⚖️';
-      case 'ESFP': return '🎉';
-      case 'ISFP': return '🎨';
-      case 'ESTP': return '🚀';
-      case 'ISTP': return '🔧';
-      default: return '🧠';
-    }
-  }
 }
 
 // ── Section Pill ──
@@ -246,13 +218,22 @@ class _QuoteCard extends StatelessWidget {
           const SizedBox(height: 6),
           Text('— 嚦咕嚦咕新年財', style: GoogleFonts.notoSansTc(fontSize: 13, fontStyle: FontStyle.italic, color: AppColors.textMuted)),
           const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: List.generate(5, (i) => Icon(
-              i < 4 ? Icons.star : Icons.star_border,
-              size: 14,
-              color: accent.withValues(alpha: 0.6),
-            )),
+          // ── Share button ──
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: () => Share.share('❝怯？你就輸一世。❞ — 嚦咕嚦咕新年財\n\n⬇️ 型得你 — 認識自己嘅第一步'),
+              icon: const Icon(Icons.share, size: 16),
+              label: const Text('分享金句'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: accent.withValues(alpha: 0.08),
+                foregroundColor: accent,
+                elevation: 0,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                textStyle: GoogleFonts.notoSansTc(fontSize: 13, fontWeight: FontWeight.w600),
+              ),
+            ),
           ),
         ],
       ),
@@ -288,8 +269,28 @@ class _PersonalizedQuote extends StatelessWidget {
           Text('「$quote」',
             style: GoogleFonts.notoSerifTc(fontSize: 17, fontWeight: FontWeight.w700, color: Colors.white, height: 1.6)),
           const SizedBox(height: 12),
-          Text('今日嘅 insight 特別為你而寫',
-            style: GoogleFonts.notoSansTc(fontSize: 12, color: Colors.white.withValues(alpha: 0.6))),
+          Row(
+            children: [
+              Expanded(
+                child: Text('今日嘅 insight 特別為你而寫',
+                  style: GoogleFonts.notoSansTc(fontSize: 12, color: Colors.white.withValues(alpha: 0.6))),
+              ),
+              // ── Share button ──
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: IconButton(
+                  icon: const Icon(Icons.share, size: 18, color: Colors.white),
+                  onPressed: () => Share.share('「$quote」\n\n— 型得你 @typingself\n\n⬇️ 了解你嘅 MBTI · Enneagram 人格'),
+                  constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+                  padding: EdgeInsets.zero,
+                  splashRadius: 18,
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );
@@ -411,7 +412,6 @@ class _MoodSectionState extends State<_MoodSection> {
 
   @override
   Widget build(BuildContext context) {
-    final moods = ['😊','😐','😔','😡','😰'];
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -431,25 +431,43 @@ class _MoodSectionState extends State<_MoodSection> {
               ),
             ],
           ),
-          const SizedBox(height: 10),
-          Text('今日你點？', style: GoogleFonts.notoSansTc(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
-          const SizedBox(height: 8),
+          const SizedBox(height: 12),
+          // ── Horizontal bar track with 5 dots ──
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: List.generate(moods.length, (i) => GestureDetector(
-              onTap: () => setState(() => _selected = i),
-              child: Container(
-                width: 38, height: 38,
-                decoration: BoxDecoration(
-                  color: _selected == i ? widget.accentBg : Colors.transparent,
-                  borderRadius: BorderRadius.circular(12),
-                  border: _selected == i ? Border.all(color: widget.accent.withValues(alpha: 0.3)) : null,
+            children: List.generate(5, (i) {
+              final isSelected = _selected == i;
+              return GestureDetector(
+                onTap: () => setState(() => _selected = i),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: isSelected ? widget.accent : widget.accent.withValues(alpha: 0.12),
+                    border: isSelected
+                        ? Border.all(color: widget.accent, width: 2)
+                        : Border.all(color: widget.accent.withValues(alpha: 0.2)),
+                  ),
+                  child: isSelected
+                      ? Center(child: Icon(Icons.favorite, size: 16, color: Colors.white))
+                      : const SizedBox.shrink(),
                 ),
-                child: Center(child: Text(moods[i], style: const TextStyle(fontSize: 20))),
-              ),
-            )),
+              );
+            }),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
+          // ── Mood labels ──
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('😊 開心', style: TextStyle(fontSize: 10, color: _selected != null && _selected! <= 1 ? widget.accent : AppColors.textMuted)),
+              Text('😐 普通', style: TextStyle(fontSize: 10, color: _selected == 2 ? widget.accent : AppColors.textMuted)),
+              Text('😤 生氣', style: TextStyle(fontSize: 10, color: _selected != null && _selected! >= 3 ? widget.accent : AppColors.textMuted)),
+            ],
+          ),
+          const SizedBox(height: 6),
           Text(_selected != null ? _moodLabel(_selected!) : '㩒一下記錄今日心情',
             style: TextStyle(fontSize: 10, color: AppColors.textMuted)),
         ],
@@ -458,8 +476,9 @@ class _MoodSectionState extends State<_MoodSection> {
   }
 
   String _moodLabel(int i) {
-    final labels = ['好好', '普通', '唔好', '好炆', '好擔心'];
-    return '今日心情：${labels[i]}';
+    if (i <= 1) return '今日心情：開心 😊';
+    if (i == 2) return '今日心情：普通 😐';
+    return '今日心情：生氣 😤';
   }
 }
 
@@ -507,35 +526,6 @@ class _ZodiacMini extends StatelessWidget {
           const SizedBox(height: 6),
           Text('設定星座 → 我嘅', style: TextStyle(fontSize: 9, color: AppColors.textMuted)),
         ],
-      ),
-    );
-  }
-}
-
-// ── Stat Card ──
-class _StatCard extends StatelessWidget {
-  final String emoji, stat, label;
-  final Color accent;
-  const _StatCard(this.emoji, this.stat, this.label, this.accent);
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
-        decoration: BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.border),
-        ),
-        child: Column(
-          children: [
-            Text(emoji, style: const TextStyle(fontSize: 20)),
-            const SizedBox(height: 4),
-            Text(stat, style: GoogleFonts.notoSerifTc(fontSize: 16, fontWeight: FontWeight.w900, color: accent)),
-            Text(label, style: const TextStyle(fontSize: 10, color: AppColors.textMuted)),
-          ],
-        ),
       ),
     );
   }
