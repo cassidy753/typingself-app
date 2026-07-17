@@ -1,6 +1,6 @@
 // ═══════════════════════════════════════════════════════════════════════
-// AssessmentIntroScreen — 簡介頁 (Estimated time + what to expect)
-// Daebi Earthy Palette · Warm Sand · Muted Coral · Dark Brown
+// AssessmentIntroScreen — 選擇版本頁 (20/30/45 Q)
+// 三個版本選擇卡 · 準確度提示 · Daebi Earthy Palette
 // ═══════════════════════════════════════════════════════════════════════
 
 import 'package:flutter/material.dart';
@@ -33,7 +33,7 @@ class _AssessmentIntroScreenState extends State<AssessmentIntroScreen>
     super.initState();
     _animCtrl = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 600),
+      duration: const Duration(milliseconds: 700),
     );
     _fadeIn = CurvedAnimation(parent: _animCtrl, curve: Curves.easeOut);
     _animCtrl.forward();
@@ -45,6 +45,19 @@ class _AssessmentIntroScreenState extends State<AssessmentIntroScreen>
     super.dispose();
   }
 
+  void _startAssessment(int questionCount) {
+    // Re-create engine with the chosen question count
+    final fresh = DecisionTreeEngine(questionCount: questionCount);
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (_) => AssessmentQuestionScreen(
+          engine: fresh,
+          onComplete: widget.onComplete,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -53,89 +66,71 @@ class _AssessmentIntroScreenState extends State<AssessmentIntroScreen>
         child: FadeTransition(
           opacity: _fadeIn,
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 28),
+            padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Column(
               children: [
-                const Spacer(flex: 2),
+                const Spacer(flex: 1),
 
                 // ─── Emoji icon ───
                 Container(
-                  width: 88,
-                  height: 88,
+                  width: 80,
+                  height: 80,
                   decoration: BoxDecoration(
                     color: AppColors.cta.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(28),
+                    borderRadius: BorderRadius.circular(24),
                   ),
                   child: Center(
-                    child: Text('🧠', style: TextStyle(fontSize: 44)),
+                    child: Text('🧠🦋', style: TextStyle(fontSize: 38)),
                   ),
                 ),
-                const SizedBox(height: 28),
+                const SizedBox(height: 20),
 
                 // ─── Title ───
                 Text(
                   '了解你嘅 MBTI × 九型人格',
                   textAlign: TextAlign.center,
                   style: GoogleFonts.notoSerifTc(
-                    fontSize: 26,
+                    fontSize: 24,
                     fontWeight: FontWeight.w900,
                     color: AppColors.textPrimary,
                     height: 1.4,
                   ),
                 ),
-                const SizedBox(height: 14),
+                const SizedBox(height: 8),
 
                 // ─── Subtitle ───
                 Text(
-                  '一條龍幫你搵出你專屬嘅人格組合名',
+                  '揀一個版本，開始你嘅自我認識之旅',
                   textAlign: TextAlign.center,
                   style: GoogleFonts.notoSansTc(
-                    fontSize: 14,
+                    fontSize: 13,
                     color: AppColors.textSecondary,
                     height: 1.5,
                   ),
                 ),
-                const SizedBox(height: 40),
+                const SizedBox(height: 28),
 
-                // ─── Info cards ───
-                _infoRow('⏱️', '約 3-5 分鐘', '12-20 條問題，跟住你嘅答案動態調整'),
-                const SizedBox(height: 12),
-                _infoRow('🧩', 'MBTI + 九型人格', '雙層分析，比普通測試更深入'),
-                const SizedBox(height: 12),
-                _infoRow('🎭', '專屬人格名', '獲得你嘅地道廣東話人格稱號'),
-                const SizedBox(height: 12),
-                _infoRow('🔒', '100% 本地處理', '你嘅答案唔會上傳，安心作答'),
-                const SizedBox(height: 40),
-
-                // ─── Start button ───
-                SizedBox(
-                  width: double.infinity,
-                  height: 56,
-                  child: FilledButton(
-                    onPressed: _startAssessment,
-                    style: FilledButton.styleFrom(
-                      backgroundColor: AppColors.cta,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(24),
-                      ),
-                      textStyle: GoogleFonts.notoSansTc(
-                        fontSize: 17,
-                        fontWeight: FontWeight.w700,
-                      ),
-                      elevation: 0,
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text('開始了解自己'),
-                        const SizedBox(width: 8),
-                        const Icon(Icons.arrow_forward_rounded, size: 20),
-                      ],
-                    ),
+                // ─── Version cards ───
+                Expanded(
+                  child: ListView.separated(
+                    physics: const BouncingScrollPhysics(),
+                    itemCount: AssessmentVersions.all.length,
+                    separatorBuilder: (_, __) => const SizedBox(height: 12),
+                    itemBuilder: (ctx, i) {
+                      final v = AssessmentVersions.all[i];
+                      return _VersionCard(
+                        emoji: v.emoji,
+                        label: v.label,
+                        questionCount: v.questionCount,
+                        accuracy: v.accuracy,
+                        time: v.time,
+                        onTap: () => _startAssessment(v.questionCount),
+                      );
+                    },
                   ),
                 ),
-                const SizedBox(height: 40),
+
+                const SizedBox(height: 16),
 
                 // ─── Trust footer ───
                 Text(
@@ -156,55 +151,124 @@ class _AssessmentIntroScreenState extends State<AssessmentIntroScreen>
       ),
     );
   }
+}
 
-  Widget _infoRow(String emoji, String title, String desc) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
-      ),
-      child: Row(
-        children: [
-          SizedBox(
-            width: 40,
-            child: Center(child: Text(emoji, style: const TextStyle(fontSize: 22))),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title,
-                  style: GoogleFonts.notoSansTc(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(desc,
-                  style: GoogleFonts.notoSansTc(
-                    fontSize: 11,
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
+// ─── VERSION CARD ───
+class _VersionCard extends StatelessWidget {
+  final String emoji, label, accuracy, time;
+  final int questionCount;
+  final VoidCallback onTap;
+
+  const _VersionCard({
+    required this.emoji,
+    required this.label,
+    required this.questionCount,
+    required this.accuracy,
+    required this.time,
+    required this.onTap,
+  });
+
+  Color get _accentColor {
+    if (label == '快測') return AppColors.sage;
+    if (label == '標準') return AppColors.mustard;
+    return AppColors.cta; // 深度
   }
 
-  void _startAssessment() {
-    widget.engine.reset();
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => AssessmentQuestionScreen(
-          engine: widget.engine,
-          onComplete: widget.onComplete,
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(22),
+          border: Border.all(color: _accentColor.withValues(alpha: 0.4)),
+        ),
+        child: Row(
+          children: [
+            // ── Emoji icon ──
+            Container(
+              width: 52,
+              height: 52,
+              decoration: BoxDecoration(
+                color: _accentColor.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Center(
+                child: Text(emoji, style: const TextStyle(fontSize: 26)),
+              ),
+            ),
+            const SizedBox(width: 14),
+
+            // ── Middle content ──
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Title row: label + question count badge
+                  Row(
+                    children: [
+                      Text(label,
+                        style: GoogleFonts.notoSansTc(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w800,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 3,
+                        ),
+                        decoration: BoxDecoration(
+                          color: _accentColor.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          '${questionCount}題',
+                          style: GoogleFonts.notoSansTc(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            color: _accentColor,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 3),
+
+                  // Accuracy badge
+                  Row(
+                    children: [
+                      Icon(Icons.auto_awesome, size: 12,
+                          color: AppColors.cta),
+                      const SizedBox(width: 4),
+                      Text(accuracy,
+                        style: GoogleFonts.notoSansTc(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: _accentColor,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(time,
+                        style: GoogleFonts.notoSansTc(
+                          fontSize: 11,
+                          color: AppColors.textMuted,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+
+            // ── Arrow ──
+            Icon(Icons.arrow_forward_rounded,
+              size: 20, color: AppColors.textMuted),
+          ],
         ),
       ),
     );

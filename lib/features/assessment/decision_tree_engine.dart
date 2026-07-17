@@ -8,6 +8,23 @@
 import '../../core/assessment/engine/question_bank.dart';
 import '../../core/assessment/engine/decision_state.dart';
 
+// ─── CONSTANTS ───
+class AssessmentVersions {
+  static const fast = _VersionConfig(20, '🏃', '快測', 'MBTI 91%準確度', '~5分鐘');
+  static const standard = _VersionConfig(30, '⚖️', '標準', 'MBTI 96%準確度', '~7分鐘');
+  static const deep = _VersionConfig(45, '🏆', '深度', 'MBTI 99% + 九型人格', '~10分鐘');
+  static const all = [fast, standard, deep];
+}
+
+class _VersionConfig {
+  final int questionCount;
+  final String emoji;
+  final String label;
+  final String accuracy;
+  final String time;
+  const _VersionConfig(this.questionCount, this.emoji, this.label, this.accuracy, this.time);
+}
+
 // ─── PHASES ───
 enum AssessmentPhase { questions, result }
 
@@ -117,13 +134,14 @@ class AssessmentState {
 class DecisionTreeEngine {
   final AssessmentState state = AssessmentState();
   final List<Question> _pool = [];
+  final int _questionCount;
 
-  DecisionTreeEngine() {
+  DecisionTreeEngine({int questionCount = 45}) : _questionCount = questionCount {
     _pool.addAll(_buildFromBank());
   }
 
   /// Build question pool from QuestionBank — includes all mbtiRouting,
-  /// enneaCenter, and enneaDeep questions. Skips routing/verification/fine-tuning.
+  /// enneaCenter, and enneaDeep questions. Takes first [_questionCount] questions.
   List<Question> _buildFromBank() {
     final bank = QuestionBank();
     final keepPhases = {
@@ -131,7 +149,7 @@ class DecisionTreeEngine {
       DecisionPhase.enneaCenter,
       DecisionPhase.enneaDeep,
     };
-    return bank.allQuestions
+    final allQuestions = bank.allQuestions
       .where((dq) => keepPhases.contains(dq.phase))
       .map((dq) => Question(
         id: dq.id,
@@ -142,6 +160,10 @@ class DecisionTreeEngine {
         )).toList(),
         phase: AssessmentPhase.questions,
       )).toList();
+
+    // Apply question count limit — first N questions from pool
+    final count = _questionCount.clamp(1, allQuestions.length);
+    return allQuestions.sublist(0, count);
   }
 
   int get answeredCount => state.history.length;

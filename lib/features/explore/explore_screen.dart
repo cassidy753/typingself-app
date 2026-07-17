@@ -2,13 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/theme.dart';
+import '../assessment/assessment_intro_screen.dart';
+import '../assessment/decision_tree_engine.dart';
 
 class ExploreScreen extends StatefulWidget {
   final Color accent;
   final Color accentBg;
   final String mbti;
   final String ennea;
-  const ExploreScreen({super.key, required this.accent, required this.accentBg, required this.mbti, required this.ennea});
+  final VoidCallback? onRetakeTest;
+  const ExploreScreen({super.key, required this.accent, required this.accentBg, required this.mbti, required this.ennea, this.onRetakeTest});
 
   @override
   State<ExploreScreen> createState() => _ExploreScreenState();
@@ -160,9 +163,50 @@ class _ExploreScreenState extends State<ExploreScreen> {
             onTap: () => _showSnack('八字基礎：敬請期待'),
           ),
 
+          const SizedBox(height: 20),
+
+          // ── Retake Test Button ──
+          _RetakeCard(
+            accent: widget.accent,
+            onRetake: _retakeTest,
+          ),
+
           const SizedBox(height: 32),
         ],
       ),
+    );
+  }
+
+  Future<void> _retakeTest() async {
+    // Clear saved results
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('test_done', false);
+    await prefs.remove('mbti');
+    await prefs.remove('ennea');
+    await prefs.remove('selected_tagline');
+    await prefs.remove('mbti_confidence');
+    await prefs.remove('ennea_confidence');
+    await prefs.remove('mbti_verified');
+    await prefs.remove('ennea_verified');
+    await prefs.remove('total_questions');
+    await prefs.remove('mbti_result');
+    await prefs.remove('ennea_result');
+
+    if (widget.onRetakeTest != null) {
+      widget.onRetakeTest!();
+      return;
+    }
+
+    // Fallback: navigate directly to intro screen
+    if (!context.mounted) return;
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(
+        builder: (_) => AssessmentIntroScreen(
+          engine: DecisionTreeEngine(questionCount: 20),
+          onComplete: (mbti, ennea) {},
+        ),
+      ),
+      (route) => route.isFirst,
     );
   }
 
@@ -174,6 +218,83 @@ class _ExploreScreenState extends State<ExploreScreen> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
         margin: const EdgeInsets.fromLTRB(20, 0, 20, 20),
         duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+}
+
+// ─── RETAKE TEST CARD ───
+class _RetakeCard extends StatelessWidget {
+  final Color accent;
+  final VoidCallback onRetake;
+
+  const _RetakeCard({required this.accent, required this.onRetake});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onRetake,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(22),
+          border: Border.all(
+            color: AppColors.cta.withValues(alpha: 0.3),
+          ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: AppColors.cta.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: const Center(
+                child: Text('🔄', style: TextStyle(fontSize: 20)),
+              ),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('重新測試',
+                    style: GoogleFonts.notoSansTc(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.cta,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text('清空現有結果，揀新版本再測一次',
+                    style: GoogleFonts.notoSansTc(
+                      fontSize: 11,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: AppColors.cta.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text('重測',
+                style: GoogleFonts.notoSansTc(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.cta,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

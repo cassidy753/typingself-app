@@ -89,6 +89,16 @@ class _AppRootState extends State<AppRoot> {
     setState(() { _showShadowDetector = false; });
   }
 
+  void _onRetakeTest() {
+    setState(() {
+      _showTest = true;
+      _showTypeSoul = false;
+      _showShadowDetector = false;
+      _mbti = null;
+      _ennea = null;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_loading) return const SizedBox();
@@ -112,7 +122,7 @@ class _AppRootState extends State<AppRoot> {
         onSkip: _onShadowDone,
       );
     }
-    return MainShell(mbti: _mbti ?? 'ENFJ', ennea: _ennea ?? '5w4');
+    return MainShell(mbti: _mbti ?? 'ENFJ', ennea: _ennea ?? '5w4', onRetakeTest: _onRetakeTest);
   }
 }
 
@@ -296,7 +306,8 @@ class _Tab {
 class MainShell extends StatefulWidget {
   final String mbti;
   final String ennea;
-  const MainShell({super.key, required this.mbti, required this.ennea});
+  final VoidCallback? onRetakeTest;
+  const MainShell({super.key, required this.mbti, required this.ennea, this.onRetakeTest});
   @override
   State<MainShell> createState() => _MainShellState();
 }
@@ -419,7 +430,7 @@ class _MainShellState extends State<MainShell> {
     final t = _tabs[_tab];
     switch (_tab) {
       case 0: return QuoteScreen(key: const ValueKey('q'), accent: t.accent, accentBg: t.accentBg, mbti: widget.mbti, ennea: widget.ennea);
-      case 1: return ExploreScreen(key: const ValueKey('k'), accent: t.accent, accentBg: t.accentBg, mbti: widget.mbti, ennea: widget.ennea);
+      case 1: return ExploreScreen(key: const ValueKey('k'), accent: t.accent, accentBg: t.accentBg, mbti: widget.mbti, ennea: widget.ennea, onRetakeTest: widget.onRetakeTest);
       case 2: return ProfileScreen(key: const ValueKey('p'), accent: t.accent, accentBg: t.accentBg, mbti: widget.mbti, ennea: widget.ennea);
       default: return const SizedBox();
     }
