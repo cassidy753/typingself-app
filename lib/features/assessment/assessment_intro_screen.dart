@@ -142,6 +142,7 @@ class _AssessmentIntroScreenState extends State<AssessmentIntroScreen>
                             child: _VersionCard(
                               emoji: versions[i].emoji,
                               label: versions[i].label,
+                              description: versions[i].description,
                               questionCount: versions[i].questionCount,
                               accuracy: versions[i].accuracy,
                               time: versions[i].time,
@@ -149,6 +150,7 @@ class _AssessmentIntroScreenState extends State<AssessmentIntroScreen>
                               isSelected: _selectedIndex == i,
                               onTap: () => setState(() => _selectedIndex = i),
                               entranceDelay: i,
+                              showRecommendedBadge: i == 1,
                             ),
                           ),
 
@@ -178,8 +180,8 @@ class _AssessmentIntroScreenState extends State<AssessmentIntroScreen>
                                 fontWeight: FontWeight.w700,
                               ),
                             ),
-                            child: Text(
-                              '開始 ${versions[_selectedIndex].label}',
+                            child: const Text(
+                              '開始探索自己',
                             ),
                           ),
                         ),
@@ -259,16 +261,17 @@ class _RadialGlowPainter extends CustomPainter {
 
 // ─── GLASSMORPHISM VERSION CARD ───
 class _VersionCard extends StatelessWidget {
-  final String emoji, label, accuracy, time;
+  final String emoji, label, accuracy, time, description;
   final int questionCount;
   final String accentKey;
-  final bool isSelected;
+  final bool isSelected, showRecommendedBadge;
   final VoidCallback onTap;
   final int entranceDelay;
 
   const _VersionCard({
     required this.emoji,
     required this.label,
+    required this.description,
     required this.questionCount,
     required this.accuracy,
     required this.time,
@@ -276,6 +279,7 @@ class _VersionCard extends StatelessWidget {
     required this.isSelected,
     required this.onTap,
     required this.entranceDelay,
+    this.showRecommendedBadge = false,
   });
 
   Color get _accentColor {
@@ -433,6 +437,16 @@ class _VersionCard extends StatelessWidget {
                               ),
                               const SizedBox(height: 4),
                               Text(
+                                description,
+                                style: GoogleFonts.notoSansTc(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w500,
+                                  color: AppColors.textSecondary,
+                                  height: 1.3,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
                                 _subtitle,
                                 style: GoogleFonts.notoSansTc(
                                   fontSize: 12,
@@ -476,6 +490,40 @@ class _VersionCard extends StatelessWidget {
                       ],
                     ),
                   ),
+
+                  // ── Recommended badge (top-right overlay) ──
+                  if (showRecommendedBadge)
+                    Positioned(
+                      top: -4,
+                      right: -4,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFFFFC107), Color(0xFFFF9800)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(10),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFFFF9800).withValues(alpha: 0.35),
+                              blurRadius: 6,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Text(
+                          '⭐ 推薦',
+                          style: GoogleFonts.notoSansTc(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.white,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ),
+                    ),
                 ],
               ),
             ),

@@ -10,9 +10,9 @@ import '../../core/assessment/engine/decision_state.dart';
 
 // ─── CONSTANTS ───
 class AssessmentVersions {
-  static const fast = _VersionConfig(20, '🏃', '快測', 'MBTI 91%準確度', '~5分鐘');
-  static const standard = _VersionConfig(30, '⚖️', '標準', 'MBTI 96%準確度', '~7分鐘');
-  static const deep = _VersionConfig(45, '🏆', '深度', 'MBTI 99% + 九型人格', '~10分鐘');
+  static const fast = _VersionConfig(20, '🏃', '快測', 'MBTI 91%準確度', '~5分鐘', '快速了解自己');
+  static const standard = _VersionConfig(30, '⚖️', '標準', 'MBTI 96%準確度', '~7分鐘', '全面分析');
+  static const deep = _VersionConfig(45, '🏆', '深度', 'MBTI 99% + 九型人格', '~10分鐘', '完整成長');
   static const all = [fast, standard, deep];
 }
 
@@ -22,7 +22,8 @@ class _VersionConfig {
   final String label;
   final String accuracy;
   final String time;
-  const _VersionConfig(this.questionCount, this.emoji, this.label, this.accuracy, this.time);
+  final String description;
+  const _VersionConfig(this.questionCount, this.emoji, this.label, this.accuracy, this.time, this.description);
 }
 
 // ─── PHASES ───

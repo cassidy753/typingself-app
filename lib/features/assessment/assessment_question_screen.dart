@@ -166,6 +166,29 @@ class _AssessmentQuestionScreenState extends State<AssessmentQuestionScreen>
   }
 
   void _goBack() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('確認離開？'),
+        content: const Text('進度將會保留，你可以隨時返嚟繼續。'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('留低'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              _doGoBack();
+            },
+            child: const Text('離開'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _doGoBack() {
     final success = widget.engine.goBack();
     if (!success) {
       Navigator.of(context).pop();
@@ -275,7 +298,7 @@ class _AssessmentQuestionScreenState extends State<AssessmentQuestionScreen>
                 ),
               ),
 
-              const SizedBox(height: 20),
+              const SizedBox(height: 12),
 
               // ─── Question body (animated) ───
               Expanded(
@@ -284,6 +307,19 @@ class _AssessmentQuestionScreenState extends State<AssessmentQuestionScreen>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      // ── Question number indicator (prominent) ──
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: Text(
+                          '第 ${done + 1} 題 / 共 $totalEst 題',
+                          style: GoogleFonts.notoSansTc(
+                            fontSize: 17,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.cta,
+                            height: 1.3,
+                          ),
+                        ),
+                      ),
                       // ── Question text card — slides in from right + fades
                       // with a subtle scale entrance for a polished feel ──
                       SlideTransition(
@@ -372,30 +408,37 @@ class _AssessmentQuestionScreenState extends State<AssessmentQuestionScreen>
                                         children: [
                                           // ── Checkbox indicator
                                           // (square, not circle — larger for
-                                          //  comfortable tap targets) ──
-                                          AnimatedContainer(
+                                          //  comfortable tap targets)
+                                          // Scale bounce on select ──
+                                          AnimatedScale(
+                                            scale: isSelected ? 1.2 : 1.0,
                                             duration: const Duration(
-                                                milliseconds: 250),
-                                            width: 26,
-                                            height: 26,
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(6),
-                                              color: isSelected
-                                                  ? AppColors.cta
-                                                  : Colors.transparent,
-                                              border: Border.all(
+                                                milliseconds: 350),
+                                            curve: Curves.elasticOut,
+                                            child: AnimatedContainer(
+                                              duration: const Duration(
+                                                  milliseconds: 250),
+                                              width: 26,
+                                              height: 26,
+                                              decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(6),
                                                 color: isSelected
                                                     ? AppColors.cta
-                                                    : AppColors.textMuted,
-                                                width: 2.2,
+                                                    : Colors.transparent,
+                                                border: Border.all(
+                                                  color: isSelected
+                                                      ? AppColors.cta
+                                                      : AppColors.textMuted,
+                                                  width: 2.2,
+                                                ),
                                               ),
+                                              child: isSelected
+                                                  ? const Icon(Icons.check,
+                                                      size: 18,
+                                                      color: Colors.white)
+                                                  : null,
                                             ),
-                                            child: isSelected
-                                                ? const Icon(Icons.check,
-                                                    size: 18,
-                                                    color: Colors.white)
-                                                : null,
                                           ),
                                           const SizedBox(width: 16),
                                           Expanded(

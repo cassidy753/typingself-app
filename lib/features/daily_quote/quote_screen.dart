@@ -6,6 +6,12 @@ import '../../core/theme.dart';
 import '../daily_quote/zodiac_service.dart';
 import '../assessment/assessment_intro_screen.dart';
 import '../assessment/decision_tree_engine.dart';
+import '../shadow_report/shadow_report_screen.dart';
+import '../shadow_report/shadow_detector_screen.dart';
+import '../shadow_report/shadow_report_engine.dart';
+import '../growth/progress_screen.dart';
+import '../integrated_report/integrated_report_screen.dart';
+import '../my_type/my_type_screen.dart';
 
 // ─── Reusable card style ───
 BoxDecoration _cardDecoration() => BoxDecoration(
@@ -35,7 +41,6 @@ class QuoteScreen extends StatefulWidget {
 class _QuoteScreenState extends State<QuoteScreen> {
   bool _testDone = false;
   bool _shadowDone = false;
-  String? _zodiac;
 
   @override
   void initState() {
@@ -48,14 +53,11 @@ class _QuoteScreenState extends State<QuoteScreen> {
     setState(() {
       _testDone = prefs.getBool('test_done') ?? false;
       _shadowDone = prefs.getBool('shadow_report_viewed') ?? false;
-      _zodiac = prefs.getString('zodiac_sign');
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final now = DateTime.now();
-    final dayOfYear = now.difference(DateTime(now.year, 1, 1)).inDays;
 
     return Container(
       width: double.infinity,
@@ -110,17 +112,9 @@ class _QuoteScreenState extends State<QuoteScreen> {
               shadowDone: _shadowDone,
               accent: widget.accent,
               accentBg: widget.accentBg,
+              mbti: widget.mbti,
+              ennea: widget.ennea,
             ),
-
-            const SizedBox(height: 26),
-
-            // ── 心情 ──
-            _MoodSection(accent: widget.accent, accentBg: widget.accentBg),
-
-            const SizedBox(height: 26),
-
-            // ── 星座 ──
-            _ZodiacMini(zodiac: _zodiac, dayOfYear: dayOfYear, accent: widget.accent, accentBg: widget.accentBg),
 
             const SizedBox(height: 28),
             const SizedBox(height: 32),
@@ -507,7 +501,8 @@ class _PersonalizedQuote extends StatelessWidget {
 class _JourneyProgress extends StatelessWidget {
   final bool testDone, shadowDone;
   final Color accent, accentBg;
-  const _JourneyProgress({required this.testDone, required this.shadowDone, required this.accent, required this.accentBg});
+  final String mbti, ennea;
+  const _JourneyProgress({required this.testDone, required this.shadowDone, required this.accent, required this.accentBg, required this.mbti, required this.ennea});
 
   @override
   Widget build(BuildContext context) {
@@ -517,13 +512,47 @@ class _JourneyProgress extends StatelessWidget {
       decoration: _cardDecoration(),
       child: Column(
         children: [
-          _StageRow(0, '🧠', 'Stage 1', 'MBTI + Enneagram', testDone, accent, accentBg),
+          _StageRow(0, '🧠', 'Stage 1', 'MBTI + Enneagram', testDone, accent, accentBg,
+            onTap: () {
+              if (testDone) {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => MyTypeScreen(accent: accent, accentBg: accentBg)),
+                );
+              } else {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => AssessmentIntroScreen(
+                    engine: DecisionTreeEngine(),
+                    onComplete: (__, _a) {},
+                  )),
+                );
+              }
+            }),
           const SizedBox(height: 10),
-          _StageRow(1, '🌑', 'Stage 2', 'Shadow Report', shadowDone, accent, accentBg),
+          _StageRow(1, '🌑', 'Stage 2', 'Shadow Report', shadowDone, accent, accentBg,
+            onTap: shadowDone
+                ? () {
+                    final engine = ShadowReportEngine();
+                    final report = engine.generate(mbti, ennea);
+                    Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => ShadowReportScreen(report: report, onComplete: () {})),
+                    );
+                  }
+                : null),
           const SizedBox(height: 10),
-          _StageRow(2, '🌱', 'Stage 3', 'Growth Plan', false, accent, accentBg, locked: !shadowDone),
+          _StageRow(2, '🌱', 'Stage 3', 'Growth Plan', false, accent, accentBg, locked: !shadowDone,
+            onTap: shadowDone
+                ? () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => GrowthProgressScreen(
+                        mbti: mbti, ennea: ennea,
+                        accent: accent, accentBg: accentBg,
+                      )),
+                    );
+                  }
+                : null),
           const SizedBox(height: 10),
-          _StageRow(3, '💎', 'Stage 4', 'Integration', false, accent, accentBg, locked: true),
+          _StageRow(3, '💎', 'Stage 4', 'Integration', false, accent, accentBg, locked: true,
+            onTap: null),
         ],
       ),
     );
@@ -536,15 +565,19 @@ class _StageRow extends StatelessWidget {
   final bool done;
   final Color accent, accentBg;
   final bool locked;
+  final VoidCallback? onTap;
 
-  const _StageRow(this.stage, this.emoji, this.title, this.subtitle, this.done, this.accent, this.accentBg, {this.locked = false});
+  const _StageRow(this.stage, this.emoji, this.title, this.subtitle, this.done, this.accent, this.accentBg, {this.locked = false, this.onTap});
 
   @override
   Widget build(BuildContext context) {
     final opacity = locked ? 0.4 : 1.0;
     return Opacity(
       opacity: opacity,
-      child: Row(
+      child: GestureDetector(
+        onTap: locked ? null : onTap,
+        behavior: HitTestBehavior.opaque,
+        child: Row(
         children: [
           Container(
             width: 42, height: 42,
@@ -587,6 +620,7 @@ class _StageRow extends StatelessWidget {
               child: Text('進行中', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: accent)),
             ),
         ],
+      ),
       ),
     );
   }

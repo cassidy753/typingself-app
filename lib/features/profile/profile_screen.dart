@@ -9,6 +9,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/theme.dart';
 import '../integrated_report/integrated_report_screen.dart';
+import '../settings/settings_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   final Color accent;
@@ -23,7 +24,7 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   int _daysUsed = 0, _quotesSeen = 0, _testsDone = 0;
-  bool _shadowDone = false;
+  bool _shadowDone = false, _bigFiveDone = false;
   bool _loaded = false;
 
   @override
@@ -33,9 +34,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
       if (!mounted) return;
       setState(() {
         _daysUsed = p.getInt('days_used') ?? 1;
-        _quotesSeen = p.getInt('quotes_seen') ?? 1;
+        _quotesSeen = p.getInt('quotes_seen') ?? 0;
         _testsDone = p.getBool('test_done') ?? false ? 1 : 0;
         _shadowDone = p.getBool('shadow_report_viewed') ?? false;
+        _bigFiveDone = p.getBool('big_five_done') ?? false;
         _loaded = true;
       });
     });
@@ -66,6 +68,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
           children: [
             const SizedBox(height: 12),
 
+            // ── ⚙️ Settings bar (accessible from profile) ──
+            _SettingsBar(
+              accent: widget.accent,
+              accentBg: widget.accentBg,
+              mbti: widget.mbti,
+              ennea: widget.ennea,
+            ),
+
+            const SizedBox(height: 20),
+
             // ── ⭐ Profile Hero Card ──
             _ProfileCard(
               mbti: widget.mbti,
@@ -74,9 +86,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
               accentBg: widget.accentBg,
             ),
 
-            const SizedBox(height: 20),
+            const SizedBox(height: 28),
 
             // ── 📊 使用統計 ──
+            _SectionHeader('📊 使用統計', widget.accent),
+            const SizedBox(height: 12),
             _UsageStats(
               daysUsed: _daysUsed,
               quotesSeen: _quotesSeen,
@@ -85,11 +99,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
               accent: widget.accent,
             ),
 
-            const SizedBox(height: 20),
+            const SizedBox(height: 28),
+
+            // ── 🏆 成就徽章 ──
+            _SectionHeader('🏆 成就徽章', widget.accent),
+            const SizedBox(height: 12),
+            _AchievementsSection(
+              daysUsed: _daysUsed,
+              quotesSeen: _quotesSeen,
+              testsDone: _testsDone,
+              shadowDone: _shadowDone,
+              bigFiveDone: _bigFiveDone,
+              accent: widget.accent,
+              accentBg: widget.accentBg,
+            ),
+
+            const SizedBox(height: 28),
 
             // ── 📋 完整人格報告 ──
             _SectionHeader('📋 完整人格報告', widget.accent),
-            const SizedBox(height: 10),
+            const SizedBox(height: 12),
             _IntegratedReportCTA(
               mbti: widget.mbti,
               ennea: widget.ennea,
@@ -97,35 +126,101 @@ class _ProfileScreenState extends State<ProfileScreen> {
               accentBg: widget.accentBg,
             ),
 
-            const SizedBox(height: 20),
+            const SizedBox(height: 28),
 
             // ── 💎 型得你會員 ──
             _SectionHeader('💎 型得你會員', widget.accent),
-            const SizedBox(height: 10),
+            const SizedBox(height: 12),
             _MemberCard(accent: widget.accent, accentBg: widget.accentBg),
 
-            const SizedBox(height: 20),
+            const SizedBox(height: 28),
 
             // ── 📋 深度報告 ──
             _SectionHeader('📋 深度報告', widget.accent),
-            const SizedBox(height: 10),
+            const SizedBox(height: 12),
             _ReportItem('📋', 'MBTI 九型深度分析', '完整認知功能 + 發展建議', '\$18', widget.accent),
-            const SizedBox(height: 8),
-            _ReportItem('📊', '心靈健康詳細報告', '情景題深度檢測 + 認知模式', '\$18', widget.accent),
             const SizedBox(height: 10),
+            _ReportItem('📊', '心靈健康詳細報告', '情景題深度檢測 + 認知模式', '\$18', widget.accent),
+            const SizedBox(height: 12),
             Center(
               child: Text('🎁 買任何報告即送 1 個月會員',
                 style: GoogleFonts.notoSansTc(fontSize: 12, color: AppColors.textSecondary)),
             ),
 
-            const SizedBox(height: 20),
+            const SizedBox(height: 28),
 
             // ── ☕ 請我哋飲杯嘢 (Donation) ──
             _SectionHeader('☕ 請我哋飲杯嘢', widget.accent),
-            const SizedBox(height: 10),
+            const SizedBox(height: 12),
             _DonationSection(accent: widget.accent, accentBg: widget.accentBg),
 
-            const SizedBox(height: 40),
+            const SizedBox(height: 48),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ── Settings Bar (accessible from profile) ──
+class _SettingsBar extends StatelessWidget {
+  final Color accent, accentBg;
+  final String mbti, ennea;
+  const _SettingsBar({
+    required this.accent,
+    required this.accentBg,
+    required this.mbti,
+    required this.ennea,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => SettingsScreen(
+              accent: accent,
+              accentBg: accentBg,
+              mbti: mbti,
+              ennea: ennea,
+            ),
+          ),
+        );
+      },
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.7),
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: AppColors.border.withValues(alpha: 0.4)),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 36, height: 36,
+              decoration: BoxDecoration(
+                color: accent.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Center(child: Icon(Icons.settings_rounded, size: 20, color: accent)),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('設定', style: GoogleFonts.notoSansTc(
+                    fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.textPrimary,
+                  )),
+                  Text('星座・同意・資料管理', style: GoogleFonts.notoSansTc(
+                    fontSize: 12, color: AppColors.textSecondary,
+                  )),
+                ],
+              ),
+            ),
+            const Icon(Icons.chevron_right_rounded, color: AppColors.textMuted, size: 22),
           ],
         ),
       ),
@@ -145,7 +240,7 @@ class _ProfileCard extends StatelessWidget {
     final emoji = _getEmoji(mbti);
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [accent, accent.withValues(alpha: 0.85)],
@@ -255,9 +350,10 @@ class _UsageStats extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final totalTests = testsDone + (shadowDone ? 1 : 0);
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 24),
+      padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.82),
         borderRadius: BorderRadius.circular(22),
@@ -266,23 +362,174 @@ class _UsageStats extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _statItem('$daysUsed', '日使用', accent),
-          Container(width: 1, height: 36, color: AppColors.divider.withValues(alpha: 0.4)),
-          _statItem('$quotesSeen', '句語句', accent),
-          Container(width: 1, height: 36, color: AppColors.divider.withValues(alpha: 0.4)),
-          _statItem('${testsDone + (shadowDone ? 1 : 0)}', '已完成', accent),
+          _statItem('$daysUsed', '日使用', accent, Icons.calendar_today_rounded),
+          Container(width: 1, height: 44, color: AppColors.divider.withValues(alpha: 0.4)),
+          _statItem('$quotesSeen', '句語句', accent, Icons.format_quote_rounded),
+          Container(width: 1, height: 44, color: AppColors.divider.withValues(alpha: 0.4)),
+          _statItem('$totalTests', '個測試', accent, Icons.assignment_turned_in_rounded),
         ],
       ),
     );
   }
 
-  Widget _statItem(String num, String label, Color accent) {
+  Widget _statItem(String num, String label, Color accent, IconData icon) {
     return Column(children: [
-      Text(num, style: GoogleFonts.notoSerifTc(fontSize: 28, fontWeight: FontWeight.w900, color: accent)),
-      const SizedBox(height: 4),
-      Text(label, style: GoogleFonts.notoSansTc(fontSize: 13, color: AppColors.textMuted)),
+      Text(num, style: GoogleFonts.notoSerifTc(fontSize: 30, fontWeight: FontWeight.w900, color: accent)),
+      const SizedBox(height: 6),
+      Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 12, color: AppColors.textMuted),
+          const SizedBox(width: 4),
+          Text(label, style: GoogleFonts.notoSansTc(fontSize: 12, color: AppColors.textMuted)),
+        ],
+      ),
     ]);
   }
+}
+
+// ── Achievements / Badges Section ──
+class _AchievementsSection extends StatelessWidget {
+  final int daysUsed, quotesSeen, testsDone;
+  final bool shadowDone, bigFiveDone;
+  final Color accent, accentBg;
+  const _AchievementsSection({
+    required this.daysUsed,
+    required this.quotesSeen,
+    required this.testsDone,
+    required this.shadowDone,
+    required this.bigFiveDone,
+    required this.accent,
+    required this.accentBg,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final badges = <_Badge>[
+      _Badge(
+        emoji: '🎯',
+        label: '第一步',
+        desc: '完成人格測試',
+        unlocked: testsDone > 0,
+      ),
+      _Badge(
+        emoji: '🌓',
+        label: '暗影探索者',
+        desc: '睇過 Shadow Report',
+        unlocked: shadowDone,
+      ),
+      _Badge(
+        emoji: '🧠',
+        label: '五大性格',
+        desc: '完成 Big Five',
+        unlocked: bigFiveDone,
+      ),
+      _Badge(
+        emoji: '📖',
+        label: '語句愛好者',
+        desc: '睇咗 10+ 句語句',
+        unlocked: quotesSeen >= 10,
+      ),
+      _Badge(
+        emoji: '📚',
+        label: '語句達人',
+        desc: '睇咗 50+ 句語句',
+        unlocked: quotesSeen >= 50,
+      ),
+      _Badge(
+        emoji: '🔥',
+        label: '連續 7 日',
+        desc: '用咗 7+ 日',
+        unlocked: daysUsed >= 7,
+      ),
+      _Badge(
+        emoji: '💪',
+        label: '連續 30 日',
+        desc: '用咗 30+ 日',
+        unlocked: daysUsed >= 30,
+      ),
+      _Badge(
+        emoji: '🏅',
+        label: '忠實用戶',
+        desc: '用咗 100+ 日',
+        unlocked: daysUsed >= 100,
+      ),
+    ];
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.82),
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: AppColors.border.withValues(alpha: 0.5)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('你目前獲得咗 ${badges.where((b) => b.unlocked).length}/${badges.length} 個徽章',
+            style: GoogleFonts.notoSansTc(fontSize: 13, color: AppColors.textSecondary)),
+          const SizedBox(height: 16),
+          Wrap(
+            spacing: 10,
+            runSpacing: 14,
+            children: badges.map((b) => _badgeTile(b)).toList(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _badgeTile(_Badge badge) {
+    return Tooltip(
+      message: badge.unlocked ? '✅ ${badge.desc}' : '🔒 ${badge.desc}',
+      child: Container(
+        width: 80,
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 6),
+        decoration: BoxDecoration(
+          color: badge.unlocked
+            ? accent.withValues(alpha: 0.10)
+            : AppColors.disabled.withValues(alpha: 0.4),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: badge.unlocked
+              ? accent.withValues(alpha: 0.3)
+              : AppColors.border.withValues(alpha: 0.3),
+          ),
+        ),
+        child: Column(
+          children: [
+            Text(badge.unlocked ? badge.emoji : '🔒',
+              style: TextStyle(fontSize: badge.unlocked ? 26 : 20,
+                color: badge.unlocked ? null : AppColors.textMuted),
+            ),
+            const SizedBox(height: 6),
+            Text(badge.label,
+              style: GoogleFonts.notoSansTc(
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+                color: badge.unlocked ? accent.withValues(alpha: 0.9) : AppColors.textMuted,
+              ),
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _Badge {
+  final String emoji, label, desc;
+  final bool unlocked;
+  const _Badge({
+    required this.emoji,
+    required this.label,
+    required this.desc,
+    required this.unlocked,
+  });
 }
 
 // ── Section Header ──

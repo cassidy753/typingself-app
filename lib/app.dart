@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'core/theme.dart';
 import 'core/fixed_frame.dart';
@@ -11,7 +9,6 @@ import 'features/daily_quote/quote_screen.dart';
 import 'features/explore/explore_screen.dart';
 import 'features/profile/profile_screen.dart';
 import 'features/settings/settings_screen.dart';
-import 'features/personality_naming/naming_engine.dart';
 import 'features/assessment/assessment_intro_screen.dart';
 import 'features/assessment/decision_tree_engine.dart';
 
@@ -59,11 +56,30 @@ class _AppRootState extends State<AppRoot> {
   }
 
   void _onRetakeTest() {
+    // Clear old results before starting fresh assessment
+    SharedPreferences.getInstance().then((prefs) {
+      prefs.remove('mbti');
+      prefs.remove('ennea');
+      prefs.remove('test_done');
+    });
+
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => AssessmentIntroScreen(
           engine: DecisionTreeEngine(),
-          onComplete: (_, __) {},
+          onComplete: (mbti, ennea) {
+            // Save new results
+            SharedPreferences.getInstance().then((prefs) {
+              prefs.setString('mbti', mbti);
+              prefs.setString('ennea', ennea);
+              prefs.setBool('test_done', true);
+            });
+            // Pop back and refresh state
+            if (mounted) {
+              Navigator.of(context).popUntil((route) => route.isFirst);
+              _check();
+            }
+          },
         ),
       ),
     );
@@ -76,174 +92,6 @@ class _AppRootState extends State<AppRoot> {
   }
 }
 
-// ──────── FLOW: Naming Celebration → Main ────────
-class NamingCelebration extends StatefulWidget {
-  final String mbti;
-  final String ennea;
-  final VoidCallback onContinue;
-  const NamingCelebration({super.key, required this.mbti, required this.ennea, required this.onContinue});
-  @override
-  State<NamingCelebration> createState() => _NamingCelebrationState();
-}
-
-class _NamingCelebrationState extends State<NamingCelebration> {
-  int _selectedTagline = 0;
-  late final PersonalityName? _result;
-
-  @override
-  void initState() {
-    super.initState();
-    _result = NamingEngine.getName(widget.mbti, '${widget.ennea}');
-    SharedPreferences.getInstance().then((p) {
-      p.setBool('test_done', true);
-      p.setString('mbti', widget.mbti);
-      p.setString('ennea', widget.ennea);
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    PersonalityName defaultName(String mbti, String ennea) {
-      return PersonalityName(
-        mbti: mbti, enneagram: ennea, healthLevel: 'healthy',
-        nameCanto: '探索者', tagline: '你仲喺度了解緊自己，慢慢嚟',
-        encourage: '每一步都係發現', emoji: '🧠',
-      );
-    }
-    final name = _result ?? NamingEngine.getName('ENFJ', '5w4') ?? defaultName('ENFJ', '5w4');
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Column(
-            children: [
-              const Spacer(flex: 2),
-              Text(name.emoji, style: const TextStyle(fontSize: 80))
-                .animate()
-                .scaleXY(begin: 0, end: 1, duration: 600.ms, curve: Curves.elasticOut),
-              const SizedBox(height: 12),
-              Text(name.nameCanto, style: GoogleFonts.notoSerifTc(
-                fontSize: 40, fontWeight: FontWeight.w900, color: AppColors.cta,
-              )).animate(delay: 200.ms)
-                .fadeIn(duration: 300.ms)
-                .slideX(begin: -0.03, duration: 300.ms),
-              const SizedBox(height: 8),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                decoration: BoxDecoration(
-                  color: AppColors.cta.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text('${widget.mbti} · ${widget.ennea}',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.cta)),
-              ).animate(delay: 400.ms).scale(duration: 400.ms),
-              const SizedBox(height: 24),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text('揀一句最代表你嘅 tagline：',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
-              ).animate(delay: 450.ms).fadeIn(duration: 300.ms).slideX(begin: -0.02, duration: 300.ms),
-              const SizedBox(height: 10),
-              ...List.generate(4, (i) => GestureDetector(
-                onTap: () => setState(() => _selectedTagline = i),
-                child: Container(
-                  width: double.infinity,
-                  margin: const EdgeInsets.only(bottom: 8),
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                  decoration: BoxDecoration(
-                    color: _selectedTagline == i ? AppColors.cta.withValues(alpha: 0.12) : AppColors.surface,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: _selectedTagline == i ? AppColors.cta : AppColors.border,
-                      width: _selectedTagline == i ? 1.5 : 1,
-                    ),
-                  ),
-                  child: Text(name.tagline, style: TextStyle(
-                    fontSize: 14, color: AppColors.textPrimary,
-                    fontWeight: _selectedTagline == i ? FontWeight.w600 : FontWeight.w400,
-                  )),
-                ),
-              ).animate(delay: Duration(milliseconds: 550 + i * 150))
-                .fadeIn(duration: 300.ms)
-                .slideX(begin: 0.03, duration: 300.ms)),
-              const SizedBox(height: 24),
-              Column(
-                children: [
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: () => _share(name),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.cta,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 18),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-                        textStyle: GoogleFonts.notoSansTc(fontSize: 16, fontWeight: FontWeight.w600),
-                      ),
-                      child: const Text('📤 Share 俾朋友'),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.08),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Column(
-                      children: [
-                        Text('想每日收到一句鼓勵？',
-                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
-                        const SizedBox(height: 4),
-                        Text('我哋會喺每日早上 8 點推送語句俾你',
-                          style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
-                        const SizedBox(height: 10),
-                        SizedBox(
-                          width: double.infinity,
-                          child: TextButton(
-                            onPressed: () {},
-                            style: TextButton.styleFrom(
-                              backgroundColor: AppColors.cta,
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(vertical: 12),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                              textStyle: GoogleFonts.notoSansTc(fontSize: 14, fontWeight: FontWeight.w600),
-                            ),
-                            child: const Text('好呀'),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  TextButton(
-                    onPressed: widget.onContinue,
-                    child: Text('開始使用型得你 →', style: TextStyle(fontSize: 14, color: AppColors.textMuted)),
-                  ),
-                ],
-              ).animate(delay: 800.ms).fadeIn(duration: 500.ms),
-              const Spacer(),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  void _share(PersonalityName name) {
-    final text = '''
-我係 ${name.mbti} ${name.enneagram}：${name.nameCanto} ${name.emoji}
-
-${name.tagline}
-
-「型得你」— 了解自己，贏返自己
-下載：https://xingdeni.app
-''';
-    Share.share(text.trim(), subject: '型得你 — 我係${name.nameCanto}');
-  }
-}
 
 // ──────── 3-TAB CONFIG ────────
 class _Tab {
@@ -318,9 +166,7 @@ class _MainShellState extends State<MainShell> {
                               accentBg: t.accentBg,
                               mbti: widget.mbti,
                               ennea: widget.ennea,
-                              onRetakeTest: () {
-                                Navigator.of(context).popUntil((route) => route.isFirst);
-                              },
+                              onRetakeTest: widget.onRetakeTest,
                             ),
                           ),
                         );
