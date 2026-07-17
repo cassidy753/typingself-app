@@ -14,8 +14,6 @@ import 'features/settings/settings_screen.dart';
 import 'features/personality_naming/naming_engine.dart';
 import 'features/assessment/assessment_intro_screen.dart';
 import 'features/assessment/decision_tree_engine.dart';
-import 'features/shadow_report/shadow_detector_screen.dart';
-import 'features/typesoul/typesoul_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -47,69 +45,33 @@ class AppRoot extends StatefulWidget {
 
 class _AppRootState extends State<AppRoot> {
   bool _loading = true;
-  bool _showTest = true;
-  bool _showTypeSoul = false;
-  bool _showShadowDetector = false;
   String? _mbti;
   String? _ennea;
-  final DecisionTreeEngine _engine = DecisionTreeEngine();
 
   @override
   void initState() { super.initState(); _check(); }
 
   Future<void> _check() async {
     final prefs = await SharedPreferences.getInstance();
-    final done = prefs.getBool('test_done') ?? false;
     final mbti = prefs.getString('mbti');
     final ennea = prefs.getString('ennea');
-    setState(() { _showTest = !done; _mbti = mbti; _ennea = ennea; _loading = false; });
-  }
-
-  void _onTestDone(String mbti, String ennea) {
-    setState(() { _showTest = false; _showTypeSoul = true; _mbti = mbti; _ennea = ennea; });
-  }
-
-  void _onTypeSoulDone() {
-    setState(() { _showTypeSoul = false; _showShadowDetector = true; });
-  }
-
-  void _onShadowDone() {
-    setState(() { _showShadowDetector = false; });
+    setState(() { _mbti = mbti; _ennea = ennea; _loading = false; });
   }
 
   void _onRetakeTest() {
-    setState(() {
-      _showTest = true;
-      _showTypeSoul = false;
-      _showShadowDetector = false;
-      _mbti = null;
-      _ennea = null;
-    });
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => AssessmentIntroScreen(
+          engine: DecisionTreeEngine(),
+          onComplete: (_, __) {},
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     if (_loading) return const SizedBox();
-    if (_showTest) {
-      return AssessmentIntroScreen(
-        engine: _engine,
-        onComplete: _onTestDone,
-      );
-    }
-    if (_showTypeSoul) {
-      return TypeSoulScreen(
-        mbti: _mbti ?? 'ENFJ',
-        ennea: _ennea ?? '5w4',
-        onContinue: _onTypeSoulDone,
-      );
-    }
-    if (_showShadowDetector) {
-      return ShadowDetectorScreen(
-        mbti: _mbti ?? 'ENFJ',
-        ennea: _ennea ?? '5w4',
-        onSkip: _onShadowDone,
-      );
-    }
     return MainShell(mbti: _mbti ?? 'ENFJ', ennea: _ennea ?? '5w4', onRetakeTest: _onRetakeTest);
   }
 }

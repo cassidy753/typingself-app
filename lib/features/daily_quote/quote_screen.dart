@@ -4,6 +4,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../core/theme.dart';
 import '../daily_quote/zodiac_service.dart';
+import '../assessment/assessment_intro_screen.dart';
+import '../assessment/decision_tree_engine.dart';
 
 // ─── Reusable card style ───
 BoxDecoration _cardDecoration() => BoxDecoration(
@@ -76,6 +78,13 @@ class _QuoteScreenState extends State<QuoteScreen> {
 
             // ── Greeting Header ──
             _GreetingHeader(mbti: widget.mbti, ennea: widget.ennea),
+
+            // ── 🧪 Hero CTA: 人格測驗（未完成時顯示） ──
+            if (!_testDone) ...[
+              const SizedBox(height: 20),
+              _TestPromptCard(accent: widget.accent),
+              const SizedBox(height: 24),
+            ],
 
             const SizedBox(height: 26),
 
@@ -202,6 +211,124 @@ class _GreetingHeader extends StatelessWidget {
       case 'ISTP': return '工匠';
       default: return '探索者';
     }
+  }
+}
+
+// ── 🧪 Hero CTA: 人格測驗（未完成時顯示） ──
+class _TestPromptCard extends StatelessWidget {
+  final Color accent;
+  const _TestPromptCard({required this.accent});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            const Color(0xFFEBE0F5), // soft lavender
+            const Color(0xFFFFEDE8), // soft coral
+          ],
+        ),
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(
+          color: AppColors.cta.withValues(alpha: 0.25),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.cta.withValues(alpha: 0.10),
+            blurRadius: 20,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(22, 22, 22, 20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // ── Emoji + badge ──
+            Row(
+              children: [
+                Container(
+                  width: 42, height: 42,
+                  decoration: BoxDecoration(
+                    color: AppColors.cta.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: const Center(
+                    child: Text('🧪', style: TextStyle(fontSize: 22)),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Text('人格測驗', style: GoogleFonts.notoSansTc(
+                  fontSize: 13, fontWeight: FontWeight.w700,
+                  color: AppColors.cta,
+                )),
+              ],
+            ),
+            const SizedBox(height: 14),
+
+            // ── Title ──
+            Text('開始你嘅人格測驗', style: GoogleFonts.notoSerifTc(
+              fontSize: 26, fontWeight: FontWeight.w900,
+              color: AppColors.textPrimary, height: 1.2,
+            )),
+            const SizedBox(height: 8),
+
+            // ── Subtitle ──
+            Text('了解你嘅 MBTI 同 Enneagram 類型，解鎖完整功能。或者碌落去繼續瀏覽都得～', style: GoogleFonts.notoSansTc(
+              fontSize: 14, fontWeight: FontWeight.w400,
+              color: AppColors.textSecondary, height: 1.5,
+            )),
+            const SizedBox(height: 20),
+
+            // ── CTA Button ──
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => AssessmentIntroScreen(
+                        engine: DecisionTreeEngine(),
+                        onComplete: (_, __) {},
+                      ),
+                    ),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.cta,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 18),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(22),
+                  ),
+                  elevation: 0,
+                  textStyle: GoogleFonts.notoSansTc(
+                    fontSize: 17, fontWeight: FontWeight.w700,
+                  ),
+                ),
+                child: const Text('開始測驗'),
+              ),
+            ),
+            const SizedBox(height: 10),
+
+            // ── Skip hint ──
+            Center(
+              child: Text('撳 skip 繼續碌落去睇內容',
+                style: GoogleFonts.notoSansTc(
+                  fontSize: 12, fontWeight: FontWeight.w500,
+                  color: AppColors.textMuted,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 
