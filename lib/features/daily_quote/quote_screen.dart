@@ -5,6 +5,20 @@ import 'package:share_plus/share_plus.dart';
 import '../../core/theme.dart';
 import '../daily_quote/zodiac_service.dart';
 
+// ─── Reusable card style ───
+BoxDecoration _cardDecoration() => BoxDecoration(
+  color: AppColors.surface.withValues(alpha: 0.88),
+  borderRadius: BorderRadius.circular(20),
+  border: Border.all(color: Colors.white.withValues(alpha: 0.6)),
+  boxShadow: [
+    BoxShadow(
+      color: Colors.black.withValues(alpha: 0.04),
+      blurRadius: 24,
+      offset: const Offset(0, 6),
+    ),
+  ],
+);
+
 class QuoteScreen extends StatefulWidget {
   final Color accent;
   final Color accentBg;
@@ -41,56 +55,68 @@ class _QuoteScreenState extends State<QuoteScreen> {
     final now = DateTime.now();
     final dayOfYear = now.difference(DateTime(now.year, 1, 1)).inDays;
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 8),
+    return Container(
+      width: double.infinity,
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Color(0xFFF0E6F6), // soft lavender
+            Color(0xFFFFEDE8), // soft coral/peach
+          ],
+        ),
+      ),
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 22),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 14),
 
-          // ── Greeting Header ──
-          _GreetingHeader(mbti: widget.mbti, ennea: widget.ennea),
+            // ── Greeting Header ──
+            _GreetingHeader(mbti: widget.mbti, ennea: widget.ennea),
 
-          const SizedBox(height: 16),
+            const SizedBox(height: 26),
 
-          // ── 📖 是日金句 ──
-          _Pill('📖 是日金句', accent: widget.accent, accentBg: widget.accentBg),
-          const SizedBox(height: 10),
-          _QuoteCard(accent: widget.accent),
+            // ── 🏠 Section: 是日金句 ──
+            _SectionHeader('📖 是日金句', accent: widget.accent, accentBg: widget.accentBg),
+            const SizedBox(height: 12),
+            _QuoteCard(accent: widget.accent),
 
-          const SizedBox(height: 16),
+            const SizedBox(height: 26),
 
-          // ── 💬 你嘅人格對朋友講嘅說話 ──
-          _Pill('💬 你嘅人格對朋友講嘅說話', accent: widget.accent, accentBg: widget.accentBg),
-          const SizedBox(height: 10),
-          _PersonalizedQuote(mbti: widget.mbti, ennea: widget.ennea, accent: widget.accent),
+            // ── 💬 你嘅人格對朋友講嘅說話 ──
+            _SectionHeader('💬 你嘅人格對朋友講嘅說話', accent: widget.accent, accentBg: widget.accentBg),
+            const SizedBox(height: 12),
+            _PersonalizedQuote(mbti: widget.mbti, ennea: widget.ennea, accent: widget.accent),
 
-          const SizedBox(height: 16),
+            const SizedBox(height: 26),
 
-          // ── 🧭 自我認識旅程 ──
-          _Pill('🧭 自我認識旅程', accent: widget.accent, accentBg: widget.accentBg),
-          const SizedBox(height: 10),
-          _JourneyProgress(
-            testDone: _testDone,
-            shadowDone: _shadowDone,
-            accent: widget.accent,
-            accentBg: widget.accentBg,
-          ),
+            // ── 🧭 自我認識旅程 ──
+            _SectionHeader('🧭 自我認識旅程', accent: widget.accent, accentBg: widget.accentBg),
+            const SizedBox(height: 12),
+            _JourneyProgress(
+              testDone: _testDone,
+              shadowDone: _shadowDone,
+              accent: widget.accent,
+              accentBg: widget.accentBg,
+            ),
 
-          const SizedBox(height: 16),
+            const SizedBox(height: 26),
 
-          // ── 心情 ──
-          _MoodSection(accent: widget.accent, accentBg: widget.accentBg),
+            // ── 心情 ──
+            _MoodSection(accent: widget.accent, accentBg: widget.accentBg),
 
-          const SizedBox(height: 16),
+            const SizedBox(height: 26),
 
-          // ── 星座 ──
-          _ZodiacMini(zodiac: _zodiac, dayOfYear: dayOfYear, accent: widget.accent, accentBg: widget.accentBg),
+            // ── 星座 ──
+            _ZodiacMini(zodiac: _zodiac, dayOfYear: dayOfYear, accent: widget.accent, accentBg: widget.accentBg),
 
-          const SizedBox(height: 16),
-
-          const SizedBox(height: 32),
-        ],
+            const SizedBox(height: 28),
+            const SizedBox(height: 32),
+          ],
+        ),
       ),
     );
   }
@@ -109,42 +135,45 @@ class _GreetingHeader extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: AppColors.border),
-      ),
+      padding: const EdgeInsets.fromLTRB(18, 20, 18, 20),
+      decoration: _cardDecoration(),
       child: Row(
         children: [
           // ── TS brand icon: gradient purple-pink circle with "TS" ──
           Container(
-            width: 48, height: 48,
+            width: 52, height: 52,
             decoration: BoxDecoration(
               gradient: const LinearGradient(
                 colors: [Color(0xFF9B59B6), Color(0xFFFF6B9D)],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
-              borderRadius: BorderRadius.circular(24),
+              borderRadius: BorderRadius.circular(26),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF9B59B6).withValues(alpha: 0.3),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
             ),
             child: Center(
               child: Text('TS', style: GoogleFonts.notoSansTc(
-                fontSize: 16, fontWeight: FontWeight.w800,
+                fontSize: 18, fontWeight: FontWeight.w800,
                 color: Colors.white, letterSpacing: -0.5,
               )),
             ),
           ),
-          const SizedBox(width: 14),
+          const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text('$greeting，$name',
-                  style: GoogleFonts.notoSerifTc(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
-                const SizedBox(height: 2),
+                  style: GoogleFonts.notoSerifTc(fontSize: 22, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
+                const SizedBox(height: 4),
                 Text('$mbti · $ennea',
-                  style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                  style: const TextStyle(fontSize: 13, color: AppColors.textSecondary, fontWeight: FontWeight.w500)),
               ],
             ),
           ),
@@ -174,20 +203,26 @@ class _GreetingHeader extends StatelessWidget {
       default: return '探索者';
     }
   }
-
 }
 
-// ── Section Pill ──
-class _Pill extends StatelessWidget {
+// ── Section Header ──
+class _SectionHeader extends StatelessWidget {
   final String text;
   final Color accent, accentBg;
-  const _Pill(this.text, {required this.accent, required this.accentBg});
+  const _SectionHeader(this.text, {required this.accent, required this.accentBg});
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-      decoration: BoxDecoration(color: accentBg, borderRadius: BorderRadius.circular(20)),
-      child: Text(text, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: accent)),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      decoration: BoxDecoration(
+        color: accentBg,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: accent.withValues(alpha: 0.15)),
+      ),
+      child: Text(text, style: GoogleFonts.notoSansTc(
+        fontSize: 15, fontWeight: FontWeight.w700, color: accent,
+        letterSpacing: 0.3,
+      )),
     );
   }
 }
@@ -201,21 +236,27 @@ class _QuoteCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.border),
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+      decoration: _cardDecoration(),
       child: Column(
         children: [
-          Text('❝', style: TextStyle(fontSize: 28, color: accent.withValues(alpha: 0.15), fontFamily: 'Noto Serif TC', height: 0.5)),
-          const SizedBox(height: 6),
+          // Decorative quote mark
+          Container(
+            width: 40, height: 40,
+            decoration: BoxDecoration(
+              color: accent.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Center(
+              child: Text('❝', style: TextStyle(fontSize: 22, color: accent, fontFamily: 'Noto Serif TC')),
+            ),
+          ),
+          const SizedBox(height: 12),
           Text('怯？你就輸一世。', textAlign: TextAlign.center,
-            style: GoogleFonts.notoSerifTc(fontSize: 17, fontWeight: FontWeight.w700, color: AppColors.textPrimary, height: 1.5)),
-          const SizedBox(height: 4),
-          Text('— 嚦咕嚦咕新年財', style: GoogleFonts.notoSansTc(fontSize: 12, fontStyle: FontStyle.italic, color: AppColors.textMuted)),
-          const SizedBox(height: 10),
+            style: GoogleFonts.notoSerifTc(fontSize: 20, fontWeight: FontWeight.w700, color: AppColors.textPrimary, height: 1.5)),
+          const SizedBox(height: 8),
+          Text('— 嚦咕嚦咕新年財', style: GoogleFonts.notoSansTc(fontSize: 14, fontStyle: FontStyle.italic, color: AppColors.textMuted)),
+          const SizedBox(height: 16),
           // ── Share button ──
           SizedBox(
             width: double.infinity,
@@ -228,8 +269,8 @@ class _QuoteCard extends StatelessWidget {
                 foregroundColor: accent,
                 elevation: 0,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                padding: const EdgeInsets.symmetric(vertical: 10),
-                textStyle: GoogleFonts.notoSansTc(fontSize: 13, fontWeight: FontWeight.w600),
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                textStyle: GoogleFonts.notoSansTc(fontSize: 14, fontWeight: FontWeight.w600),
               ),
             ),
           ),
@@ -250,40 +291,48 @@ class _PersonalizedQuote extends StatelessWidget {
     final phrases = _getPhrases(mbti);
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.border),
-      ),
+      padding: const EdgeInsets.all(18),
+      decoration: _cardDecoration(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: List.generate(3, (i) => Padding(
-          padding: EdgeInsets.only(bottom: i < 2 ? 10 : 0),
+          padding: EdgeInsets.only(bottom: i < 2 ? 14 : 0),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Number badge
               Container(
-                width: 28, height: 28,
+                width: 32, height: 32,
                 decoration: BoxDecoration(
-                  color: accent.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(10),
+                  gradient: LinearGradient(
+                    colors: [accent, accent.withValues(alpha: 0.7)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: accent.withValues(alpha: 0.3),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
                 ),
-                child: Center(child: Text('${i + 1}', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: accent))),
+                child: Center(child: Text('${i + 1}', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.white))),
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: 12),
               Expanded(
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                   decoration: BoxDecoration(
-                    color: AppColors.surface,
+                    color: AppColors.surface.withValues(alpha: 0.6),
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: AppColors.border),
+                    border: Border.all(color: accent.withValues(alpha: 0.1)),
                   ),
-                  child: Text(phrases[i], style: GoogleFonts.notoSerifTc(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textPrimary, height: 1.5)),
+                  child: Text(phrases[i], style: GoogleFonts.notoSerifTc(fontSize: 16, fontWeight: FontWeight.w600, color: AppColors.textPrimary, height: 1.5)),
                 ),
               ),
-              const SizedBox(width: 6),
+              const SizedBox(width: 8),
               Container(
                 decoration: BoxDecoration(
                   color: accent.withValues(alpha: 0.08),
@@ -292,7 +341,7 @@ class _PersonalizedQuote extends StatelessWidget {
                 child: IconButton(
                   icon: Icon(Icons.share, size: 16, color: accent),
                   onPressed: () => Share.share('「${phrases[i]}」\n\n— 型得你 @typingself\n了解你嘅 MBTI 人格：https://xingdeni.app'),
-                  constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+                  constraints: const BoxConstraints(minWidth: 38, minHeight: 38),
                   padding: EdgeInsets.zero,
                   splashRadius: 18,
                 ),
@@ -337,20 +386,16 @@ class _JourneyProgress extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.border),
-      ),
+      padding: const EdgeInsets.all(18),
+      decoration: _cardDecoration(),
       child: Column(
         children: [
           _StageRow(0, '🧠', 'Stage 1', 'MBTI + Enneagram', testDone, accent, accentBg),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
           _StageRow(1, '🌑', 'Stage 2', 'Shadow Report', shadowDone, accent, accentBg),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
           _StageRow(2, '🌱', 'Stage 3', 'Growth Plan', false, accent, accentBg, locked: !shadowDone),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
           _StageRow(3, '💎', 'Stage 4', 'Integration', false, accent, accentBg, locked: true),
         ],
       ),
@@ -375,40 +420,44 @@ class _StageRow extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            width: 36, height: 36,
+            width: 42, height: 42,
             decoration: BoxDecoration(
               color: done ? const Color(0xFF8FA87A).withValues(alpha: 0.15) : accentBg,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(14),
+              border: done
+                  ? Border.all(color: const Color(0xFF8FA87A).withValues(alpha: 0.3))
+                  : Border.all(color: accent.withValues(alpha: 0.15)),
             ),
-            child: Center(child: Text(done ? '✅' : (locked ? '🔒' : emoji), style: TextStyle(fontSize: done ? 14 : 16))),
+            child: Center(child: Text(done ? '✅' : (locked ? '🔒' : emoji), style: TextStyle(fontSize: done ? 16 : 18))),
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
-                Text(subtitle, style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+                Text(title, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
+                const SizedBox(height: 2),
+                Text(subtitle, style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
               ],
             ),
           ),
           if (done)
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
               decoration: BoxDecoration(color: const Color(0xFF8FA87A).withValues(alpha: 0.12), borderRadius: BorderRadius.circular(8)),
-              child: Text('完成', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: const Color(0xFF8FA87A))),
+              child: const Text('完成', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF8FA87A))),
             )
           else if (locked)
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
               decoration: BoxDecoration(color: accentBg, borderRadius: BorderRadius.circular(8)),
-              child: Text('未解鎖', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: accent)),
+              child: Text('未解鎖', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: accent)),
             )
           else
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
               decoration: BoxDecoration(color: accentBg, borderRadius: BorderRadius.circular(8)),
-              child: Text('進行中', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: accent)),
+              child: Text('進行中', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: accent)),
             ),
         ],
       ),
@@ -430,73 +479,95 @@ class _MoodSectionState extends State<_MoodSection> {
 
   @override
   Widget build(BuildContext context) {
+    final labels = ['☀️ 好好', '🙂 幾好', '😐 普通', '😔 麻麻', '😤 好燥'];
     return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.border),
-      ),
+      padding: const EdgeInsets.all(18),
+      decoration: _cardDecoration(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Section header inside card
+          _SectionHeader('😊 今日心情', accent: widget.accent, accentBg: widget.accentBg),
+          const SizedBox(height: 18),
+          // ── Mood dots row ──
           Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                decoration: BoxDecoration(color: widget.accentBg, borderRadius: BorderRadius.circular(10)),
-                child: Text('心情', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: widget.accent)),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          // ── Horizontal bar track with 5 dots ──
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: List.generate(5, (i) {
               final isSelected = _selected == i;
               return GestureDetector(
                 onTap: () => setState(() => _selected = i),
                 child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  width: 36,
-                  height: 36,
+                  duration: const Duration(milliseconds: 250),
+                  width: 48,
+                  height: 48,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: isSelected ? widget.accent : widget.accent.withValues(alpha: 0.12),
-                    border: isSelected
-                        ? Border.all(color: widget.accent, width: 2)
-                        : Border.all(color: widget.accent.withValues(alpha: 0.2)),
+                    color: isSelected ? widget.accent : widget.accent.withValues(alpha: 0.08),
+                    border: Border.all(
+                      color: isSelected
+                          ? widget.accent
+                          : widget.accent.withValues(alpha: 0.15),
+                      width: isSelected ? 2.5 : 1.5,
+                    ),
+                    boxShadow: isSelected
+                        ? [BoxShadow(color: widget.accent.withValues(alpha: 0.3), blurRadius: 12, offset: const Offset(0, 3))]
+                        : null,
                   ),
-                  child: isSelected
-                      ? Center(child: Icon(Icons.favorite, size: 16, color: Colors.white))
-                      : const SizedBox.shrink(),
+                  child: Center(
+                    child: isSelected
+                        ? const Icon(Icons.favorite, size: 20, color: Colors.white)
+                        : Icon(Icons.favorite_border, size: 18, color: widget.accent.withValues(alpha: 0.4)),
+                  ),
                 ),
               );
             }),
           ),
-          const SizedBox(height: 10),
-          // ── Mood labels ──
+          const SizedBox(height: 14),
+          // ── Mood labels row ──
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('😊 開心', style: TextStyle(fontSize: 10, color: _selected != null && _selected! <= 1 ? widget.accent : AppColors.textMuted)),
-              Text('😐 普通', style: TextStyle(fontSize: 10, color: _selected == 2 ? widget.accent : AppColors.textMuted)),
-              Text('😤 生氣', style: TextStyle(fontSize: 10, color: _selected != null && _selected! >= 3 ? widget.accent : AppColors.textMuted)),
-            ],
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: List.generate(5, (i) => Text(
+              labels[i],
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: _selected == i ? FontWeight.w700 : FontWeight.w500,
+                color: _selected == i ? widget.accent : AppColors.textMuted,
+              ),
+            )),
           ),
-          const SizedBox(height: 6),
-          Text(_selected != null ? _moodLabel(_selected!) : '㩒一下記錄今日心情',
-            style: TextStyle(fontSize: 10, color: AppColors.textMuted)),
+          const SizedBox(height: 12),
+          // ── Selected mood feedback ──
+          Center(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: _selected != null ? widget.accent.withValues(alpha: 0.08) : Colors.transparent,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Text(
+                _selected != null ? _moodLabel(_selected!) : '㩒個圓點記錄今日心情',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: _selected != null ? widget.accent : AppColors.textMuted,
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );
   }
 
   String _moodLabel(int i) {
-    if (i <= 1) return '今日心情：開心 😊';
-    if (i == 2) return '今日心情：普通 😐';
-    return '今日心情：生氣 😤';
+    switch (i) {
+      case 0: return '今日心情好好 ☀️';
+      case 1: return '今日心情幾好 🙃';
+      case 2: return '今日心情普通 😐';
+      case 3: return '今日心情麻麻 😔';
+      case 4: return '今日心情好燥 😤';
+      default: return '今日心情：—';
+    }
   }
 }
 
@@ -513,36 +584,58 @@ class _ZodiacMini extends StatelessWidget {
     final emoji = ZodiacService.signEmoji[sign] ?? '♏';
     final horoscope = ZodiacService.dailyHoroscope(sign, dayOfYear);
     return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.border),
-      ),
+      padding: const EdgeInsets.all(18),
+      decoration: _cardDecoration(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Header
+          _SectionHeader('🌟 今日運程', accent: accent, accentBg: accentBg),
+          const SizedBox(height: 16),
+          // Sign row
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                decoration: BoxDecoration(color: accentBg, borderRadius: BorderRadius.circular(10)),
-                child: Text('運程', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: accent)),
+                width: 44, height: 44,
+                decoration: BoxDecoration(
+                  color: accentBg,
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: accent.withValues(alpha: 0.15)),
+                ),
+                child: Center(child: Text(emoji, style: const TextStyle(fontSize: 22))),
               ),
+              const SizedBox(width: 12),
+              Text(sign, style: GoogleFonts.notoSansTc(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
             ],
+          ),
+          const SizedBox(height: 12),
+          // Horoscope text
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: accent.withValues(alpha: 0.04),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: accent.withValues(alpha: 0.08)),
+            ),
+            child: Text(horoscope, style: const TextStyle(fontSize: 13, color: AppColors.textSecondary, height: 1.5)),
           ),
           const SizedBox(height: 10),
-          Row(
-            children: [
-              Text(emoji, style: const TextStyle(fontSize: 24)),
-              const SizedBox(width: 6),
-              Text(sign, style: GoogleFonts.notoSansTc(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
-            ],
+          // Settings link
+          Align(
+            alignment: Alignment.centerRight,
+            child: GestureDetector(
+              onTap: () {},
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                decoration: BoxDecoration(
+                  color: accentBg,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text('設定星座 →', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: accent)),
+              ),
+            ),
           ),
-          const SizedBox(height: 6),
-          Text(horoscope, style: TextStyle(fontSize: 11, color: AppColors.textSecondary, height: 1.4)),
-          const SizedBox(height: 6),
-          Text('設定星座 → 我嘅', style: TextStyle(fontSize: 9, color: AppColors.textMuted)),
         ],
       ),
     );

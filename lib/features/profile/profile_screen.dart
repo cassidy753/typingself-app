@@ -1,3 +1,9 @@
+// ═══════════════════════════════════════════════════════════════════════
+// ProfileScreen — 我嘅 (Tab 3)
+// Edition 2 redesign: gradient background, larger fonts, spacious layout
+// Daebi palette · HK Cantonese tone
+// ═══════════════════════════════════════════════════════════════════════
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -39,79 +45,95 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     if (!_loaded) return const Center(child: CircularProgressIndicator());
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Column(
-        children: [
-          const SizedBox(height: 8),
+    // ── Full-bleed gradient background (lavender → sand → coral) ──
+    return Container(
+      width: double.infinity,
+      height: double.infinity,
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Color(0xFFEBE0F5), // light purple / lavender
+            Color(0xFFF5EDE0), // warm sand
+            Color(0xFFFCE8E0), // light coral
+          ],
+        ),
+      ),
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: Column(
+          children: [
+            const SizedBox(height: 12),
 
-          // ── ⭐ Profile Card ──
-          _ProfileCard(
-            mbti: widget.mbti,
-            ennea: widget.ennea,
-            accent: widget.accent,
-            accentBg: widget.accentBg,
-          ),
+            // ── ⭐ Profile Hero Card ──
+            _ProfileCard(
+              mbti: widget.mbti,
+              ennea: widget.ennea,
+              accent: widget.accent,
+              accentBg: widget.accentBg,
+            ),
 
-          const SizedBox(height: 14),
+            const SizedBox(height: 20),
 
-          // ── 📊 使用統計 ──
-          _UsageStats(
-            daysUsed: _daysUsed,
-            quotesSeen: _quotesSeen,
-            testsDone: _testsDone,
-            shadowDone: _shadowDone,
-            accent: widget.accent,
-          ),
+            // ── 📊 使用統計 ──
+            _UsageStats(
+              daysUsed: _daysUsed,
+              quotesSeen: _quotesSeen,
+              testsDone: _testsDone,
+              shadowDone: _shadowDone,
+              accent: widget.accent,
+            ),
 
-          const SizedBox(height: 14),
+            const SizedBox(height: 20),
 
-          // ── 📋 整合報告 ──
-          _SectionHeader('📋 完整人格報告', widget.accent),
-          const SizedBox(height: 8),
-          _IntegratedReportCTA(
-            mbti: widget.mbti,
-            ennea: widget.ennea,
-            accent: widget.accent,
-            accentBg: widget.accentBg,
-          ),
+            // ── 📋 完整人格報告 ──
+            _SectionHeader('📋 完整人格報告', widget.accent),
+            const SizedBox(height: 10),
+            _IntegratedReportCTA(
+              mbti: widget.mbti,
+              ennea: widget.ennea,
+              accent: widget.accent,
+              accentBg: widget.accentBg,
+            ),
 
-          const SizedBox(height: 14),
+            const SizedBox(height: 20),
 
-          // ── 💎 會員 ──
-          _SectionHeader('💎 型得你會員', widget.accent),
-          const SizedBox(height: 8),
-          _MemberCard(accent: widget.accent, accentBg: widget.accentBg),
+            // ── 💎 型得你會員 ──
+            _SectionHeader('💎 型得你會員', widget.accent),
+            const SizedBox(height: 10),
+            _MemberCard(accent: widget.accent, accentBg: widget.accentBg),
 
-          const SizedBox(height: 14),
+            const SizedBox(height: 20),
 
-          // ── 📋 深度報告 ──
-          _SectionHeader('📋 深度報告', widget.accent),
-          const SizedBox(height: 8),
-          _ReportItem('📋', 'MBTI九 深度分析', '完整認知功能 + 發展建議', '\$18', widget.accent),
-          const SizedBox(height: 6),
-          _ReportItem('📊', '心靈健康詳細報告', '情景題深度檢測 + 認知模式', '\$18', widget.accent),
-          const SizedBox(height: 6),
-          Center(
-            child: Text('🎁 買任何報告即送 1 個月會員',
-              style: GoogleFonts.notoSansTc(fontSize: 11, color: AppColors.textSecondary)),
-          ),
+            // ── 📋 深度報告 ──
+            _SectionHeader('📋 深度報告', widget.accent),
+            const SizedBox(height: 10),
+            _ReportItem('📋', 'MBTI 九型深度分析', '完整認知功能 + 發展建議', '\$18', widget.accent),
+            const SizedBox(height: 8),
+            _ReportItem('📊', '心靈健康詳細報告', '情景題深度檢測 + 認知模式', '\$18', widget.accent),
+            const SizedBox(height: 10),
+            Center(
+              child: Text('🎁 買任何報告即送 1 個月會員',
+                style: GoogleFonts.notoSansTc(fontSize: 12, color: AppColors.textSecondary)),
+            ),
 
-          const SizedBox(height: 14),
+            const SizedBox(height: 20),
 
-          // ── ☕ 支持我哋 (Donation) ──
-          _SectionHeader('☕ 請我哋飲杯嘢', widget.accent),
-          const SizedBox(height: 8),
-          _DonationSection(accent: widget.accent, accentBg: widget.accentBg),
+            // ── ☕ 請我哋飲杯嘢 (Donation) ──
+            _SectionHeader('☕ 請我哋飲杯嘢', widget.accent),
+            const SizedBox(height: 10),
+            _DonationSection(accent: widget.accent, accentBg: widget.accentBg),
 
-          const SizedBox(height: 32),
-        ],
+            const SizedBox(height: 40),
+          ],
+        ),
       ),
     );
   }
 }
 
-// ── Profile Card ──
+// ── Profile Hero Card ──
 class _ProfileCard extends StatelessWidget {
   final String mbti, ennea;
   final Color accent, accentBg;
@@ -123,44 +145,64 @@ class _ProfileCard extends StatelessWidget {
     final emoji = _getEmoji(mbti);
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [accent, accent.withValues(alpha: 0.85)],
           begin: Alignment.topLeft, end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(28),
+        boxShadow: [
+          BoxShadow(
+            color: accent.withValues(alpha: 0.25),
+            blurRadius: 20,
+            offset: const Offset(0, 6),
+          ),
+        ],
       ),
       child: Column(
         children: [
+          // ── Big emoji ──
           Container(
-            width: 64, height: 64,
+            width: 80, height: 80,
             decoration: BoxDecoration(
               color: Colors.white.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(22),
             ),
-            child: Center(child: Text(emoji, style: const TextStyle(fontSize: 34))),
-          ),
-          const SizedBox(height: 12),
-          Text(name, style: GoogleFonts.notoSerifTc(fontSize: 24, fontWeight: FontWeight.w900, color: Colors.white)),
-          const SizedBox(height: 4),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: Text('$mbti · $ennea', style: GoogleFonts.notoSansTc(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.white)),
+            child: Center(child: Text(emoji, style: const TextStyle(fontSize: 42))),
           ),
           const SizedBox(height: 16),
+
+          // ── Canto name (Noto Serif TC, larger) ──
+          Text(name, style: GoogleFonts.notoSerifTc(
+            fontSize: 28, fontWeight: FontWeight.w900, color: Colors.white,
+            letterSpacing: 1.2,
+          )),
+          const SizedBox(height: 8),
+
+          // ── MBTI · Enneagram badge ──
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 6),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Text('$mbti · $ennea', style: GoogleFonts.notoSansTc(
+              fontSize: 15, fontWeight: FontWeight.w700, color: Colors.white,
+            )),
+          ),
+
+          const SizedBox(height: 20),
+
+          // ── Journey mini-steps ──
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _MiniStat('了解自己', '第 1 步', Colors.white.withValues(alpha: 0.9)),
-              Container(width: 1, height: 28, color: Colors.white.withValues(alpha: 0.2), margin: const EdgeInsets.symmetric(horizontal: 20)),
-              _MiniStat('認識陰影', '第 2 步', Colors.white.withValues(alpha: 0.9)),
-              Container(width: 1, height: 28, color: Colors.white.withValues(alpha: 0.2), margin: const EdgeInsets.symmetric(horizontal: 20)),
-              _MiniStat('成長整合', '第 3-4 步', Colors.white.withValues(alpha: 0.9)),
+              _miniStat('了解自己', '第 1 步', Colors.white.withValues(alpha: 0.9)),
+              Container(width: 1, height: 32, color: Colors.white.withValues(alpha: 0.2), margin: const EdgeInsets.symmetric(horizontal: 24)),
+              _miniStat('認識陰影', '第 2 步', Colors.white.withValues(alpha: 0.9)),
+              Container(width: 1, height: 32, color: Colors.white.withValues(alpha: 0.2), margin: const EdgeInsets.symmetric(horizontal: 24)),
+              _miniStat('成長整合', '第 3-4 步', Colors.white.withValues(alpha: 0.9)),
             ],
           ),
         ],
@@ -168,10 +210,11 @@ class _ProfileCard extends StatelessWidget {
     );
   }
 
-  Widget _MiniStat(String label, String value, Color color) {
+  Widget _miniStat(String label, String value, Color color) {
     return Column(children: [
-      Text(value, style: GoogleFonts.notoSansTc(fontSize: 12, fontWeight: FontWeight.w700, color: color)),
-      Text(label, style: GoogleFonts.notoSansTc(fontSize: 9, color: color.withValues(alpha: 0.7))),
+      Text(value, style: GoogleFonts.notoSansTc(fontSize: 14, fontWeight: FontWeight.w700, color: color)),
+      const SizedBox(height: 2),
+      Text(label, style: GoogleFonts.notoSansTc(fontSize: 11, color: color.withValues(alpha: 0.7))),
     ]);
   }
 
@@ -214,27 +257,30 @@ class _UsageStats extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 24),
       decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.border),
+        color: Colors.white.withValues(alpha: 0.82),
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: AppColors.border.withValues(alpha: 0.5)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _StatItem('$daysUsed', '日使用', accent),
-          _StatItem('$quotesSeen', '句語句', accent),
-          _StatItem('${testsDone + (shadowDone ? 1 : 0)}', '已完成', accent),
+          _statItem('$daysUsed', '日使用', accent),
+          Container(width: 1, height: 36, color: AppColors.divider.withValues(alpha: 0.4)),
+          _statItem('$quotesSeen', '句語句', accent),
+          Container(width: 1, height: 36, color: AppColors.divider.withValues(alpha: 0.4)),
+          _statItem('${testsDone + (shadowDone ? 1 : 0)}', '已完成', accent),
         ],
       ),
     );
   }
 
-  Widget _StatItem(String num, String label, Color accent) {
+  Widget _statItem(String num, String label, Color accent) {
     return Column(children: [
-      Text(num, style: GoogleFonts.notoSerifTc(fontSize: 24, fontWeight: FontWeight.w900, color: accent)),
-      Text(label, style: TextStyle(fontSize: 11, color: AppColors.textMuted)),
+      Text(num, style: GoogleFonts.notoSerifTc(fontSize: 28, fontWeight: FontWeight.w900, color: accent)),
+      const SizedBox(height: 4),
+      Text(label, style: GoogleFonts.notoSansTc(fontSize: 13, color: AppColors.textMuted)),
     ]);
   }
 }
@@ -248,7 +294,10 @@ class _SectionHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 0),
-      child: Text(text, style: GoogleFonts.notoSerifTc(fontSize: 14, fontWeight: FontWeight.w700, color: accent)),
+      child: Text(text, style: GoogleFonts.notoSerifTc(
+        fontSize: 17, fontWeight: FontWeight.w800, color: accent,
+        letterSpacing: 0.5,
+      )),
     );
   }
 }
@@ -262,11 +311,11 @@ class _MemberCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(22),
       decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: AppColors.border),
+        color: Colors.white.withValues(alpha: 0.82),
+        borderRadius: BorderRadius.circular(26),
+        border: Border.all(color: AppColors.border.withValues(alpha: 0.5)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -274,27 +323,26 @@ class _MemberCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('會員', style: GoogleFonts.notoSansTc(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
+              Text('會員', style: GoogleFonts.notoSansTc(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text('\$15', style: GoogleFonts.notoSerifTc(fontSize: 32, fontWeight: FontWeight.w900, color: AppColors.textPrimary)),
+                  Text('\$15', style: GoogleFonts.notoSerifTc(fontSize: 36, fontWeight: FontWeight.w900, color: AppColors.textPrimary)),
                   const Padding(
                     padding: EdgeInsets.only(bottom: 4),
-                    child: Text(' /次·Stage 3', style: TextStyle(fontSize: 13, color: AppColors.textMuted)),
+                    child: Text(' /次·Stage 3', style: TextStyle(fontSize: 14, color: AppColors.textMuted)),
                   ),
                 ],
               ),
             ],
           ),
-          const SizedBox(height: 4),
-          _Feat('✅ 無限 MBTI + Enneagram 測試'),
-          _Feat('✅ Shadow Report 完整版'),
-          _Feat('✅ 成長計劃 + S.O.A.R. 自我觀察日記'),
-          _Feat('✅ 無廣告'),
-          const SizedBox(height: 14),
+          const SizedBox(height: 8),
+          _feat('✅ 無限 MBTI + Enneagram 測試'),
+          _feat('✅ Shadow Report 完整版'),
+          _feat('✅ 成長計劃 + S.O.A.R. 自我觀察日記'),
+          _feat('✅ 無廣告'),
+          const SizedBox(height: 18),
 
-          // Stage 3 button
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
@@ -302,45 +350,44 @@ class _MemberCard extends StatelessWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.disabled,
                 foregroundColor: AppColors.disabledText,
-                padding: const EdgeInsets.symmetric(vertical: 14),
+                padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-                textStyle: GoogleFonts.notoSansTc(fontSize: 15, fontWeight: FontWeight.w700),
+                textStyle: GoogleFonts.notoSansTc(fontSize: 16, fontWeight: FontWeight.w700),
               ),
               child: const Text('需要進一步解鎖'),
             ),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 10),
 
-          // Stage 4 / Monthly
           SizedBox(
             width: double.infinity,
             child: OutlinedButton(
               onPressed: () => _showComingSoon(context, 'Stage 4'),
               style: OutlinedButton.styleFrom(
                 foregroundColor: AppColors.disabledText,
-                side: BorderSide(color: AppColors.border),
-                padding: const EdgeInsets.symmetric(vertical: 12),
+                side: BorderSide(color: AppColors.border.withValues(alpha: 0.6)),
+                padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-                textStyle: GoogleFonts.notoSansTc(fontSize: 14, fontWeight: FontWeight.w600),
+                textStyle: GoogleFonts.notoSansTc(fontSize: 15, fontWeight: FontWeight.w600),
               ),
               child: const Text('需要進一步解鎖'),
             ),
           ),
 
-          const SizedBox(height: 6),
+          const SizedBox(height: 8),
           Center(
             child: Text('所有付款經 Stripe 安全處理 · AlipayHK / FPS / 信用卡',
-              style: GoogleFonts.notoSansTc(fontSize: 10, color: AppColors.textMuted)),
+              style: GoogleFonts.notoSansTc(fontSize: 11, color: AppColors.textMuted)),
           ),
         ],
       ),
     );
   }
 
-  Widget _Feat(String text) {
+  Widget _feat(String text) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 3),
-      child: Text(text, style: GoogleFonts.notoSansTc(fontSize: 13, color: AppColors.textPrimary)),
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Text(text, style: GoogleFonts.notoSansTc(fontSize: 14, color: AppColors.textPrimary)),
     );
   }
 
@@ -366,32 +413,32 @@ class _ReportItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.border),
+        color: Colors.white.withValues(alpha: 0.82),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.border.withValues(alpha: 0.5)),
       ),
       child: Row(children: [
-        Text(icon, style: const TextStyle(fontSize: 24)),
-        const SizedBox(width: 12),
+        Text(icon, style: const TextStyle(fontSize: 28)),
+        const SizedBox(width: 14),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(title, style: GoogleFonts.notoSansTc(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
-              const SizedBox(height: 2),
-              Text(desc, style: GoogleFonts.notoSansTc(fontSize: 12, color: AppColors.textSecondary)),
+              Text(title, style: GoogleFonts.notoSansTc(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
+              const SizedBox(height: 3),
+              Text(desc, style: GoogleFonts.notoSansTc(fontSize: 13, color: AppColors.textSecondary)),
             ],
           ),
         ),
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           decoration: BoxDecoration(
-            color: AppColors.disabled,
-            borderRadius: BorderRadius.circular(10),
+            color: AppColors.disabled.withValues(alpha: 0.6),
+            borderRadius: BorderRadius.circular(12),
           ),
-          child: Text('需要進一步解鎖', style: GoogleFonts.notoSansTc(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.disabledText)),
+          child: Text('需要進一步解鎖', style: GoogleFonts.notoSansTc(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.disabledText)),
         ),
       ]),
     );
@@ -413,7 +460,7 @@ class _IntegratedReportCTA extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(22),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
@@ -423,42 +470,42 @@ class _IntegratedReportCTA extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: accent.withValues(alpha: 0.2)),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: accent.withValues(alpha: 0.25)),
       ),
       child: Column(
         children: [
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(10),
+                padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
                   color: accent.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(16),
                 ),
-                child: Text('📋', style: TextStyle(fontSize: 24)),
+                child: const Text('📋', style: TextStyle(fontSize: 28)),
               ),
-              const SizedBox(width: 14),
+              const SizedBox(width: 16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text('整合報告', style: GoogleFonts.notoSerifTc(
-                      fontSize: 16, fontWeight: FontWeight.w900, color: AppColors.textPrimary,
+                      fontSize: 18, fontWeight: FontWeight.w900, color: AppColors.textPrimary,
                     )),
-                    const SizedBox(height: 2),
+                    const SizedBox(height: 3),
                     Text('一次過睇晒 3 個 Stage 嘅結果', style: GoogleFonts.notoSansTc(
-                      fontSize: 11, color: AppColors.textSecondary,
+                      fontSize: 12, color: AppColors.textSecondary,
                     )),
                   ],
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 18),
           SizedBox(
             width: double.infinity,
-            height: 48,
+            height: 52,
             child: FilledButton.icon(
               onPressed: () {
                 Navigator.of(context).push(
@@ -470,28 +517,28 @@ class _IntegratedReportCTA extends StatelessWidget {
                   ),
                 );
               },
-              icon: const Icon(Icons.auto_awesome_rounded, size: 18),
+              icon: const Icon(Icons.auto_awesome_rounded, size: 20),
               label: const Text('睇我嘅完整報告'),
               style: FilledButton.styleFrom(
                 backgroundColor: accent,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(18),
+                  borderRadius: BorderRadius.circular(20),
                 ),
                 textStyle: GoogleFonts.notoSansTc(
-                  fontSize: 15, fontWeight: FontWeight.w700,
+                  fontSize: 16, fontWeight: FontWeight.w700,
                 ),
                 elevation: 0,
               ),
             ),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 8),
           Row(
             children: [
               _stageBadge('① 型格', AppColors.cta),
-              const SizedBox(width: 6),
+              const SizedBox(width: 8),
               _stageBadge('② 暗影', AppColors.purple),
-              const SizedBox(width: 6),
+              const SizedBox(width: 8),
               _stageBadge('③ 成長', AppColors.sage),
             ],
           ),
@@ -502,13 +549,13 @@ class _IntegratedReportCTA extends StatelessWidget {
 
   Widget _stageBadge(String label, Color color) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(10),
       ),
       child: Text(label, style: GoogleFonts.notoSansTc(
-        fontSize: 9, fontWeight: FontWeight.w600, color: color,
+        fontSize: 10, fontWeight: FontWeight.w700, color: color,
       )),
     );
   }
@@ -523,36 +570,36 @@ class _DonationSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.border),
+        color: Colors.white.withValues(alpha: 0.82),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: AppColors.border.withValues(alpha: 0.5)),
       ),
       child: Column(
         children: [
           Text('你嘅支持令我哋可以繼續免費提供語句同基本測試 🫶',
-            textAlign: TextAlign.center, style: GoogleFonts.notoSansTc(fontSize: 12, color: AppColors.textSecondary)),
-          const SizedBox(height: 12),
+            textAlign: TextAlign.center, style: GoogleFonts.notoSansTc(fontSize: 13, color: AppColors.textSecondary, height: 1.5)),
+          const SizedBox(height: 16),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _DonateBtn('\$8', context, accent, accentBg),
-              const SizedBox(width: 8),
-              _DonateBtn('\$15', context, accent, accentBg),
-              const SizedBox(width: 8),
-              _DonateBtn('\$30', context, accent, accentBg),
+              _donateBtn('\$8', context, accent, accentBg),
+              const SizedBox(width: 12),
+              _donateBtn('\$15', context, accent, accentBg),
+              const SizedBox(width: 12),
+              _donateBtn('\$30', context, accent, accentBg),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
           Text('一筆過 · 無附加功能 · 純粹支持',
-            style: GoogleFonts.notoSansTc(fontSize: 10, color: AppColors.textMuted)),
+            style: GoogleFonts.notoSansTc(fontSize: 11, color: AppColors.textMuted)),
         ],
       ),
     );
   }
 
-  Widget _DonateBtn(String amount, BuildContext context, Color accent, Color accentBg) {
+  Widget _donateBtn(String amount, BuildContext context, Color accent, Color accentBg) {
     return GestureDetector(
       onTap: () {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -565,13 +612,13 @@ class _DonationSection extends StatelessWidget {
         );
       },
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 12),
         decoration: BoxDecoration(
           color: accentBg,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: accent.withValues(alpha: 0.3)),
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: accent.withValues(alpha: 0.35)),
         ),
-        child: Text(amount, style: GoogleFonts.notoSansTc(fontSize: 14, fontWeight: FontWeight.w600, color: accent)),
+        child: Text(amount, style: GoogleFonts.notoSansTc(fontSize: 16, fontWeight: FontWeight.w700, color: accent)),
       ),
     );
   }
