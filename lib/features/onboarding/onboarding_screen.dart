@@ -1,6 +1,10 @@
 // ═══════════════════════════════════════════════════════════════════════
 // OnboardingScreen — Edition 2 Redesign
-// 3-step swipeable PageView: Welcome → Version Selection → Ready
+// 3-step swipeable PageView:
+//   1. "認識你自己" — app intro with brain+butterfly branding
+//   2. "MBTI + 九型人格" — introduce the two systems simply
+//   3. Assessment version cards + "跳過測試" (skip) button
+// After completing (viewing all 3 or tapping skip), set onboarding_done=true
 // Glassmorphism cards · Gradient bg (lavender→coral) · Daebi palette · HK Cantonese
 // ═══════════════════════════════════════════════════════════════════════
 
@@ -36,15 +40,26 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     super.dispose();
   }
 
-  void _onSkip() {
+  /// Complete onboarding — set flag and go to home
+  Future<void> _completeOnboarding() async {
     if (_skipLocked) return;
     _skipLocked = true;
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('onboarding_done', true);
+
+    if (!mounted) return;
     Navigator.of(context).pushReplacementNamed('/home');
   }
 
   void _onSelectVersion(int index) {
     if (_skipLocked) return;
     _skipLocked = true;
+
+    // Also mark onboarding done so next launch skips it
+    SharedPreferences.getInstance().then((prefs) {
+      prefs.setBool('onboarding_done', true);
+    });
 
     final version = AssessmentVersions.all[index];
     final fresh = DecisionTreeEngine(questionCount: version.questionCount);
@@ -105,7 +120,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 ),
               ),
 
-              // ─── Top bar: skip / back + dots ───
+              // ─── Top bar: back + dots + skip ───
               Positioned(
                 top: 0,
                 left: 0,
@@ -146,12 +161,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         )),
                       ),
                       const Spacer(),
-                      // ── Skip / Next ──
+                      // ── Skip button (appears on page 1 & 2) ──
                       if (_currentPage < 2)
                         GestureDetector(
-                          onTap: _currentPage == 0
-                              ? _onSkip
-                              : () => _goToPage(_currentPage + 1),
+                          onTap: _completeOnboarding,
                           child: Container(
                             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                             decoration: BoxDecoration(
@@ -159,7 +172,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Text(
-                              _currentPage == 0 ? '跳過' : '下一步',
+                              '跳過',
                               style: GoogleFonts.notoSansTc(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
@@ -182,9 +195,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   controller: _pageCtrl,
                   onPageChanged: (i) => setState(() => _currentPage = i),
                   children: [
-                    _WelcomeStep(onSkip: _onSkip),
-                    _VersionStep(onSelect: _onSelectVersion),
-                    _ReadyStep(onStart: _onSkip, onSelect: _onSelectVersion),
+                    _Page1KnowYourself(),
+                    _Page2IntroSystems(),
+                    _Page3AssessmentOrSkip(
+                      onSelectVersion: _onSelectVersion,
+                      onSkip: _completeOnboarding,
+                    ),
                   ],
                 ),
               ),
@@ -197,13 +213,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
-// Step 1: Welcome
+// Page 1: "認識你自己" — app intro with brain+butterfly branding
 // ═══════════════════════════════════════════════════════════════════════
 
-class _WelcomeStep extends StatelessWidget {
-  final VoidCallback onSkip;
-  const _WelcomeStep({required this.onSkip});
-
+class _Page1KnowYourself extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -211,7 +224,7 @@ class _WelcomeStep extends StatelessWidget {
       child: Column(
         children: [
           const Spacer(flex: 1),
-          // ── Emoji icon ──
+          // ── Brand icon: brain + butterfly ──
           TweenAnimationBuilder<double>(
             tween: Tween(begin: 0.0, end: 1.0),
             duration: const Duration(milliseconds: 600),
@@ -226,15 +239,15 @@ class _WelcomeStep extends StatelessWidget {
               );
             },
             child: Container(
-              width: 100,
-              height: 100,
+              width: 120,
+              height: 120,
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
                   colors: [Color(0xFF9B72AA), Color(0xFFE0785A)],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
-                borderRadius: BorderRadius.circular(28),
+                borderRadius: BorderRadius.circular(32),
                 boxShadow: [
                   BoxShadow(
                     color: AppColors.purple.withValues(alpha: 0.3),
@@ -244,7 +257,7 @@ class _WelcomeStep extends StatelessWidget {
                 ],
               ),
               child: const Center(
-                child: Text('🧠', style: TextStyle(fontSize: 44)),
+                child: Text('🧠🦋', style: TextStyle(fontSize: 48)),
               ),
             ),
           ),
@@ -264,7 +277,7 @@ class _WelcomeStep extends StatelessWidget {
               );
             },
             child: Text(
-              '歡迎你嚟到\nTypingself！',
+              '認識你自己',
               textAlign: TextAlign.center,
               style: GoogleFonts.notoSerifTc(
                 fontSize: 34,
@@ -291,7 +304,7 @@ class _WelcomeStep extends StatelessWidget {
               );
             },
             child: Text(
-              '了解自己，係成長嘅第一步。\n由人格類型開始，發掘你最真實嘅一面。',
+              '歡迎嚟到 Typingself — 一個幫你認識自己、了解自己嘅人格成長平台。\n由腦（思維）到蝶（蛻變），我哋陪你一齊經歷呢趟自我發現嘅旅程。',
               textAlign: TextAlign.center,
               style: GoogleFonts.notoSansTc(
                 fontSize: 16,
@@ -301,23 +314,24 @@ class _WelcomeStep extends StatelessWidget {
               ),
             ),
           ),
-          const Spacer(flex: 1),
-          // ── Bottom CTA ──
-          GestureDetector(
-            onTap: onSkip,
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 40),
-              child: Text(
-                '了解型得你 🫵',
-                style: GoogleFonts.notoSansTc(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.purple,
-                  decoration: TextDecoration.underline,
-                  decorationColor: AppColors.purple.withValues(alpha: 0.4),
-                  decorationThickness: 1.5,
+          const Spacer(flex: 2),
+          // ── Swipe hint ──
+          Padding(
+            padding: const EdgeInsets.only(bottom: 40),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  '向左滑繼續',
+                  style: GoogleFonts.notoSansTc(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.textMuted,
+                  ),
                 ),
-              ),
+                const SizedBox(width: 6),
+                Icon(Icons.arrow_forward_rounded, size: 18, color: AppColors.textMuted.withValues(alpha: 0.6)),
+              ],
             ),
           ),
         ],
@@ -327,134 +341,21 @@ class _WelcomeStep extends StatelessWidget {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
-// Step 2: Version Selection
+// Page 2: "MBTI + 九型人格" — introduce the two systems simply
 // ═══════════════════════════════════════════════════════════════════════
 
-class _VersionStep extends StatelessWidget {
-  final void Function(int index) onSelect;
-  const _VersionStep({required this.onSelect});
-
+class _Page2IntroSystems extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    const versions = AssessmentVersions.all;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 28),
       child: Column(
         children: [
           const SizedBox(height: 20),
-          Text(
-            '揀個版本，開始你嘅\n人格探索之旅',
-            textAlign: TextAlign.center,
-            style: GoogleFonts.notoSerifTc(
-              fontSize: 24,
-              fontWeight: FontWeight.w900,
-              color: AppColors.textPrimary,
-              height: 1.3,
-            ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            '三個版本，不同程度的詳細分析',
-            style: GoogleFonts.notoSansTc(
-              fontSize: 13,
-              color: AppColors.textSecondary,
-            ),
-          ),
-          const SizedBox(height: 28),
-          // ── 3 Version Cards ──
-          for (int i = 0; i < versions.length; i++)
-            Padding(
-              padding: EdgeInsets.only(bottom: i < versions.length - 1 ? 14 : 0),
-              child: TweenAnimationBuilder<double>(
-                tween: Tween(begin: 0.0, end: 1.0),
-                duration: Duration(milliseconds: 500 + i * 80),
-                curve: Curves.easeOutCubic,
-                builder: (context, value, child) {
-                  return Opacity(
-                    opacity: value,
-                    child: Transform.translate(
-                      offset: Offset(0, 24 * (1 - value)),
-                      child: child,
-                    ),
-                  );
-                },
-                child: _OnboardingVersionCard(
-                  emoji: versions[i].emoji,
-                  label: versions[i].label,
-                  description: versions[i].description,
-                  questionCount: versions[i].questionCount,
-                  accuracy: versions[i].accuracy,
-                  time: versions[i].time,
-                  accentKey: versions[i].label,
-                  onTap: () => onSelect(i),
-                  showRecommendedBadge: i == 1,
-                ),
-              ),
-            ),
-          const Spacer(),
-        ],
-      ),
-    );
-  }
-}
-
-// ═══════════════════════════════════════════════════════════════════════
-// Step 3: Ready / Final
-// ═══════════════════════════════════════════════════════════════════════
-
-class _ReadyStep extends StatelessWidget {
-  final VoidCallback onStart;
-  final void Function(int index) onSelect;
-  const _ReadyStep({required this.onStart, required this.onSelect});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 28),
-      child: Column(
-        children: [
-          const Spacer(flex: 2),
-          // ── Big emoji ──
+          // ── Title ──
           TweenAnimationBuilder<double>(
             tween: Tween(begin: 0.0, end: 1.0),
             duration: const Duration(milliseconds: 600),
-            curve: Curves.easeOutBack,
-            builder: (context, value, child) {
-              return Opacity(
-                opacity: value,
-                child: Transform.scale(
-                  scale: value,
-                  child: child,
-                ),
-              );
-            },
-            child: Container(
-              width: 120,
-              height: 120,
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFFD4A843), Color(0xFFE0785A)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(32),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.mustard.withValues(alpha: 0.3),
-                    blurRadius: 24,
-                    offset: const Offset(0, 8),
-                  ),
-                ],
-              ),
-              child: const Center(
-                child: Text('🚀', style: TextStyle(fontSize: 52)),
-              ),
-            ),
-          ),
-          const SizedBox(height: 32),
-          TweenAnimationBuilder<double>(
-            tween: Tween(begin: 0.0, end: 1.0),
-            duration: const Duration(milliseconds: 700),
             curve: Curves.easeOutCubic,
             builder: (context, value, child) {
               return Opacity(
@@ -466,18 +367,20 @@ class _ReadyStep extends StatelessWidget {
               );
             },
             child: Text(
-              '準備好未？',
+              'MBTI + 九型人格',
+              textAlign: TextAlign.center,
               style: GoogleFonts.notoSerifTc(
                 fontSize: 30,
                 fontWeight: FontWeight.w900,
                 color: AppColors.textPrimary,
+                height: 1.3,
               ),
             ),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 6),
           TweenAnimationBuilder<double>(
             tween: Tween(begin: 0.0, end: 1.0),
-            duration: const Duration(milliseconds: 800),
+            duration: const Duration(milliseconds: 700),
             curve: Curves.easeOutCubic,
             builder: (context, value, child) {
               return Opacity(
@@ -489,20 +392,150 @@ class _ReadyStep extends StatelessWidget {
               );
             },
             child: Text(
-              '你可以隨時跳過測驗，直接探索其他內容。\n或者而家就開始，了解真實嘅自己。',
-              textAlign: TextAlign.center,
+              '兩大系統，互相補充，更全面認識自己',
               style: GoogleFonts.notoSansTc(
-                fontSize: 15,
+                fontSize: 14,
                 color: AppColors.textSecondary,
-                height: 1.6,
               ),
             ),
           ),
-          const Spacer(),
-          // ── CTA buttons ──
+          const SizedBox(height: 32),
+
+          // ── MBTI Card ──
+          TweenAnimationBuilder<double>(
+            tween: Tween(begin: 0.0, end: 1.0),
+            duration: const Duration(milliseconds: 800),
+            curve: Curves.easeOutCubic,
+            builder: (context, value, child) {
+              return Opacity(
+                opacity: value,
+                child: Transform.translate(
+                  offset: Offset(0, 20 * (1 - value)),
+                  child: child,
+                ),
+              );
+            },
+            child: const _SystemIntroCard(
+              emoji: '🧠',
+              title: 'MBTI 16型人格',
+              description: '分析你嘅性格傾向 — 你係外向定內向？直覺定實感？\n理性定感性？規劃定隨性？',
+              colors: const [Color(0xFF9B72AA), Color(0xFFB388D0)],
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // ── Enneagram Card ──
           TweenAnimationBuilder<double>(
             tween: Tween(begin: 0.0, end: 1.0),
             duration: const Duration(milliseconds: 900),
+            curve: Curves.easeOutCubic,
+            builder: (context, value, child) {
+              return Opacity(
+                opacity: value,
+                child: Transform.translate(
+                  offset: Offset(0, 20 * (1 - value)),
+                  child: child,
+                ),
+              );
+            },
+            child: const _SystemIntroCard(
+              emoji: '🌀',
+              title: '九型人格 Enneagram',
+              description: '探索你嘅內在動機同核心恐懼 —\n你係完美型？助人型？成就型？定係其他？',
+              colors: const [Color(0xFFD4A843), Color(0xFFE8C97A)],
+            ),
+          ),
+
+          const SizedBox(height: 20),
+
+          // ── Combined note ──
+          TweenAnimationBuilder<double>(
+            tween: Tween(begin: 0.0, end: 1.0),
+            duration: const Duration(milliseconds: 1000),
+            curve: Curves.easeOutCubic,
+            builder: (context, value, child) {
+              return Opacity(
+                opacity: value,
+                child: child,
+              );
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: BoxDecoration(
+                color: AppColors.surface.withValues(alpha: 0.6),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppColors.textPrimary.withValues(alpha: 0.08)),
+              ),
+              child: Row(
+                children: [
+                  const Text('💡', style: TextStyle(fontSize: 20)),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      '將兩個系統結合，可以更立體了解自己嘅性格同行為模式。',
+                      style: GoogleFonts.notoSansTc(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.textSecondary,
+                        height: 1.4,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          const Spacer(),
+          // ── Swipe hint ──
+          Padding(
+            padding: const EdgeInsets.only(bottom: 40),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  '向左滑揀版本',
+                  style: GoogleFonts.notoSansTc(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.textMuted,
+                  ),
+                ),
+                const SizedBox(width: 6),
+                Icon(Icons.arrow_forward_rounded, size: 18, color: AppColors.textMuted.withValues(alpha: 0.6)),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// Page 3: Assessment version cards + "跳過測試" button
+// ═══════════════════════════════════════════════════════════════════════
+
+class _Page3AssessmentOrSkip extends StatelessWidget {
+  final void Function(int index) onSelectVersion;
+  final VoidCallback onSkip;
+
+  const _Page3AssessmentOrSkip({
+    required this.onSelectVersion,
+    required this.onSkip,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    const versions = AssessmentVersions.all;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 28),
+      child: Column(
+        children: [
+          const SizedBox(height: 20),
+          TweenAnimationBuilder<double>(
+            tween: Tween(begin: 0.0, end: 1.0),
+            duration: const Duration(milliseconds: 600),
             curve: Curves.easeOutCubic,
             builder: (context, value, child) {
               return Opacity(
@@ -513,113 +546,200 @@ class _ReadyStep extends StatelessWidget {
                 ),
               );
             },
-            child: Column(
+            child: Text(
+              '揀個版本，開始你嘅\n人格探索之旅',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.notoSerifTc(
+                fontSize: 24,
+                fontWeight: FontWeight.w900,
+                color: AppColors.textPrimary,
+                height: 1.3,
+              ),
+            ),
+          ),
+          const SizedBox(height: 6),
+          TweenAnimationBuilder<double>(
+            tween: Tween(begin: 0.0, end: 1.0),
+            duration: const Duration(milliseconds: 700),
+            curve: Curves.easeOutCubic,
+            builder: (context, value, child) {
+              return Opacity(
+                opacity: value,
+                child: Transform.translate(
+                  offset: Offset(0, 12 * (1 - value)),
+                  child: child,
+                ),
+              );
+            },
+            child: Text(
+              '三個版本，不同程度的詳細分析',
+              style: GoogleFonts.notoSansTc(
+                fontSize: 13,
+                color: AppColors.textSecondary,
+              ),
+            ),
+          ),
+          const SizedBox(height: 28),
+          // ── 3 Version Cards ──
+          Expanded(
+            child: ListView(
+              physics: const NeverScrollableScrollPhysics(),
               children: [
-                // Quick start
-                SizedBox(
-                  width: double.infinity,
-                  height: 56,
-                  child: FilledButton(
-                    onPressed: () => onSelect(1), // 標準 version
-                    style: FilledButton.styleFrom(
-                      backgroundColor: AppColors.cta,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(24),
+                for (int i = 0; i < versions.length; i++)
+                  Padding(
+                    padding: EdgeInsets.only(bottom: i < versions.length - 1 ? 14 : 0),
+                    child: TweenAnimationBuilder<double>(
+                      tween: Tween(begin: 0.0, end: 1.0),
+                      duration: Duration(milliseconds: 500 + i * 80),
+                      curve: Curves.easeOutCubic,
+                      builder: (context, value, child) {
+                        return Opacity(
+                          opacity: value,
+                          child: Transform.translate(
+                            offset: Offset(0, 24 * (1 - value)),
+                            child: child,
+                          ),
+                        );
+                      },
+                      child: _OnboardingVersionCard(
+                        emoji: versions[i].emoji,
+                        label: versions[i].label,
+                        description: versions[i].description,
+                        questionCount: versions[i].questionCount,
+                        accuracy: versions[i].accuracy,
+                        time: versions[i].time,
+                        accentKey: versions[i].label,
+                        onTap: () => onSelectVersion(i),
+                        showRecommendedBadge: i == 1,
                       ),
-                      elevation: 0,
-                      textStyle: GoogleFonts.notoSansTc(
-                        fontSize: 17, fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    child: const Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text('開始測驗'),
-                        SizedBox(width: 8),
-                        Icon(Icons.arrow_forward_rounded, size: 20),
-                      ],
                     ),
                   ),
-                ),
-                const SizedBox(height: 14),
-                GestureDetector(
-                  onTap: onStart,
-                  child: Text(
-                    '遲啲先測',
-                    style: GoogleFonts.notoSansTc(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.textSecondary,
-                      decoration: TextDecoration.underline,
-                      decorationColor: AppColors.textSecondary.withValues(alpha: 0.4),
-                      decorationThickness: 1.5,
-                    ),
-                  ),
-                ),
               ],
             ),
           ),
-          const SizedBox(height: 32),
+
+          // ── Skip test ──
+          Padding(
+            padding: const EdgeInsets.only(bottom: 32),
+            child: GestureDetector(
+              onTap: onSkip,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.5),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: AppColors.textSecondary.withValues(alpha: 0.25),
+                  ),
+                ),
+                child: Text(
+                  '跳過測試，直接探索',
+                  style: GoogleFonts.notoSansTc(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );
   }
 }
 
-// ─── SUBTLE RADIAL GLOW PAINTER ───
-class _OnboardingRadialGlowPainter extends CustomPainter {
+// ═══════════════════════════════════════════════════════════════════════
+// Shared widgets
+// ═══════════════════════════════════════════════════════════════════════
+
+class _SystemIntroCard extends StatelessWidget {
+  final String emoji, title, description;
+  final List<Color> colors;
+
+  const _SystemIntroCard({
+    required this.emoji,
+    required this.title,
+    required this.description,
+    required this.colors,
+  });
+
   @override
-  void paint(Canvas canvas, Size size) {
-    const glowColor = Color(0xFFD4C4E8);
-    final gradient = RadialGradient(
-      center: const Alignment(0, -0.1),
-      radius: 0.65,
-      colors: [
-        glowColor.withValues(alpha: 0.25),
-        glowColor.withValues(alpha: 0.08),
-        glowColor.withValues(alpha: 0.0),
-      ],
-    );
-    final paint = Paint()
-      ..shader = gradient.createShader(
-        Rect.fromCenter(
-          center: Offset(size.width / 2, size.height * 0.38),
-          width: size.width * 1.5,
-          height: size.height * 0.85,
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            colors[0].withValues(alpha: 0.10),
+            Colors.white.withValues(alpha: 0.20),
+            colors[1].withValues(alpha: 0.06),
+          ],
         ),
-      );
-    canvas.drawRect(Offset.zero & size, paint);
-
-    const coralColor = Color(0xFFE8A090);
-    final coralGradient = RadialGradient(
-      center: const Alignment(0.7, 0.9),
-      radius: 0.8,
-      colors: [
-        coralColor.withValues(alpha: 0.12),
-        coralColor.withValues(alpha: 0.0),
-      ],
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(
+          color: colors[0].withValues(alpha: 0.30),
+          width: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: colors[0].withValues(alpha: 0.12),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 52,
+            height: 52,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: colors,
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Center(
+              child: Text(emoji, style: const TextStyle(fontSize: 26)),
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: GoogleFonts.notoSansTc(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  description,
+                  style: GoogleFonts.notoSansTc(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.textSecondary,
+                    height: 1.5,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
-    final paint2 = Paint()
-      ..shader = coralGradient.createShader(Offset.zero & size);
-    canvas.drawRect(Offset.zero & size, paint2);
-
-    const highlightColor = Color(0xFFFFFAF0);
-    final highlightGradient = RadialGradient(
-      center: const Alignment(-0.8, -0.8),
-      radius: 0.5,
-      colors: [
-        highlightColor.withValues(alpha: 0.20),
-        highlightColor.withValues(alpha: 0.0),
-      ],
-    );
-    final paint3 = Paint()
-      ..shader = highlightGradient.createShader(Offset.zero & size);
-    canvas.drawRect(Offset.zero & size, paint3);
   }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
 // ─── ONBOARDING VERSION CARD ───
@@ -824,4 +944,59 @@ class _OnboardingVersionCard extends StatelessWidget {
       ),
     );
   }
+}
+
+// ─── SUBTLE RADIAL GLOW PAINTER ───
+class _OnboardingRadialGlowPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    const glowColor = Color(0xFFD4C4E8);
+    final gradient = RadialGradient(
+      center: const Alignment(0, -0.1),
+      radius: 0.65,
+      colors: [
+        glowColor.withValues(alpha: 0.25),
+        glowColor.withValues(alpha: 0.08),
+        glowColor.withValues(alpha: 0.0),
+      ],
+    );
+    final paint = Paint()
+      ..shader = gradient.createShader(
+        Rect.fromCenter(
+          center: Offset(size.width / 2, size.height * 0.38),
+          width: size.width * 1.5,
+          height: size.height * 0.85,
+        ),
+      );
+    canvas.drawRect(Offset.zero & size, paint);
+
+    const coralColor = Color(0xFFE8A090);
+    final coralGradient = RadialGradient(
+      center: const Alignment(0.7, 0.9),
+      radius: 0.8,
+      colors: [
+        coralColor.withValues(alpha: 0.12),
+        coralColor.withValues(alpha: 0.0),
+      ],
+    );
+    final paint2 = Paint()
+      ..shader = coralGradient.createShader(Offset.zero & size);
+    canvas.drawRect(Offset.zero & size, paint2);
+
+    const highlightColor = Color(0xFFFFFAF0);
+    final highlightGradient = RadialGradient(
+      center: const Alignment(-0.8, -0.8),
+      radius: 0.5,
+      colors: [
+        highlightColor.withValues(alpha: 0.20),
+        highlightColor.withValues(alpha: 0.0),
+      ],
+    );
+    final paint3 = Paint()
+      ..shader = highlightGradient.createShader(Offset.zero & size);
+    canvas.drawRect(Offset.zero & size, paint3);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
