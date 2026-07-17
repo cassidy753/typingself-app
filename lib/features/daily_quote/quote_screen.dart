@@ -60,8 +60,8 @@ class _QuoteScreenState extends State<QuoteScreen> {
 
           const SizedBox(height: 16),
 
-          // ── ✨ 屬於你嘅語句 ──
-          _Pill('✨ 屬於你嘅語句', accent: widget.accent, accentBg: widget.accentBg),
+          // ── 💬 你嘅人格對朋友講嘅說話 ──
+          _Pill('💬 你嘅人格對朋友講嘅說話', accent: widget.accent, accentBg: widget.accentBg),
           const SizedBox(height: 10),
           _PersonalizedQuote(mbti: widget.mbti, ennea: widget.ennea, accent: widget.accent),
 
@@ -79,15 +79,13 @@ class _QuoteScreenState extends State<QuoteScreen> {
 
           const SizedBox(height: 16),
 
-          // ── 心情 & 星座 ──
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(child: _MoodSection(accent: widget.accent, accentBg: widget.accentBg)),
-              const SizedBox(width: 10),
-              Expanded(child: _ZodiacMini(zodiac: _zodiac, dayOfYear: dayOfYear, accent: widget.accent, accentBg: widget.accentBg)),
-            ],
-          ),
+          // ── 心情 ──
+          _MoodSection(accent: widget.accent, accentBg: widget.accentBg),
+
+          const SizedBox(height: 16),
+
+          // ── 星座 ──
+          _ZodiacMini(zodiac: _zodiac, dayOfYear: dayOfYear, accent: widget.accent, accentBg: widget.accentBg),
 
           const SizedBox(height: 16),
 
@@ -203,21 +201,21 @@ class _QuoteCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       decoration: BoxDecoration(
         color: AppColors.surface,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(color: AppColors.border),
       ),
       child: Column(
         children: [
-          Text('❝', style: TextStyle(fontSize: 36, color: accent.withValues(alpha: 0.15), fontFamily: 'Noto Serif TC', height: 0.6)),
-          const SizedBox(height: 10),
-          Text('怯？你就輸一世。', textAlign: TextAlign.center,
-            style: GoogleFonts.notoSerifTc(fontSize: 19, fontWeight: FontWeight.w700, color: AppColors.textPrimary, height: 1.6)),
+          Text('❝', style: TextStyle(fontSize: 28, color: accent.withValues(alpha: 0.15), fontFamily: 'Noto Serif TC', height: 0.5)),
           const SizedBox(height: 6),
-          Text('— 嚦咕嚦咕新年財', style: GoogleFonts.notoSansTc(fontSize: 13, fontStyle: FontStyle.italic, color: AppColors.textMuted)),
-          const SizedBox(height: 16),
+          Text('怯？你就輸一世。', textAlign: TextAlign.center,
+            style: GoogleFonts.notoSerifTc(fontSize: 17, fontWeight: FontWeight.w700, color: AppColors.textPrimary, height: 1.5)),
+          const SizedBox(height: 4),
+          Text('— 嚦咕嚦咕新年財', style: GoogleFonts.notoSansTc(fontSize: 12, fontStyle: FontStyle.italic, color: AppColors.textMuted)),
+          const SizedBox(height: 10),
           // ── Share button ──
           SizedBox(
             width: double.infinity,
@@ -241,7 +239,7 @@ class _QuoteCard extends StatelessWidget {
   }
 }
 
-// ── Personalized Quote ──
+// ── 💬 你嘅人格對朋友講嘅說話 ──
 class _PersonalizedQuote extends StatelessWidget {
   final String mbti, ennea;
   final Color accent;
@@ -249,41 +247,51 @@ class _PersonalizedQuote extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final quote = _getQuote(mbti, ennea);
+    final phrases = _getPhrases(mbti);
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [accent, accent.withValues(alpha: 0.8)],
-          begin: Alignment.topLeft, end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(24),
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('給 $mbti · $ennea 的你',
-            style: GoogleFonts.notoSansTc(fontSize: 12, color: Colors.white.withValues(alpha: 0.7))),
-          const SizedBox(height: 12),
-          Text('「$quote」',
-            style: GoogleFonts.notoSerifTc(fontSize: 17, fontWeight: FontWeight.w700, color: Colors.white, height: 1.6)),
-          const SizedBox(height: 12),
-          Row(
+        children: List.generate(3, (i) => Padding(
+          padding: EdgeInsets.only(bottom: i < 2 ? 10 : 0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: Text('今日嘅 insight 特別為你而寫',
-                  style: GoogleFonts.notoSansTc(fontSize: 12, color: Colors.white.withValues(alpha: 0.6))),
+              Container(
+                width: 28, height: 28,
+                decoration: BoxDecoration(
+                  color: accent.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Center(child: Text('${i + 1}', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: accent))),
               ),
-              // ── Share button ──
+              const SizedBox(width: 10),
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: AppColors.surface,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: AppColors.border),
+                  ),
+                  child: Text(phrases[i], style: GoogleFonts.notoSerifTc(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textPrimary, height: 1.5)),
+                ),
+              ),
+              const SizedBox(width: 6),
               Container(
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(20),
+                  color: accent.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(16),
                 ),
                 child: IconButton(
-                  icon: const Icon(Icons.share, size: 18, color: Colors.white),
-                  onPressed: () => Share.share('「$quote」\n\n— 型得你 @typingself\n\n⬇️ 了解你嘅 MBTI · Enneagram 人格'),
+                  icon: Icon(Icons.share, size: 16, color: accent),
+                  onPressed: () => Share.share('「${phrases[i]}」\n\n— 型得你 @typingself\n了解你嘅 MBTI 人格：https://xingdeni.app'),
                   constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
                   padding: EdgeInsets.zero,
                   splashRadius: 18,
@@ -291,21 +299,31 @@ class _PersonalizedQuote extends StatelessWidget {
               ),
             ],
           ),
-        ],
+        )),
       ),
     );
   }
 
-  String _getQuote(String mbti, String ennea) {
-    if (mbti.startsWith('E') && ennea.startsWith('4')) return '你嘅情感深度係你最大嘅力量，唔好收埋自己。';
-    if (mbti.startsWith('I') && ennea.startsWith('5')) return '你唔需要所有答案先行動，有時試錯都係學習。';
-    if (mbti.startsWith('E') && ennea.startsWith('7')) return '你嘅快樂感染力好強，但記住都要照顧自己嘅感受。';
-    if (mbti.startsWith('I') && ennea.startsWith('6')) return '你嘅謹慎保護咗你好多次，但唔好俾恐懼限制咗可能性。';
-    if (mbti.startsWith('E') && ennea.startsWith('3')) return '你嘅成就有目共睹，但記住你嘅價值唔只係成績。';
-    if (mbti.startsWith('I') && ennea.startsWith('4')) return '你嘅獨特唔係缺點，係你嘅 signature。';
-    if (mbti.startsWith('E') && ennea.startsWith('2')) return '你成日幫人，今日試吓幫返自己。';
-    if (mbti.startsWith('I') && ennea.startsWith('9')) return '你嘅平靜係天賦，但唔好為咗和諧而沉默。';
-    return '今日你察覺到啲咩關於自己？每一個 insight 都係成長嘅一步。';
+  List<String> _getPhrases(String mbti) {
+    switch (mbti) {
+      case 'ENFJ': return ['你值得擁有最好嘅嘢，唔好俾任何人話你唔夠', '我喺度，你有咩想講就講啦', '你一啲都唔麻煩，你值得被錫'];
+      case 'INFJ': return ['你感受到嘅嘢係真實嘅，相信你自己', '唔需要急，你嘅路會慢慢清晰', '我明白你，你唔係孤單一個'];
+      case 'INTJ': return ['你有自己嘅節奏，唔使同人比較', '問題係有解決方法嘅，只係未搵到啫', '你嘅分析能力係你嘅武器'];
+      case 'ENTJ': return ['你諗到就做到，唔好停', '懶人先會阻住你發達，踢走佢', '目標要定得夠大，你先會去到咁遠'];
+      case 'ENFP': return ['你開心就得啦，理得人點諗', '你係世上獨一無二嘅存在', '試咗先講啦，最多咪笑吓'];
+      case 'INFP': return ['你嘅內心世界好靚，唔好收埋', '做自己已經足夠', '溫柔都係一種力量'];
+      case 'ENTP': return ['你諗嘢咁快，唔好浪費咗佢', '冇人話你一定要跟規矩', '同你傾偈永遠都有新嘢學'];
+      case 'INTP': return ['你諗通咗未？分享嚟聽下', '複雜嘅嘢你都可以拆解到', '你唔係怪，你係與眾不同'];
+      case 'ESFJ': return ['你對人咁好，都要記得對自己好', '冇你嘅話，成個group都散晒', '你付出咁多，係時候收返啲啦'];
+      case 'ISFJ': return ['你照顧人照顧得咁好，辛苦你啦', '你記得所有人嘅喜好，好厲害', '你都值得俾人照顧㗎'];
+      case 'ESTJ': return ['搞掂未？搞掂就下一個', '效率就係你嘅超能力', '冇你喺度，啲嘢實亂晒'];
+      case 'ISTJ': return ['靠得住嘅人，非你莫屬', '你話得嘅就一定得', '你嘅責任感係你最大嘅優點'];
+      case 'ESFP': return ['有你就係party time', '你笑，全世界就跟住你笑', '活在當下，你係大師'];
+      case 'ISFP': return ['你嘅美感係冇得輸', '做你喜歡嘅嘢，你就會發光', '你嘅溫柔係世界上最美嘅嘢'];
+      case 'ESTP': return ['而家就去做啦，等咩啫', '跟你玩永遠最刺激', '你解決到嘅問題比你想像中多'];
+      case 'ISTP': return ['你整到好靚喎，點學㗎？', '同你合作好爽手', '你話唔得嘅時候就真係唔得'];
+      default: return ['你值得擁有最好嘅嘢', '做自己已經足夠', '我喺度陪你'];
+    }
   }
 }
 

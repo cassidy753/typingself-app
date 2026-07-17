@@ -25,7 +25,7 @@ class TypingselfApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: '型得你',
+      title: 'Typingself | 型得你',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
       home: const FixedFrame(child: AppRoot()),
@@ -337,7 +337,7 @@ class _MainShellState extends State<MainShell> {
                         child: const Center(child: Text('🧠', style: TextStyle(fontSize: 18))),
                       ),
                       const SizedBox(width: 6),
-                      Text('型得你', style: GoogleFonts.notoSerifTc(fontSize: 18, fontWeight: FontWeight.w900, color: AppColors.textPrimary)),
+                      Text('Typingself | 型得你', style: GoogleFonts.notoSerifTc(fontSize: 16, fontWeight: FontWeight.w900, color: AppColors.textPrimary)),
                     ]),
                     GestureDetector(
                       onTap: () {
