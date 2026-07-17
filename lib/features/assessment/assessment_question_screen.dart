@@ -113,20 +113,6 @@ class _AssessmentQuestionScreenState extends State<AssessmentQuestionScreen>
     _slideCtrl.forward();
   }
 
-  /// Sum of all pre-set weights for an option (for badge display)
-  double _totalWeight(AnswerOption opt) {
-    double sum = 0;
-    for (final v in opt.scores.values) {
-      sum += v;
-    }
-    return sum;
-  }
-
-  /// Format weight for display: drop trailing `.0` for whole numbers
-  String _formatWeight(double w) {
-    if (w == w.roundToDouble()) return w.toInt().toString();
-    return w.toStringAsFixed(1);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -295,50 +281,20 @@ class _AssessmentQuestionScreenState extends State<AssessmentQuestionScreen>
                                             : null,
                                       ),
                                       const SizedBox(width: 14),
-                                      // Option text + weight badge
+                                      // Option text (no weight badge)
                                       Expanded(
-                                        child: Row(
-                                          children: [
-                                            Expanded(
-                                              child: Text(
-                                                opt.text,
-                                                style: GoogleFonts.notoSansTc(
-                                                  fontSize: 14,
-                                                  fontWeight: isSelected
-                                                      ? FontWeight.w600
-                                                      : FontWeight.w400,
-                                                  color: isSelected
-                                                      ? AppColors.textPrimary
-                                                      : AppColors.textSecondary,
-                                                  height: 1.4,
-                                                ),
-                                              ),
-                                            ),
-                                            const SizedBox(width: 8),
-                                            // Pre-set weight badge
-                                            Container(
-                                              padding: const EdgeInsets.symmetric(
-                                                horizontal: 8,
-                                                vertical: 2,
-                                              ),
-                                              decoration: BoxDecoration(
-                                                color: isSelected
-                                                    ? AppColors.cta.withValues(alpha: 0.12)
-                                                    : AppColors.border.withValues(alpha: 0.3),
-                                                borderRadius: BorderRadius.circular(8),
-                                              ),
-                                              child: Text(
-                                                '+${_formatWeight(_totalWeight(opt))}',
-                                                style: GoogleFonts.notoSansTc(
-                                                  fontSize: 11,
-                                                  fontWeight: FontWeight.w600,
-                                                  color: isSelected
-                                                      ? AppColors.cta
-                                                      : AppColors.textMuted,
-                                                ),
-                                              ),
-                                            ),
-                                          ],
+                                        child: Text(
+                                          opt.text,
+                                          style: GoogleFonts.notoSansTc(
+                                            fontSize: 14,
+                                            fontWeight: isSelected
+                                                ? FontWeight.w600
+                                                : FontWeight.w400,
+                                            color: isSelected
+                                                ? AppColors.textPrimary
+                                                : AppColors.textSecondary,
+                                            height: 1.4,
+                                          ),
                                         ),
                                       ),
                                     ],
