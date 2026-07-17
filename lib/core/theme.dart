@@ -26,6 +26,18 @@ class AppColors {
   static const disabled = Color(0xFFE5DCCE);
   static const disabledText = Color(0xFFC2A48C);
   static const skeleton = Color(0xFFE5DCCE);
+
+  // ─── Dark mode overrides ───
+  static const darkBackground = Color(0xFF1A0F0A);   // Deep espresso
+  static const darkSurface = Color(0xFF2D1B0E);      // Rich brown
+  static const darkBorder = Color(0xFF4A3526);       // Medium brown
+  static const darkTextPrimary = Color(0xFFF5EDE0);  // Warm sand
+  static const darkTextSecondary = Color(0xFFC2A48C); // Tan
+  static const darkTextMuted = Color(0xFF8B7355);     // Muted tan
+  static const darkDivider = Color(0xFF4A3526);
+  static const darkDisabled = Color(0xFF3D2A1A);
+  static const darkDisabledText = Color(0xFF6B5540);
+  static const darkSkeleton = Color(0xFF3D2A1A);
 }
 
 // ─── SPACING ───
@@ -86,6 +98,49 @@ class AppTheme {
           ),
           disabledBackgroundColor: AppColors.disabled,
           disabledForegroundColor: AppColors.disabledText,
+        ),
+      ),
+    );
+  }
+
+  static ThemeData get dark {
+    return ThemeData(
+      useMaterial3: true,
+      brightness: Brightness.dark,
+      scaffoldBackgroundColor: AppColors.darkBackground,
+      colorScheme: ColorScheme.dark(
+        primary: AppColors.darkTextPrimary,
+        onPrimary: AppColors.darkBackground,
+        primaryContainer: AppColors.darkTextPrimary.withValues(alpha: 0.1),
+        secondary: AppColors.cta,
+        onSecondary: Colors.white,
+        surface: AppColors.darkSurface,
+        onSurface: AppColors.darkTextPrimary,
+        error: const Color(0xFFEF4444),
+      ),
+      textTheme: GoogleFonts.notoSansTcTextTheme().apply(
+        bodyColor: AppColors.darkTextPrimary,
+        displayColor: AppColors.darkTextPrimary,
+      ),
+      appBarTheme: const AppBarTheme(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        centerTitle: true,
+      ),
+      filledButtonTheme: FilledButtonThemeData(
+        style: FilledButton.styleFrom(
+          backgroundColor: AppColors.cta,
+          foregroundColor: Colors.white,
+          minimumSize: const Size(double.infinity, 52),
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+          ),
+          textStyle: GoogleFonts.notoSansTc(
+            fontSize: 17, fontWeight: FontWeight.w700,
+          ),
+          disabledBackgroundColor: AppColors.darkDisabled,
+          disabledForegroundColor: AppColors.darkDisabledText,
         ),
       ),
     );

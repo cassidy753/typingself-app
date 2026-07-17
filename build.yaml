@@ -1,0 +1,17 @@
+# dart2js / Flutter web build optimization
+# Enables aggressive tree-shaking, minification, and code splitting
+# Target: reduce main.dart.js from ~11MB to <5MB
+
+dart2js:
+  # Advanced optimization level 4 — best tree-shaking & minification
+  -O4:
+    environment:
+      # Drop debug assertions and stack traces in release builds
+      -Ddart.vm.profile=false
+      -Ddart.vm.product=true
+
+  # Lazy/delayed loading markers (used in code via deferred imports)
+  # Tells dart2js which modules to split into separate chunks
+  modules:
+    auto-insertion: true
+    symbol-prefix: "ts_chunk_"

@@ -18,21 +18,101 @@
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="A new Flutter project.">
+  <meta name="description" content="型得你 — Cantonese personality self-discovery app. MBTI, Enneagram, Shadow Work & Growth.">
 
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="typing_self">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="型得你">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+  <!-- Theme color (matches Daebi sand #F5EDE0) -->
+  <meta name="theme-color" content="#F5EDE0" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#2D1B0E" media="(prefers-color-scheme: dark)">
+
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png"/>
 
-  <title>typing_self</title>
+  <!-- Preconnect to Google Fonts for faster font loading -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <!-- Preload key fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@600;700;800;900&display=swap" rel="stylesheet">
+
+  <title>型得你 — Typingself</title>
   <link rel="manifest" href="manifest.json">
+
+  <style>
+    /* Prevent FOIT (Flash of Invisible Text) */
+    html {
+      font-family: 'Noto Sans TC', 'Noto Sans', system-ui, -apple-system, sans-serif;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #F5EDE0;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    /* Loading splash while Flutter boots — matches app gradient */
+    #__flutter_loading {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(180deg, #EBE0F5 0%, #F5EDE0 50%, #FCE8E0 100%);
+      z-index: 9999;
+      transition: opacity 0.5s ease-out;
+    }
+    #__flutter_loading.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+    #__flutter_loading .loader {
+      width: 48px;
+      height: 48px;
+      border: 3px solid rgba(155, 114, 170, 0.2);
+      border-top-color: #9B72AA;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
 </head>
 <body>
+  <!-- Loading indicator while Flutter web boots -->
+  <div id="__flutter_loading">
+    <div class="loader"></div>
+  </div>
+
+  <!-- Flutter bootstrap -->
   <script src="flutter_bootstrap.js" async></script>
+
+  <script>
+    // Hide loading splash once Flutter is ready
+    window.addEventListener('load', function() {
+      // Small delay to ensure Flutter has rendered
+      setTimeout(function() {
+        var el = document.getElementById('__flutter_loading');
+        if (el) el.classList.add('hidden');
+        // Remove from DOM after transition
+        setTimeout(function() {
+          if (el && el.parentNode) el.parentNode.removeChild(el);
+        }, 500);
+      }, 500);
+    });
+
+    // Also catch Flutter errors and hide loading
+    window.addEventListener('flutter-first-frame', function() {
+      var el = document.getElementById('__flutter_loading');
+      if (el) el.classList.add('hidden');
+    });
+  </script>
 </body>
 </html>

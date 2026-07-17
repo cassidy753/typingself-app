@@ -143,26 +143,39 @@ class _AssessmentQuestionScreenState extends State<AssessmentQuestionScreen>
     if (_selectedIndices.isEmpty || _answered) return;
     setState(() => _answered = true);
 
-    Future.delayed(const Duration(milliseconds: 500), () {
-      if (!mounted) return;
-      widget.engine.submitAnswer(_selectedIndices.toList());
-
-      if (!widget.engine.hasMoreQuestions) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (_) => AssessmentResultScreen(
-              mbti: widget.engine.state.mbtiString,
-              ennea: widget.engine.state.enneagramKey,
-              engine: widget.engine,
-              onComplete: widget.onComplete,
-            ),
-          ),
-        );
-        return;
-      }
-
-      _transitionToNextQuestion();
+    // Allow undo for 3s before actually advancing
+    Future.delayed(const Duration(milliseconds: 3000), () {
+      if (!mounted || !_answered) return;
+      // Only proceed if still "answered" (not undone)
+      _commitAnswer();
     });
+  }
+
+  /// Undo the answer: go back to selection state.
+  void _undoAnswer() {
+    setState(() => _answered = false);
+  }
+
+  /// Actually commit the answer and move to next question.
+  void _commitAnswer() {
+    if (!mounted) return;
+    widget.engine.submitAnswer(_selectedIndices.toList());
+
+    if (!widget.engine.hasMoreQuestions) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (_) => AssessmentResultScreen(
+            mbti: widget.engine.state.mbtiString,
+            ennea: widget.engine.state.enneagramKey,
+            engine: widget.engine,
+            onComplete: widget.onComplete,
+          ),
+        ),
+      );
+      return;
+    }
+
+    _transitionToNextQuestion();
   }
 
   void _goBack() {
@@ -498,12 +511,32 @@ class _AssessmentQuestionScreenState extends State<AssessmentQuestionScreen>
                           ),
                           elevation: 0,
                         ),
-                        child: Text(_selectedIndices.isNotEmpty
-                            ? '確認答案（${_selectedIndices.length}項）'
-                            : '撳選項以繼續'),
+                        child: Text(_answered
+                            ? '已經確認 ✅ 等緊去下一題...'
+                            : _selectedIndices.isNotEmpty
+                                ? '確認答案（${_selectedIndices.length}項）'
+                                : '撳選項以繼續'),
                       ),
                     ),
                     const SizedBox(height: 10),
+                    // ── Undo button (shown briefly after submit) ──
+                    if (_answered) ...[
+                      SizedBox(
+                        width: double.infinity,
+                        child: TextButton.icon(
+                          onPressed: _undoAnswer,
+                          icon: const Icon(Icons.undo_rounded, size: 16),
+                          label: Text('修改答案', style: GoogleFonts.notoSansTc(
+                            fontSize: 14, fontWeight: FontWeight.w600,
+                          )),
+                          style: TextButton.styleFrom(
+                            foregroundColor: AppColors.textSecondary,
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                    ],
                     Text(
                       '可以揀多個答案 · 揀咗可以再轉',
                       style: GoogleFonts.notoSansTc(

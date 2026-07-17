@@ -16,6 +16,7 @@ import '../growth/progress_screen.dart';
 import '../integrated_report/integrated_report_screen.dart';
 import '../my_type/my_type_screen.dart';
 import '../personality_naming/share_card.dart';
+import '../compare/compare_screen.dart';
 
 // ─── Reusable card style ───
 BoxDecoration _cardDecoration() => BoxDecoration(
@@ -236,7 +237,7 @@ class _QuoteScreenState extends State<QuoteScreen> {
               const SizedBox(height: 20),
               _SectionHeader('👥 同朋友比較', accent: widget.accent, accentBg: widget.accentBg),
               const SizedBox(height: 12),
-              _ComparePlaceholder(accent: widget.accent, accentBg: widget.accentBg),
+              _ComparePlaceholder(accent: widget.accent, accentBg: widget.accentBg, mbti: widget.mbti, ennea: widget.ennea),
 
               const SizedBox(height: 28),
             ],
@@ -498,7 +499,7 @@ class _TestPromptCard extends StatelessWidget {
   }
 }
 
-// ── 🔥 Streak Badge ──
+// ── 🔥 Streak Badge (Enhanced with progress bar + come-back CTA) ──
 class _StreakBadge extends StatelessWidget {
   final int streak;
   final Color accent;
@@ -506,9 +507,19 @@ class _StreakBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final info = RetentionService.getStreakInfo(streak);
+    final progress = info.progressFraction;
+    final emoji = streak >= 7 ? '🔥' : (streak >= 3 ? '💪' : (streak > 0 ? '📅' : '🎯'));
+    final title = streak >= 7
+        ? '連續 $streak 日！'
+        : streak > 0
+            ? '連續使用 $streak 日'
+            : '今日開 app 就有 streak 🎯';
+    final accentColor = streak >= 7 ? AppColors.mustard : accent;
+
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
         color: AppColors.surface.withValues(alpha: 0.75),
         borderRadius: BorderRadius.circular(16),
@@ -518,83 +529,124 @@ class _StreakBadge extends StatelessWidget {
               : AppColors.border.withValues(alpha: 0.4),
         ),
       ),
-      child: Row(
+      child: Column(
         children: [
-          Container(
-            padding: const EdgeInsets.all(6),
-            decoration: BoxDecoration(
-              color: streak >= 7
-                  ? AppColors.mustard.withValues(alpha: 0.15)
-                  : accent.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Text(
-              streak >= 7 ? '🔥' : (streak >= 3 ? '💪' : '📅'),
-              style: const TextStyle(fontSize: 18),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  streak >= 7
-                      ? '連續 $streak 日！'
-                      : streak > 0
-                          ? '連續使用 $streak 日'
-                          : '今日開 app 就有 streak 🎯',
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
-                    color: streak >= 7 ? AppColors.mustard : AppColors.textPrimary,
-                  ),
-                ),
-                if (streak > 0)
-                  Text(
-                    streak >= 7 ? '🔥 火熱 streak！' : '繼續每日嚟睇金句 📖',
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: AppColors.textSecondary,
-                    ),
-                  ),
-              ],
-            ),
-          ),
-          // Journey progress dots
+          // ── Top row: emoji + text + streak count ──
           Row(
-            mainAxisSize: MainAxisSize.min,
             children: [
-              _miniDot(true, AppColors.mustard),        // Stage 1
-              const SizedBox(width: 4),
-              _miniDot(streak >= 1, AppColors.purple),  // Stage 2-ish
-              const SizedBox(width: 4),
-              _miniDot(streak >= 3, AppColors.sage),    // Stage 3-ish
-              const SizedBox(width: 4),
-              _miniDot(streak >= 7, AppColors.cta),     // Stage 4-ish
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: streak >= 7
+                      ? AppColors.mustard.withValues(alpha: 0.15)
+                      : accent.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(emoji, style: const TextStyle(fontSize: 18)),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(title, style: TextStyle(
+                      fontSize: 15, fontWeight: FontWeight.w700,
+                      color: streak >= 7 ? AppColors.mustard : AppColors.textPrimary,
+                    )),
+                    if (streak > 0)
+                      Text(
+                        streak >= 7 ? '🔥 火熱 streak！' : '繼續每日嚟睇金句 📖',
+                        style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                      ),
+                  ],
+                ),
+              ),
+              // ── Streak count badge ──
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: accentColor.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text('$streak', style: TextStyle(
+                  fontSize: 16, fontWeight: FontWeight.w900, color: accentColor,
+                )),
+              ),
             ],
           ),
-          const SizedBox(width: 8),
-          Text('$streak', style: TextStyle(
-            fontSize: 18, fontWeight: FontWeight.w900,
-            color: streak >= 7 ? AppColors.mustard : accent,
-          )),
-        ],
-      ),
-    );
-  }
 
-  Widget _miniDot(bool active, Color color) {
-    return Semantics(
-      label: active ? '已完成階段' : '未完成階段',
-      excludeSemantics: true,
-      child: Container(
-        width: 8,
-        height: 8,
-        decoration: BoxDecoration(
-          color: active ? color : AppColors.border,
-          shape: BoxShape.circle,
-        ),
+          // ── Progress bar toward next milestone ──
+          if (streak > 0 && info.daysUntilNextMilestone > 0) ...[
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                Expanded(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(4),
+                    child: Container(
+                      height: 6,
+                      decoration: BoxDecoration(
+                        color: AppColors.border.withValues(alpha: 0.5),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: FractionallySizedBox(
+                        alignment: Alignment.centerLeft,
+                        widthFactor: progress,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                accentColor,
+                                streak >= 7 ? AppColors.mustard : accentColor.withValues(alpha: 0.7),
+                              ],
+                            ),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Text(
+                  '${info.nextMilestoneEmoji} ${info.nextMilestoneLabel}',
+                  style: TextStyle(
+                    fontSize: 12, fontWeight: FontWeight.w600, color: accentColor,
+                  ),
+                ),
+              ],
+            ),
+          ],
+
+          // ── "Come back tomorrow" CTA ──
+          if (streak > 0) ...[
+            const SizedBox(height: 10),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: accent.withValues(alpha: 0.06),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: accent.withValues(alpha: 0.12)),
+              ),
+              child: Row(
+                children: [
+                  const Text('🌙', style: TextStyle(fontSize: 16)),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      RetentionService.getComeBackMessage(streak),
+                      style: GoogleFonts.notoSansTc(
+                        fontSize: 13, fontWeight: FontWeight.w600,
+                        color: accentColor,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ],
       ),
     );
   }
@@ -1162,22 +1214,25 @@ class _SharePromptCard extends StatelessWidget {
   }
 }
 
-// ── 👥 Compare with Friends Placeholder ──
+// ── 👥 Compare with Friends ──
 class _ComparePlaceholder extends StatelessWidget {
   final Color accent, accentBg;
-  const _ComparePlaceholder({required this.accent, required this.accentBg});
+  final String? mbti;
+  final String? ennea;
+  const _ComparePlaceholder({required this.accent, required this.accentBg, this.mbti, this.ennea});
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('同朋友比較功能即將推出！', style: GoogleFonts.notoSansTc(fontSize: 13)),
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-            margin: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-            duration: const Duration(seconds: 2),
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => CompareScreen(
+              myMbti: mbti,
+              myEnnea: ennea,
+              accent: accent,
+              accentBg: accentBg,
+            ),
           ),
         );
       },
@@ -1218,7 +1273,7 @@ class _ComparePlaceholder extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 4),
-                  Text('分享你嘅結果連結俾朋友，比較 MBTI 同 Enneagram 配對！',
+                  Text('分享你嘅 Code 俾朋友，比較 MBTI 同 Enneagram 配對！',
                     style: GoogleFonts.notoSansTc(
                       fontSize: 14,
                       color: AppColors.textSecondary,
@@ -1234,7 +1289,7 @@ class _ComparePlaceholder extends StatelessWidget {
                 color: accentBg,
                 borderRadius: BorderRadius.circular(14),
               ),
-              child: Text('即將推出',
+              child: Text('開始比較',
                 style: GoogleFonts.notoSansTc(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,

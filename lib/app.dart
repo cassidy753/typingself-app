@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'core/theme.dart';
@@ -12,30 +11,66 @@ import 'features/settings/settings_screen.dart';
 import 'features/assessment/assessment_intro_screen.dart';
 import 'features/assessment/decision_tree_engine.dart';
 
-void main() {
-  WidgetsFlutterBinding.ensureInitialized();
-  runApp(const ProviderScope(child: TypingselfApp()));
-}
+// main() is in main.dart — runs ProviderScope + TypingselfApp.
 
-class TypingselfApp extends StatelessWidget {
+class TypingselfApp extends StatefulWidget {
   const TypingselfApp({super.key});
   @override
+  State<TypingselfApp> createState() => _TypingselfAppState();
+}
+
+class _TypingselfAppState extends State<TypingselfApp> {
+  bool _darkMode = false;
+  bool _loaded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadTheme();
+  }
+
+  Future<void> _loadTheme() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _darkMode = prefs.getBool('dark_mode') ?? false;
+      _loaded = true;
+    });
+  }
+
+  /// Re-check dark mode (called when returning from settings)
+  void _refreshTheme() {
+    _loadTheme();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    if (!_loaded) {
+      // Show splash immediately — theme will snap once loaded
+      return MaterialApp(
+        title: 'Typingself | 型得你',
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.light,
+        home: const SplashScreen(),
+      );
+    }
+
     return MaterialApp(
-      title: 'Typingself | 型得你',
+      title: '型得你 — Typingself',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
+      darkTheme: AppTheme.dark,
+      themeMode: _darkMode ? ThemeMode.dark : ThemeMode.light,
       home: const SplashScreen(),
       routes: {
-        '/home': (_) => const FixedFrame(child: AppRoot()),
+        '/home': (_) => FixedFrame(child: AppRoot(onThemeChanged: _refreshTheme)),
       },
     );
   }
 }
 
-// ──────── APP ROOT ────────
 class AppRoot extends StatefulWidget {
-  const AppRoot({super.key});
+  final VoidCallback? onThemeChanged;
+  const AppRoot({super.key, this.onThemeChanged});
   @override
   State<AppRoot> createState() => _AppRootState();
 }
@@ -88,7 +123,12 @@ class _AppRootState extends State<AppRoot> {
   @override
   Widget build(BuildContext context) {
     if (_loading) return const SizedBox();
-    return MainShell(mbti: _mbti ?? 'ENFJ', ennea: _ennea ?? '5w4', onRetakeTest: _onRetakeTest);
+    return MainShell(
+      mbti: _mbti ?? 'ENFJ',
+      ennea: _ennea ?? '5w4',
+      onRetakeTest: _onRetakeTest,
+      onThemeChanged: widget.onThemeChanged,
+    );
   }
 }
 
@@ -105,7 +145,8 @@ class MainShell extends StatefulWidget {
   final String mbti;
   final String ennea;
   final VoidCallback? onRetakeTest;
-  const MainShell({super.key, required this.mbti, required this.ennea, this.onRetakeTest});
+  final VoidCallback? onThemeChanged;
+  const MainShell({super.key, required this.mbti, required this.ennea, this.onRetakeTest, this.onThemeChanged});
   @override
   State<MainShell> createState() => _MainShellState();
 }
@@ -119,19 +160,45 @@ class _MainShellState extends State<MainShell> {
     _Tab('👤', '我嘅',  Color(0xFFE0785A), Color(0x20E0785A)),  // Coral
   ];
 
+  /// Navigate to settings with dark mode change callback.
+  void _openSettings(Color accent, Color accentBg) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => SettingsScreen(
+          accent: accent,
+          accentBg: accentBg,
+          mbti: widget.mbti,
+          ennea: widget.ennea,
+          onRetakeTest: widget.onRetakeTest,
+        ),
+      ),
+    ).then((_) {
+      // When coming back from settings, refresh theme
+      widget.onThemeChanged?.call();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = _tabs[_tab];
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final reduceMotion = MediaQuery.of(context).disableAnimations;
 
+    // Dynamic background color based on theme
+    final bgColor = isDark
+        ? Color.lerp(AppColors.darkBackground, t.accent, 0.08) ?? AppColors.darkBackground
+        : Color.lerp(AppColors.background, t.accent, 0.15) ?? AppColors.background;
+
     return Scaffold(
-      backgroundColor: Color.lerp(AppColors.background, t.accent, 0.15) ?? AppColors.background,
+      backgroundColor: bgColor,
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(52),
         child: SafeArea(
           child: Container(
             decoration: BoxDecoration(
-              color: t.accent.withValues(alpha: 0.08),
+              color: isDark
+                  ? t.accent.withValues(alpha: 0.05)
+                  : t.accent.withValues(alpha: 0.08),
               border: Border(bottom: BorderSide(color: t.accent.withValues(alpha: 0.2))),
             ),
             child: Padding(
@@ -160,31 +227,21 @@ class _MainShellState extends State<MainShell> {
                         ),
                       ),
                       const SizedBox(width: 6),
-                      Text('Typingself | 型得你・人格成長', style: GoogleFonts.notoSerifTc(fontSize: 16, fontWeight: FontWeight.w900, color: AppColors.textPrimary)),
+                      Text('Typingself | 型得你・人格成長', style: GoogleFonts.notoSerifTc(fontSize: 16, fontWeight: FontWeight.w900,
+                        color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary)),
                     ]),
                     Semantics(
                       label: '設定',
                       button: true,
                       child: GestureDetector(
-                        onTap: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (_) => SettingsScreen(
-                                accent: t.accent,
-                                accentBg: t.accentBg,
-                                mbti: widget.mbti,
-                                ennea: widget.ennea,
-                                onRetakeTest: widget.onRetakeTest,
-                              ),
-                            ),
-                          );
-                        },
+                        onTap: () => _openSettings(t.accent, t.accentBg),
                         child: Container(
                           width: 44, height: 44,
                           padding: const EdgeInsets.all(5),
                           decoration: BoxDecoration(
-                            color: AppColors.surface, borderRadius: BorderRadius.circular(10),
-                            border: Border.all(color: AppColors.border),
+                            color: isDark ? AppColors.darkSurface : AppColors.surface,
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.border),
                           ),
                           child: const Center(child: Text('⚙️', style: TextStyle(fontSize: 16))),
                         ),
@@ -222,7 +279,7 @@ class _MainShellState extends State<MainShell> {
             ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: isDark ? AppColors.darkSurface : AppColors.surface,
           boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 20, offset: const Offset(0, -4))],
           borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         ),
@@ -252,6 +309,7 @@ class _MainShellState extends State<MainShell> {
   Widget _navItem(int i) {
     final active = _tab == i;
     final t = _tabs[i];
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Semantics(
       label: t.label,
       button: true,
@@ -272,14 +330,14 @@ class _MainShellState extends State<MainShell> {
             children: [
               AnimatedDefaultTextStyle(
                 duration: const Duration(milliseconds: 300),
-                style: TextStyle(fontSize: active ? 22 : 20, color: active ? t.accent : AppColors.textMuted),
+                style: TextStyle(fontSize: active ? 22 : 20, color: active ? t.accent : (isDark ? AppColors.darkTextMuted : AppColors.textMuted)),
                 child: Text(t.icon),
               ),
               const SizedBox(height: 3),
               Text(t.label, style: TextStyle(
                 fontSize: 14,
                 fontWeight: active ? FontWeight.w700 : FontWeight.w400,
-                color: active ? t.accent : AppColors.textMuted,
+                color: active ? t.accent : (isDark ? AppColors.darkTextMuted : AppColors.textMuted),
               )),
             ],
           ),

@@ -34,6 +34,7 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   bool _consented = false;
+  bool _darkMode = false;
   String? _zodiac;
   bool _loaded = false;
 
@@ -47,10 +48,27 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       _consented = prefs.getBool('consent_given') ?? false;
+      _darkMode = prefs.getBool('dark_mode') ?? false;
       _zodiac = prefs.getString('zodiac_sign');
       _loaded = true;
     });
     AnalyticsService.log(AnalyticsService.settingsOpened);
+  }
+
+  Future<void> _toggleDarkMode(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('dark_mode', value);
+    setState(() => _darkMode = value);
+    // Notify listeners to rebuild with new theme
+    _notifyThemeChanged();
+  }
+
+  void _notifyThemeChanged() {
+    // This will be picked up by TypingselfApp which checks SharedPreferences
+    if (mounted) {
+      // Trigger a full rebuild by popping back
+      Navigator.of(context).pop();
+    }
   }
 
   Future<void> _setZodiac(String sign) async {
@@ -137,10 +155,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
             const SizedBox(height: 8),
             _SettingsContent(
               consented: _consented,
+              darkMode: _darkMode,
               zodiac: _zodiac,
               accent: widget.accent,
               accentBg: widget.accentBg,
               onConsentChanged: () => _showConsentDialog(),
+              onDarkModeChanged: _toggleDarkMode,
               onZodiacChanged: _setZodiac,
               onRetakeTest: widget.onRetakeTest,
             ),
@@ -276,18 +296,22 @@ class _NoTestCard extends StatelessWidget {
 // ── Settings Content ──
 class _SettingsContent extends StatelessWidget {
   final bool consented;
+  final bool darkMode;
   final String? zodiac;
   final Color accent, accentBg;
   final VoidCallback onConsentChanged;
+  final ValueChanged<bool> onDarkModeChanged;
   final ValueChanged<String> onZodiacChanged;
   final VoidCallback? onRetakeTest;
 
   const _SettingsContent({
     required this.consented,
+    required this.darkMode,
     required this.zodiac,
     required this.accent,
     required this.accentBg,
     required this.onConsentChanged,
+    required this.onDarkModeChanged,
     required this.onZodiacChanged,
     this.onRetakeTest,
   });
@@ -364,6 +388,27 @@ class _SettingsContent extends StatelessWidget {
               Switch(
                 value: consented,
                 onChanged: (_) => onConsentChanged(),
+                activeColor: accent,
+              ),
+            ],
+          ),
+
+          const Divider(height: 16),
+
+          // ── Dark Mode ──
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('深色模式', style: GoogleFonts.notoSansTc(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
+                  Text('切換深色背景主題', style: GoogleFonts.notoSansTc(fontSize: 14, color: AppColors.textSecondary)),
+                ],
+              ),
+              Switch(
+                value: darkMode,
+                onChanged: onDarkModeChanged,
                 activeColor: accent,
               ),
             ],
