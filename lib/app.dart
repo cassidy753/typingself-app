@@ -5,6 +5,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'core/theme.dart';
+import 'core/fixed_frame.dart';
+import 'features/splash/splash_screen.dart';
 import 'features/daily_quote/quote_screen.dart';
 import 'features/explore/explore_screen.dart';
 import 'features/profile/profile_screen.dart';
@@ -28,25 +30,11 @@ class TypingselfApp extends StatelessWidget {
       title: 'Typingself | 型得你',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
-      home: const FixedFrame(child: AppRoot()),
+      home: const SplashScreen(),
+      routes: {
+        '/home': (_) => const FixedFrame(child: AppRoot()),
+      },
     );
-  }
-}
-
-class FixedFrame extends StatelessWidget {
-  final Widget child;
-  const FixedFrame({super.key, required this.child});
-  @override
-  Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (context, c) {
-      if (c.maxWidth > 420) {
-        return Scaffold(
-          backgroundColor: const Color(0xFF3A2C22),
-          body: Center(child: SizedBox(width: 390, height: c.maxHeight, child: child)),
-        );
-      }
-      return child;
-    });
   }
 }
 
@@ -345,11 +333,16 @@ class _MainShellState extends State<MainShell> {
                       Container(
                         width: 34, height: 34,
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: AppColors.purple.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: AppColors.border.withValues(alpha: 0.3)),
                         ),
-                        child: const Center(child: Text('🧠🦋', style: TextStyle(fontSize: 14))),
+                        child: Center(
+                          child: Text('TS', style: GoogleFonts.notoSerifTc(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w900,
+                            color: AppColors.purple,
+                          )),
+                        ),
                       ),
                       const SizedBox(width: 6),
                       Text('Typingself | 型得你・人格成長', style: GoogleFonts.notoSerifTc(fontSize: 16, fontWeight: FontWeight.w900, color: AppColors.textPrimary)),
