@@ -1,7 +1,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 // DecisionTreeEngine v2 — Adaptive MBTI × Enneagram Assessment Engine
 // Self-contained: no external engine dependencies
-// Double-dip encoding · Dynamic branching · Cumulative confidence
+// Single-select pre-set weights · Dynamic branching · Cumulative confidence
 // ═══════════════════════════════════════════════════════════════════════
 
 // ─── PHASES ───
@@ -34,23 +34,16 @@ class Question {
   });
 }
 
-// ─── WEIGHTED SELECTION (multi-select with intensity) ───
-class WeightedSelection {
-  final int optionIndex;
-  final int intensity; // 1–10
-  const WeightedSelection({required this.optionIndex, required this.intensity});
-}
-
 // ─── ANSWER RECORD ───
 class AnswerRecord {
   final String questionId;
-  final List<WeightedSelection> selections;
-  final String optionText; // joined with " | "
-  final Map<String, int> scores; // weighted scores already aggregated
+  final List<int> selectedIndices;
+  final List<String> optionTexts;
+  final Map<String, int> scores; // aggregated scores from ALL selected options
   const AnswerRecord({
     required this.questionId,
-    required this.selections,
-    required this.optionText,
+    required this.selectedIndices,
+    required this.optionTexts,
     required this.scores,
   });
 }
@@ -288,34 +281,29 @@ class DecisionTreeEngine {
     return q;
   }
 
-  /// Submit a weighted multi-select answer.
-  /// Each entry is (optionIndex, intensity) where intensity is 1–10.
-  void submitAnswer(List<MapEntry<int, int>> selections) {
+  /// Submit a multi-select answer with pre-set weights.
+  /// [optionIndices] selects ONE OR MORE options; their scores are summed.
+  void submitAnswer(List<int> optionIndices) {
     final q = _fillTemplate(_computePath()[state.currentQuestionIndex]);
 
-    // Compute weighted scores across all selected options
-    final weightedScores = <String, int>{};
+    // Aggregate scores from ALL selected options
+    final aggregatedScores = <String, int>{};
     final selectedTexts = <String>[];
-
-    for (final entry in selections) {
-      final optIndex = entry.key;
-      final intensity = entry.value;
-      final opt = q.options[optIndex];
+    for (final idx in optionIndices) {
+      final opt = q.options[idx];
       selectedTexts.add(opt.text);
-
-      for (final s in opt.scores.entries) {
-        weightedScores[s.key] =
-            (weightedScores[s.key] ?? 0) + (s.value * intensity);
+      for (final entry in opt.scores.entries) {
+        aggregatedScores[entry.key] =
+            (aggregatedScores[entry.key] ?? 0) + entry.value;
       }
     }
 
-    state.applyScores(weightedScores);
+    state.applyScores(aggregatedScores);
     state.history.add(AnswerRecord(
       questionId: q.id,
-      selections:
-          selections.map((e) => WeightedSelection(optionIndex: e.key, intensity: e.value)).toList(),
-      optionText: selectedTexts.join(' ｜ '),
-      scores: Map.from(weightedScores),
+      selectedIndices: List.from(optionIndices),
+      optionTexts: selectedTexts,
+      scores: Map.from(aggregatedScores),
     ));
     state.currentQuestionIndex++;
     _checkPhaseTransition();

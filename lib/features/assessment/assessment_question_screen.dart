@@ -1,7 +1,7 @@
 // ═══════════════════════════════════════════════════════════════════════
-// AssessmentQuestionScreen — Weighted Multi-Select Question Display
-// Each option has a checkbox to toggle + intensity slider (1–10).
-// Daebi palette · Adaptive path · Animated transitions
+// AssessmentQuestionScreen — Multi-Select Checkbox Cards
+// Each option is a tap-to-toggle checkbox card with pre-set weight (no sliders).
+// Daebi palette · Adaptive path · Animated transitions · HK Cantonese
 // ═══════════════════════════════════════════════════════════════════════
 
 import 'package:flutter/material.dart';
@@ -31,8 +31,8 @@ class _AssessmentQuestionScreenState extends State<AssessmentQuestionScreen>
   late Question _currentQuestion;
   bool _answered = false;
 
-  /// optionIndex → intensity (1.0–10.0)
-  final Map<int, double> _selections = {};
+  /// Indices of selected options (multi-select via checkboxes)
+  final Set<int> _selectedIndices = {};
 
   @override
   void initState() {
@@ -55,35 +55,25 @@ class _AssessmentQuestionScreenState extends State<AssessmentQuestionScreen>
     super.dispose();
   }
 
-  void _toggleOption(int index) {
+  void _selectOption(int index) {
     if (_answered) return;
     setState(() {
-      if (_selections.containsKey(index)) {
-        _selections.remove(index);
+      if (_selectedIndices.contains(index)) {
+        _selectedIndices.remove(index);
       } else {
-        _selections[index] = 5.0; // default intensity
+        _selectedIndices.add(index);
       }
     });
   }
 
-  void _updateIntensity(int index, double value) {
-    if (_answered) return;
-    setState(() {
-      _selections[index] = value;
-    });
-  }
-
   void _submitAnswer() {
-    if (_selections.isEmpty || _answered) return;
+    if (_selectedIndices.isEmpty || _answered) return;
     setState(() => _answered = true);
 
-    // Check if user rejected the verification type
-    // (last option selected with intensity >= 7)
     final currentQ = _currentQuestion;
     final rejectIndex = currentQ.options.length - 1;
     final isTotalReject = currentQ.id.startsWith('verify') &&
-        _selections.containsKey(rejectIndex) &&
-        _selections[rejectIndex]! >= 7.0;
+        _selectedIndices.contains(rejectIndex);
 
     if (isTotalReject) {
       Future.delayed(const Duration(milliseconds: 400), () => _showRetestDialog());
@@ -91,12 +81,7 @@ class _AssessmentQuestionScreenState extends State<AssessmentQuestionScreen>
     }
 
     Future.delayed(const Duration(milliseconds: 500), () {
-      // Build weighted selections: [(optionIndex, intensity)]
-      final weightedSelections = _selections.entries
-          .map((e) => MapEntry(e.key, e.value.round()))
-          .toList();
-
-      widget.engine.submitAnswer(weightedSelections);
+      widget.engine.submitAnswer(_selectedIndices.toList());
 
       if (!widget.engine.hasMoreQuestions ||
           widget.engine.state.phase == AssessmentPhase.result) {
@@ -117,7 +102,7 @@ class _AssessmentQuestionScreenState extends State<AssessmentQuestionScreen>
       setState(() {
         _currentQuestion = widget.engine.getCurrentQuestion();
         _answered = false;
-        _selections.clear();
+        _selectedIndices.clear();
       });
       _slideCtrl.reset();
       _slideCtrl.forward();
@@ -133,10 +118,19 @@ class _AssessmentQuestionScreenState extends State<AssessmentQuestionScreen>
     setState(() {
       _currentQuestion = widget.engine.getCurrentQuestion();
       _answered = false;
-      _selections.clear();
+      _selectedIndices.clear();
     });
     _slideCtrl.reset();
     _slideCtrl.forward();
+  }
+
+  /// Sum of all pre-set weights for an option (for badge display)
+  int _totalWeight(AnswerOption opt) {
+    int sum = 0;
+    for (final v in opt.scores.values) {
+      sum += v;
+    }
+    return sum;
   }
 
   @override
@@ -246,68 +240,70 @@ class _AssessmentQuestionScreenState extends State<AssessmentQuestionScreen>
 
                       const SizedBox(height: 20),
 
-                      // Options — checkbox + intensity slider
+                      // Options — tap-to-toggle checkboxes (multi-select)
                       Expanded(
                         child: ListView.separated(
                           physics: const BouncingScrollPhysics(),
                           itemCount: _currentQuestion.options.length,
                           separatorBuilder: (_, __) =>
-                              const SizedBox(height: 6),
+                              const SizedBox(height: 8),
                           itemBuilder: (ctx, i) {
                             final opt = _currentQuestion.options[i];
-                            final isSelected = _selections.containsKey(i);
-                            final intensity = _selections[i] ?? 5.0;
+                            final isSelected = _selectedIndices.contains(i);
 
-                            return AnimatedContainer(
-                              duration: const Duration(milliseconds: 250),
-                              curve: Curves.easeOutCubic,
-                              decoration: BoxDecoration(
-                                color: isSelected
-                                    ? AppColors.cta.withValues(alpha: 0.06)
-                                    : AppColors.surface,
-                                borderRadius: BorderRadius.circular(18),
-                                border: Border.all(
+                            return GestureDetector(
+                              onTap: _answered
+                                  ? null
+                                  : () => _selectOption(i),
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 250),
+                                curve: Curves.easeOutCubic,
+                                decoration: BoxDecoration(
                                   color: isSelected
-                                      ? AppColors.cta.withValues(alpha: 0.4)
-                                      : AppColors.border,
-                                  width: isSelected ? 1.5 : 1,
+                                      ? AppColors.cta.withValues(alpha: 0.06)
+                                      : AppColors.surface,
+                                  borderRadius: BorderRadius.circular(18),
+                                  border: Border.all(
+                                    color: isSelected
+                                        ? AppColors.cta.withValues(alpha: 0.5)
+                                        : AppColors.border,
+                                    width: isSelected ? 1.5 : 1,
+                                  ),
                                 ),
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.fromLTRB(14, 10, 14, 10),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    // ── Checkbox row ──
-                                    InkWell(
-                                      onTap: _answered ? null : () => _toggleOption(i),
-                                      borderRadius: BorderRadius.circular(14),
-                                      child: Padding(
-                                        padding: const EdgeInsets.symmetric(vertical: 4),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16, vertical: 14,
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      // Checkbox indicator (square, not circle)
+                                      AnimatedContainer(
+                                        duration:
+                                            const Duration(milliseconds: 250),
+                                        width: 22,
+                                        height: 22,
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(4),
+                                          color: isSelected
+                                              ? AppColors.cta
+                                              : Colors.transparent,
+                                          border: Border.all(
+                                            color: isSelected
+                                                ? AppColors.cta
+                                                : AppColors.textMuted,
+                                            width: 2,
+                                          ),
+                                        ),
+                                        child: isSelected
+                                            ? const Icon(Icons.check,
+                                                size: 16, color: Colors.white)
+                                            : null,
+                                      ),
+                                      const SizedBox(width: 14),
+                                      // Option text + weight badge
+                                      Expanded(
                                         child: Row(
                                           children: [
-                                            Container(
-                                              width: 24,
-                                              height: 24,
-                                              decoration: BoxDecoration(
-                                                shape: BoxShape.rectangle,
-                                                borderRadius: BorderRadius.circular(6),
-                                                color: isSelected
-                                                    ? AppColors.cta
-                                                    : Colors.transparent,
-                                                border: Border.all(
-                                                  color: isSelected
-                                                      ? AppColors.cta
-                                                      : AppColors.textMuted,
-                                                  width: 1.5,
-                                                ),
-                                              ),
-                                              child: isSelected
-                                                  ? const Icon(Icons.check,
-                                                      size: 16, color: Colors.white)
-                                                  : null,
-                                            ),
-                                            const SizedBox(width: 12),
                                             Expanded(
                                               child: Text(
                                                 opt.text,
@@ -319,71 +315,39 @@ class _AssessmentQuestionScreenState extends State<AssessmentQuestionScreen>
                                                   color: isSelected
                                                       ? AppColors.textPrimary
                                                       : AppColors.textSecondary,
+                                                  height: 1.4,
+                                                ),
+                                              ),
+                                            ),
+                                            const SizedBox(width: 8),
+                                            // Pre-set weight badge
+                                            Container(
+                                              padding: const EdgeInsets.symmetric(
+                                                horizontal: 8,
+                                                vertical: 2,
+                                              ),
+                                              decoration: BoxDecoration(
+                                                color: isSelected
+                                                    ? AppColors.cta.withValues(alpha: 0.12)
+                                                    : AppColors.border.withValues(alpha: 0.3),
+                                                borderRadius: BorderRadius.circular(8),
+                                              ),
+                                              child: Text(
+                                                '+${_totalWeight(opt)}',
+                                                style: GoogleFonts.notoSansTc(
+                                                  fontSize: 11,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: isSelected
+                                                      ? AppColors.cta
+                                                      : AppColors.textMuted,
                                                 ),
                                               ),
                                             ),
                                           ],
                                         ),
                                       ),
-                                    ),
-
-                                    // ── Intensity slider (only when selected) ──
-                                    if (isSelected) ...[
-                                      const SizedBox(height: 4),
-                                      Row(
-                                        children: [
-                                          Text('強度',
-                                            style: GoogleFonts.notoSansTc(
-                                              fontSize: 11,
-                                              color: AppColors.textMuted,
-                                            ),
-                                          ),
-                                          Expanded(
-                                            child: SliderTheme(
-                                              data: SliderThemeData(
-                                                activeTrackColor: AppColors.cta,
-                                                inactiveTrackColor: AppColors.border,
-                                                thumbColor: AppColors.cta,
-                                                overlayColor: AppColors.cta.withValues(alpha: 0.12),
-                                                trackHeight: 4,
-                                                thumbShape: const RoundSliderThumbShape(
-                                                  enabledThumbRadius: 8,
-                                                ),
-                                                valueIndicatorColor: AppColors.cta,
-                                                valueIndicatorTextStyle: GoogleFonts.notoSansTc(
-                                                  color: Colors.white,
-                                                  fontSize: 11,
-                                                  fontWeight: FontWeight.w600,
-                                                ),
-                                              ),
-                                              child: Slider(
-                                                value: intensity,
-                                                min: 1,
-                                                max: 10,
-                                                divisions: 9,
-                                                label: intensity.round().toString(),
-                                                onChanged: _answered
-                                                    ? null
-                                                    : (v) => _updateIntensity(i, v),
-                                              ),
-                                            ),
-                                          ),
-                                          SizedBox(
-                                            width: 28,
-                                            child: Text(
-                                              intensity.round().toString(),
-                                              textAlign: TextAlign.center,
-                                              style: GoogleFonts.notoSansTc(
-                                                fontSize: 13,
-                                                fontWeight: FontWeight.w700,
-                                                color: AppColors.cta,
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
                                     ],
-                                  ],
+                                  ),
                                 ),
                               ),
                             );
@@ -404,7 +368,7 @@ class _AssessmentQuestionScreenState extends State<AssessmentQuestionScreen>
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: _answered || _selections.isEmpty
+                      onPressed: _answered || _selectedIndices.isEmpty
                           ? null
                           : _submitAnswer,
                       style: ElevatedButton.styleFrom(
@@ -421,14 +385,14 @@ class _AssessmentQuestionScreenState extends State<AssessmentQuestionScreen>
                           fontWeight: FontWeight.w700,
                         ),
                       ),
-                      child: Text(_selections.isNotEmpty
-                          ? '確認答案（${_selections.length}項）'
-                          : '揀選項以繼續'),
+                      child: Text(_selectedIndices.isNotEmpty
+                          ? '確認答案（${_selectedIndices.length}項）'
+                          : '撳選項以繼續'),
                     ),
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    '揀幾多個都得 · 滑條表示你有幾同意（1–10）',
+                    '可以揀多個答案 · 揀咗可以再轉',
                     style: GoogleFonts.notoSansTc(
                       fontSize: 12,
                       color: AppColors.textMuted,
@@ -472,7 +436,7 @@ class _AssessmentQuestionScreenState extends State<AssessmentQuestionScreen>
                   setState(() {
                     _currentQuestion = widget.engine.getCurrentQuestion();
                     _answered = false;
-                    _selections.clear();
+                    _selectedIndices.clear();
                   });
                   _slideCtrl.reset();
                   _slideCtrl.forward();
@@ -491,11 +455,8 @@ class _AssessmentQuestionScreenState extends State<AssessmentQuestionScreen>
             TextButton(
               onPressed: () {
                 Navigator.of(ctx).pop();
-                // Build weighted selections from current state
-                final weightedSelections = _selections.entries
-                    .map((e) => MapEntry(e.key, e.value.round()))
-                    .toList();
-                widget.engine.submitAnswer(weightedSelections);
+                // Use current selection as-is
+                widget.engine.submitAnswer(_selectedIndices.toList());
                 if (!widget.engine.hasMoreQuestions) {
                   Navigator.of(context).pushReplacement(
                     MaterialPageRoute(
@@ -511,7 +472,7 @@ class _AssessmentQuestionScreenState extends State<AssessmentQuestionScreen>
                   setState(() {
                     _currentQuestion = widget.engine.getCurrentQuestion();
                     _answered = false;
-                    _selections.clear();
+                    _selectedIndices.clear();
                   });
                   _slideCtrl.reset();
                   _slideCtrl.forward();
