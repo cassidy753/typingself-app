@@ -54,22 +54,18 @@ class QuestionBank {
         DecisionOption(
           text: '約朋友出街食飯吹水，難得放假嘛',
           scores: {'E': 2.0, 'enneagram_7': 1.0, 'enneagram_3': 0.5, 'health_positive': 0.05},
-          nextQuestionId: 'DQ_TFJP_E',
         ),
         DecisionOption(
           text: '留喺屋企攤屍乜都唔做，me time最緊要',
           scores: {'I': 2.0, 'enneagram_9': 1.0, 'enneagram_5': 0.5},
-          nextQuestionId: 'DQ_TFJP_I',
         ),
         DecisionOption(
           text: 'plan定聽日嘅行程，唔可以浪費假期',
           scores: {'J': 1.0, 'I': 0.5, 'enneagram_1': 0.5, 'enneagram_6': 0.5},
-          nextQuestionId: 'DQ_TFJP_I',
         ),
         DecisionOption(
           text: '睇吓朋友有冇約，有人約就出去冇人就hea',
           scores: {'E': 1.0, 'P': 0.5, 'enneagram_9': 0.5, 'enneagram_7': 0.5},
-          nextQuestionId: 'DQ_TFJP_E',
         ),
       ],
       discriminationPower: 0.8,
@@ -561,12 +557,10 @@ class QuestionBank {
         DecisionOption(
           text: '我鍾意同人一齊，從人嗰度攞energy',
           scores: {'E': 2.0, 'enneagram_7': 0.5, 'enneagram_3': 0.5},
-          nextQuestionId: 'DQ_RR_E_PATH',
         ),
         DecisionOption(
           text: '我自己一個人先叉到電，社交係消耗',
           scores: {'I': 2.0, 'enneagram_5': 0.5, 'enneagram_9': 0.5},
-          nextQuestionId: 'DQ_RR_I_PATH',
         ),
       ],
       discriminationPower: 0.9,

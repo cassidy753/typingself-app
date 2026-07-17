@@ -70,21 +70,10 @@ class _AssessmentQuestionScreenState extends State<AssessmentQuestionScreen>
     if (_selectedIndices.isEmpty || _answered) return;
     setState(() => _answered = true);
 
-    final currentQ = _currentQuestion;
-    final rejectIndex = currentQ.options.length - 1;
-    final isTotalReject = currentQ.id.startsWith('verify') &&
-        _selectedIndices.contains(rejectIndex);
-
-    if (isTotalReject) {
-      Future.delayed(const Duration(milliseconds: 400), () => _showRetestDialog());
-      return;
-    }
-
     Future.delayed(const Duration(milliseconds: 500), () {
       widget.engine.submitAnswer(_selectedIndices.toList());
 
-      if (!widget.engine.hasMoreQuestions ||
-          widget.engine.state.phase == AssessmentPhase.result) {
+      if (!widget.engine.hasMoreQuestions) {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
             builder: (_) => AssessmentResultScreen(
@@ -125,12 +114,18 @@ class _AssessmentQuestionScreenState extends State<AssessmentQuestionScreen>
   }
 
   /// Sum of all pre-set weights for an option (for badge display)
-  int _totalWeight(AnswerOption opt) {
-    int sum = 0;
+  double _totalWeight(AnswerOption opt) {
+    double sum = 0;
     for (final v in opt.scores.values) {
       sum += v;
     }
     return sum;
+  }
+
+  /// Format weight for display: drop trailing `.0` for whole numbers
+  String _formatWeight(double w) {
+    if (w == w.roundToDouble()) return w.toInt().toString();
+    return w.toStringAsFixed(1);
   }
 
   @override
@@ -333,7 +328,7 @@ class _AssessmentQuestionScreenState extends State<AssessmentQuestionScreen>
                                                 borderRadius: BorderRadius.circular(8),
                                               ),
                                               child: Text(
-                                                '+${_totalWeight(opt)}',
+                                                '+${_formatWeight(_totalWeight(opt))}',
                                                 style: GoogleFonts.notoSansTc(
                                                   fontSize: 11,
                                                   fontWeight: FontWeight.w600,
@@ -407,97 +402,12 @@ class _AssessmentQuestionScreenState extends State<AssessmentQuestionScreen>
     );
   }
 
-  void _showRetestDialog() {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.surface,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text('🔄', style: TextStyle(fontSize: 48)),
-            const SizedBox(height: 16),
-            Text('我哋會根據你既答案\\n重新調整問題，再試多次？',
-              textAlign: TextAlign.center,
-              style: GoogleFonts.notoSerifTc(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.textPrimary, height: 1.6),
-            ),
-            const SizedBox(height: 8),
-            Text('今次會更精準針對你既情況',
-              style: GoogleFonts.notoSansTc(fontSize: 14, color: AppColors.textSecondary),
-            ),
-            const SizedBox(height: 24),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.of(ctx).pop();
-                  widget.engine.reset();
-                  setState(() {
-                    _currentQuestion = widget.engine.getCurrentQuestion();
-                    _answered = false;
-                    _selectedIndices.clear();
-                  });
-                  _slideCtrl.reset();
-                  _slideCtrl.forward();
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.cta,
-                  foregroundColor: Colors.white,
-                  padding: EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                  textStyle: GoogleFonts.notoSansTc(fontSize: 16, fontWeight: FontWeight.w600),
-                ),
-                child: const Text('好，再試一次'),
-              ),
-            ),
-            const SizedBox(height: 10),
-            TextButton(
-              onPressed: () {
-                Navigator.of(ctx).pop();
-                // Use current selection as-is
-                widget.engine.submitAnswer(_selectedIndices.toList());
-                if (!widget.engine.hasMoreQuestions) {
-                  Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(
-                      builder: (_) => AssessmentResultScreen(
-                        mbti: widget.engine.state.mbtiString,
-                        ennea: widget.engine.state.enneagramKey,
-                        engine: widget.engine,
-                        onComplete: widget.onComplete,
-                      ),
-                    ),
-                  );
-                } else {
-                  setState(() {
-                    _currentQuestion = widget.engine.getCurrentQuestion();
-                    _answered = false;
-                    _selectedIndices.clear();
-                  });
-                  _slideCtrl.reset();
-                  _slideCtrl.forward();
-                }
-              },
-              child: const Text('繼續用現有結果', style: TextStyle(color: AppColors.textMuted, fontSize: 14)),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   String _phaseLabel(AssessmentPhase phase) {
     switch (phase) {
-      case AssessmentPhase.mbti:
-        return '🧩 MBTI 分析';
-      case AssessmentPhase.mbtiVerification:
-        return '✅ MBTI 確認';
-      case AssessmentPhase.enneagram:
-        return '🎭 九型人格分析';
-      case AssessmentPhase.enneagramVerification:
-        return '✅ 九型確認';
-      default:
-        return '';
+      case AssessmentPhase.questions:
+        return '🧩 人格分析';
+      case AssessmentPhase.result:
+        return '✅ 完成';
     }
   }
 }
