@@ -10,6 +10,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../core/theme.dart';
+import '../../core/analytics_service.dart';
+import '../../core/celebration_overlay.dart';
 import '../daily_quote/zodiac_service.dart';
 import '../assessment/assessment_intro_screen.dart';
 import '../assessment/decision_tree_engine.dart';
@@ -41,9 +43,13 @@ class ExploreScreen extends StatefulWidget {
 }
 
 class _ExploreScreenState extends State<ExploreScreen> {
-  bool _shadowDone = false;
+  bool _stage1Done = false;
+  bool _stage2Done = false;
+  bool _stage3Done = false;
+  bool _stage4Done = false;
   bool _loaded = false;
   String? _zodiac;
+  bool _analyticsLogged = false;
 
   @override
   void initState() {
@@ -54,10 +60,25 @@ class _ExploreScreenState extends State<ExploreScreen> {
   Future<void> _load() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      _shadowDone = prefs.getBool('shadow_report_viewed') ?? false;
+      _stage1Done = prefs.getBool('stage1_done') ?? (prefs.getBool('test_done') ?? false);
+      _stage2Done = prefs.getBool('stage2_done') ?? (prefs.getBool('shadow_report_viewed') ?? false);
+      _stage3Done = prefs.getBool('stage3_done') ?? false;
+      _stage4Done = prefs.getBool('stage4_done') ?? false;
       _zodiac = prefs.getString('zodiac_sign');
       _loaded = true;
     });
+
+    // Log app_open analytics once per session
+    if (!_analyticsLogged) {
+      _analyticsLogged = true;
+      AnalyticsService.log(AnalyticsService.appOpen, properties: {
+        'stage1_done': _stage1Done,
+        'stage2_done': _stage2Done,
+        'stage3_done': _stage3Done,
+        'stage4_done': _stage4Done,
+        'mbti': widget.mbti,
+      });
+    }
   }
 
   @override
@@ -88,7 +109,14 @@ class _ExploreScreenState extends State<ExploreScreen> {
             const SizedBox(height: 8),
 
             // ── Header ──
-            _ExploreHeader(accent: widget.accent, accentBg: widget.accentBg),
+            _ExploreHeader(
+              accent: widget.accent,
+              accentBg: widget.accentBg,
+              stage1Done: _stage1Done,
+              stage2Done: _stage2Done,
+              stage3Done: _stage3Done,
+              stage4Done: _stage4Done,
+            ),
 
             const SizedBox(height: 16),
 
@@ -136,42 +164,62 @@ class _ExploreScreenState extends State<ExploreScreen> {
             const SizedBox(height: 22),
 
             // ── Stage 1: MBTI + Enneagram ──
-            _SectionHeader('已解鎖 ✅', widget.accent),
+            _SectionHeader(
+              _stage1Done ? 'Stage 1 — 已完成 ✅' : 'Stage 1 — MBTI + Enneagram',
+              widget.accent,
+              subtitle: _stage1Done ? '' : '未完成',
+            ),
             const SizedBox(height: 10),
             _ContentCard(
               icon: '🧠',
               title: 'MBTI + Enneagram 人格測試',
-              subtitle: widget.mbti != null && widget.ennea != null
+              subtitle: _stage1Done && widget.mbti != null && widget.ennea != null
                   ? '${widget.mbti} · ${widget.ennea}  — 了解你嘅思維模式同核心動機'
                   : '完成測試以解鎖個人化洞察',
-              badge: '已解鎖',
-              badgeColor: const Color(0xFF8FA87A),
-              onTap: () => _showSnack('重新測試：清空記錄後可以再做一次'),
+              badge: _stage1Done ? '已完成 ✅' : '開始測試',
+              badgeColor: _stage1Done ? const Color(0xFF8FA87A) : widget.accent,
+              onTap: _stage1Done
+                  ? () => _showSnack('你嘅結果：${widget.mbti} · ${widget.ennea}')
+                  : _startTest,
             ),
 
             const SizedBox(height: 16),
 
             // ── Stage 2: Shadow Report ──
-            _SectionHeader('免費 🆓', widget.accent),
+            _SectionHeader(
+              _stage2Done ? 'Stage 2 — 已完成 ✅' : 'Stage 2 — 陰影報告',
+              widget.accent,
+              subtitle: _stage2Done ? '' : (_stage1Done ? '已解鎖 🔓' : '需要先完成 Stage 1'),
+            ),
             const SizedBox(height: 10),
             _ContentCard(
               icon: '🌑',
               title: 'Shadow Report — 陰影報告',
-              subtitle: _shadowDone
+              subtitle: _stage2Done
                   ? '你嘅面具、陰影、防禦機制 — 已解鎖 ✅'
                   : '4 頁深度人格陰影分析 — 了解你壓抑咗嘅部分',
-              badge: _shadowDone ? '已完成' : '免費開啟',
-              badgeColor: _shadowDone ? const Color(0xFF8FA87A) : widget.accent,
-              onTap: () => _showSnack(_shadowDone ? 'Shadow Report 已睇過，可以去首頁重溫' : 'Shadow Report：按「繼續探索」後可睇'),
+              badge: _stage2Done ? '已完成 ✅' : (_stage1Done ? '免費開啟 🔓' : '🔒 鎖住'),
+              badgeColor: _stage2Done
+                  ? const Color(0xFF8FA87A)
+                  : (_stage1Done ? widget.accent : AppColors.disabledText),
+              locked: !_stage1Done,
+              onTap: _stage2Done
+                  ? () => _showSnack('Shadow Report 已睇過！')
+                  : _stage1Done
+                      ? () => _showSnack('去 Profile 頁睇 Shadow Report')
+                      : () => _showSnack('需要先完成 Stage 1 嘅人格測試先'),
             ),
             const SizedBox(height: 12),
             _ContentCard(
               icon: '📊',
               title: '心靈健康 Quick Check',
               subtitle: '4 條問題了解你近一星期嘅心理狀態',
-              badge: '免費',
-              badgeColor: widget.accent,
-              onTap: () => _showSnack('心靈健康 Quick Check：即將推出'),
+              badge: _stage1Done ? '免費 🆓' : '🔒 鎖住',
+              badgeColor: _stage1Done ? widget.accent : AppColors.disabledText,
+              locked: !_stage1Done,
+              onTap: _stage1Done
+                  ? () => _showSnack('心靈健康 Quick Check：即將推出')
+                  : () => _showSnack('需要先完成 Stage 1'),
             ),
 
             const SizedBox(height: 12),
@@ -181,59 +229,86 @@ class _ExploreScreenState extends State<ExploreScreen> {
               icon: '💭',
               title: '每日三分鐘反思',
               subtitle: '一條問題引導你回顧今日嘅感受同覺察',
-              badge: '免費',
-              badgeColor: widget.accent,
-              onTap: () => _showSnack('每日反思：記低你嘅想法'),
+              badge: _stage1Done ? '免費 🆓' : '🔒 鎖住',
+              badgeColor: _stage1Done ? widget.accent : AppColors.disabledText,
+              locked: !_stage1Done,
+              onTap: _stage1Done
+                  ? () => _showSnack('每日反思：記低你嘅想法')
+                  : () => _showSnack('需要先完成 Stage 1'),
             ),
 
             const SizedBox(height: 20),
 
             // ── Stage 3: Growth Plan ──
-            _SectionHeader('Stage 3 — 成長計劃', widget.accent, subtitle: '需要進一步解鎖'),
+            _SectionHeader(
+              _stage3Done ? 'Stage 3 — 已完成 ✅' : 'Stage 3 — 成長計劃',
+              widget.accent,
+              subtitle: _stage3Done
+                  ? ''
+                  : (_stage2Done ? '已解鎖 🔓' : '需要先完成 Stage 2'),
+            ),
             const SizedBox(height: 10),
             _ContentCard(
               icon: '🌱',
               title: 'Inferior Function 成長練習',
               subtitle: '每日 1 分鐘針對你嘅 inferior function 練習 + 進度追蹤',
-              badge: '需要進一步解鎖',
-              badgeColor: AppColors.disabledText,
-              locked: false,
-              onTap: () => _showSnack('Stage 3 成長計劃需要進一步解鎖'),
+              badge: _stage2Done ? (_stage3Done ? '已完成 ✅' : '免費開啟 🔓') : '🔒 鎖住',
+              badgeColor: _stage3Done
+                  ? const Color(0xFF8FA87A)
+                  : (_stage2Done ? widget.accent : AppColors.disabledText),
+              locked: !_stage2Done,
+              onTap: _stage2Done
+                  ? () => _showSnack('去成長練習頁開始練習')
+                  : () => _showSnack('需要先完成 Stage 2 嘅 Shadow Report'),
             ),
             const SizedBox(height: 12),
             _ContentCard(
               icon: '✍️',
               title: 'S.O.A.R. 自我觀察日記',
               subtitle: '5 分鐘 guided check-in · 感官·觀察·對齊·反思',
-              badge: '需要進一步解鎖',
-              badgeColor: AppColors.disabledText,
-              locked: false,
-              onTap: () => _showSnack('S.O.A.R. 日記需要進一步解鎖'),
+              badge: _stage2Done ? '免費開啟 🔓' : '🔒 鎖住',
+              badgeColor: _stage2Done ? widget.accent : AppColors.disabledText,
+              locked: !_stage2Done,
+              onTap: _stage2Done
+                  ? () => _showSnack('S.O.A.R. 日記：即將推出')
+                  : () => _showSnack('需要先完成 Stage 2'),
             ),
 
             const SizedBox(height: 20),
 
             // ── Stage 4: Integration ──
-            _SectionHeader('Stage 4 — 整合報告', widget.accent, subtitle: '需要進一步解鎖'),
+            _SectionHeader(
+              _stage4Done ? 'Stage 4 — 已完成 ✅' : 'Stage 4 — 整合報告',
+              widget.accent,
+              subtitle: _stage4Done
+                  ? ''
+                  : (_stage3Done ? '已解鎖 🔓' : '需要先完成 Stage 3'),
+            ),
             const SizedBox(height: 10),
             _ContentCard(
               icon: '💎',
               title: 'Self-Integration 報告',
               subtitle: '完整認知功能平衡分析 + 4 階段進度 + 潛意識洞察',
-              badge: '需要進一步解鎖',
-              badgeColor: AppColors.disabledText,
-              locked: false,
-              onTap: () => _showSnack('Stage 4 整合報告需要進一步解鎖'),
+              badge: _stage3Done ? (_stage4Done ? '已完成 ✅' : '免費開啟 🔓') : '🔒 鎖住',
+              badgeColor: _stage4Done
+                  ? const Color(0xFF8FA87A)
+                  : (_stage3Done ? widget.accent : AppColors.disabledText),
+              locked: !_stage3Done,
+              onTap: _stage3Done
+                  ? () => _showSnack(_stage4Done ? '整合報告已睇過！' : '整合報告：即將推出')
+                  : () => _showSnack('需要先完成 Stage 3 嘅成長練習'),
             ),
             const SizedBox(height: 12),
             _ContentCard(
               icon: '📈',
               title: '季度趨勢 Dashboard',
               subtitle: '心情趨勢 · 成長進度 · 功能使用分佈 — 圖表化',
-              badge: '需要進一步解鎖',
-              badgeColor: AppColors.disabledText,
-              locked: false,
-              onTap: () => _showSnack('季度趨勢需要進一步解鎖'),
+              badge: _stage3Done ? '免費開啟 🔓' : '🔒 鎖住',
+              badgeColor: _stage3Done ? widget.accent : AppColors.disabledText,
+              locked: !_stage3Done,
+              onTap: _stage3Done
+                  ? () => _showSnack('季度趨勢 Dashboard：即將推出')
+                  : () => _showSnack('需要先完成 Stage 3'),
             ),
 
             const SizedBox(height: 24),
@@ -248,10 +323,28 @@ class _ExploreScreenState extends State<ExploreScreen> {
     );
   }
 
+  void _startTest() {
+    AnalyticsService.log(AnalyticsService.testStarted);
+    if (widget.onRetakeTest != null) {
+      widget.onRetakeTest!();
+    } else {
+      if (!context.mounted) return;
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => AssessmentIntroScreen(
+            engine: DecisionTreeEngine(questionCount: 20),
+            onComplete: (mbti, ennea) {},
+          ),
+        ),
+      );
+    }
+  }
+
   Future<void> _retakeTest() async {
     // Clear saved results
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('test_done', false);
+    await prefs.setBool('stage1_done', false);
     await prefs.remove('mbti');
     await prefs.remove('ennea');
     await prefs.remove('selected_tagline');
@@ -262,6 +355,8 @@ class _ExploreScreenState extends State<ExploreScreen> {
     await prefs.remove('total_questions');
     await prefs.remove('mbti_result');
     await prefs.remove('ennea_result');
+
+    AnalyticsService.log(AnalyticsService.testStarted);
 
     if (widget.onRetakeTest != null) {
       widget.onRetakeTest!();
@@ -528,7 +623,15 @@ class _RetakeCard extends StatelessWidget {
 // ── Header ──
 class _ExploreHeader extends StatelessWidget {
   final Color accent, accentBg;
-  const _ExploreHeader({required this.accent, required this.accentBg});
+  final bool stage1Done, stage2Done, stage3Done, stage4Done;
+  const _ExploreHeader({
+    required this.accent,
+    required this.accentBg,
+    required this.stage1Done,
+    required this.stage2Done,
+    required this.stage3Done,
+    required this.stage4Done,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -565,18 +668,18 @@ class _ExploreHeader extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
-          Text('由 MBTI 到 八字，由陰影到整合 — 一步一步深入了解自己。',
+          Text('由 MBTI 到整合報告，一步一步深入了解自己。',
             style: GoogleFonts.notoSansTc(fontSize: 14, color: AppColors.textSecondary, height: 1.6)),
           const SizedBox(height: 18),
           Row(
             children: [
-              _HeaderStage(0, '🧠', 'Stage 1', true, accent),
+              _HeaderStage(0, '🧠', 'Stage 1', stage1Done, accent),
               const SizedBox(width: 8),
-              _HeaderStage(1, '🌑', 'Stage 2', false, accent),
+              _HeaderStage(1, '🌑', 'Stage 2', stage2Done, accent),
               const SizedBox(width: 8),
-              _HeaderStage(2, '🌱', 'Stage 3', false, accent),
+              _HeaderStage(2, '🌱', 'Stage 3', stage3Done, accent),
               const SizedBox(width: 8),
-              _HeaderStage(3, '💎', 'Stage 4', false, accent),
+              _HeaderStage(3, '💎', 'Stage 4', stage4Done, accent),
             ],
           ),
         ],
@@ -632,7 +735,7 @@ class _SectionHeader extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         Text(text, style: GoogleFonts.notoSerifTc(fontSize: 18, fontWeight: FontWeight.w800, color: accent)),
-        if (subtitle != null)
+        if (subtitle != null && subtitle!.isNotEmpty)
           Padding(
             padding: const EdgeInsets.only(bottom: 2),
             child: Text(subtitle!, style: GoogleFonts.notoSansTc(fontSize: 12, color: AppColors.textMuted)),

@@ -19,6 +19,8 @@ import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/theme.dart';
+import '../../core/analytics_service.dart';
+import '../../core/celebration_overlay.dart';
 import '../personality_naming/naming_engine.dart';
 import '../shadow_report/shadow_report_engine.dart';
 import '../shadow_report/shadow_report_screen.dart';
@@ -434,8 +436,32 @@ class _AssessmentResultScreenState
   Future<void> _saveResult() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('test_done', true);
+    await prefs.setBool('stage1_done', true);
     await prefs.setString('mbti', widget.mbti);
     await prefs.setString('ennea', widget.ennea);
+
+    // Log analytics
+    AnalyticsService.log(AnalyticsService.testCompleted, properties: {
+      'mbti': widget.mbti,
+      'ennea': widget.ennea,
+    });
+
+    // Show celebration overlay for Stage 1 completion
+    if (mounted) {
+      CelebrationOverlay.show(
+        context,
+        emoji: '🎉',
+        title: 'Stage 1 完成！',
+        subtitle: '你已經了解咗你嘅 MBTI 同 Enneagram 🧠\n下一站：Shadow Report 陰影報告 🌑',
+        accent: _mbtiVisuals[widget.mbti]?.temperament.accent ?? AppColors.cta,
+      );
+    }
+
+    // Log result_viewed
+    AnalyticsService.log(AnalyticsService.resultViewed, properties: {
+      'mbti': widget.mbti,
+      'ennea': widget.ennea,
+    });
   }
 
   // ─── Share as image card ──────────────────────────────────────────────

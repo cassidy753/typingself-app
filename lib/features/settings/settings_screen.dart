@@ -7,7 +7,10 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/theme.dart';
+import '../../core/analytics_service.dart';
 import '../daily_quote/zodiac_service.dart';
+import '../legal/privacy_policy_screen.dart';
+import '../legal/terms_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   final Color accent;
@@ -47,6 +50,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       _zodiac = prefs.getString('zodiac_sign');
       _loaded = true;
     });
+    AnalyticsService.log(AnalyticsService.settingsOpened);
   }
 
   Future<void> _setZodiac(String sign) async {
@@ -371,7 +375,27 @@ class _SettingsContent extends StatelessWidget {
           const SizedBox(height: 4),
           _SettingsItem(Icons.delete_outline, '刪除帳戶', () {}, color: Colors.redAccent),
           const SizedBox(height: 4),
-          _SettingsItem(Icons.description_outlined, '私隱政策', () {}),
+          _SettingsItem(Icons.description_outlined, '私隱政策', () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => PrivacyPolicyScreen(
+                  accent: accent,
+                  accentBg: accentBg,
+                ),
+              ),
+            );
+          }),
+          const SizedBox(height: 4),
+          _SettingsItem(Icons.assignment_outlined, '服務條款', () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => TermsScreen(
+                  accent: accent,
+                  accentBg: accentBg,
+                ),
+              ),
+            );
+          }),
           const SizedBox(height: 4),
           _SettingsItem(Icons.info_outline, '版本 1.0.0', () {}),
 

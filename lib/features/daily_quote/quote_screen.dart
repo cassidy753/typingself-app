@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../core/theme.dart';
+import '../../core/analytics_service.dart';
 import '../../core/retention_service.dart';
 import '../../core/celebration_overlay.dart';
 import '../daily_quote/zodiac_service.dart';
@@ -77,6 +78,9 @@ class _QuoteScreenState extends State<QuoteScreen> {
     // ── Retention: track open + daily quote notification ──
     await RetentionService.init();
     await RetentionService.triggerDailyQuoteNotification();
+
+    // Log quote_read analytics
+    AnalyticsService.log(AnalyticsService.quoteRead);
 
     // Check for new stage completion after loading
     if (mounted) {
