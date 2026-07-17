@@ -10,6 +10,7 @@ import 'features/profile/profile_screen.dart';
 import 'features/settings/settings_screen.dart';
 import 'features/assessment/assessment_intro_screen.dart';
 import 'features/assessment/decision_tree_engine.dart';
+import 'features/compare/compare_screen.dart';
 
 // main() is in main.dart — runs ProviderScope + TypingselfApp.
 
@@ -79,6 +80,9 @@ class _AppRootState extends State<AppRoot> {
   bool _loading = true;
   String? _mbti;
   String? _ennea;
+  String? _pendingFriendMbti;
+  String? _pendingFriendEnnea;
+  String? _pendingFriendName;
 
   @override
   void initState() { super.initState(); _check(); }
@@ -87,6 +91,22 @@ class _AppRootState extends State<AppRoot> {
     final prefs = await SharedPreferences.getInstance();
     final mbti = prefs.getString('mbti');
     final ennea = prefs.getString('ennea');
+    
+    // Check for deep link parameters (e.g. ?type=INTJ-5_4&name=戰略家)
+    final queryParams = Uri.base.queryParameters;
+    final typeParam = queryParams['type'];
+    if (typeParam != null) {
+      final decoded = Uri.decodeComponent(typeParam);
+      final parts = decoded.split('-');
+      if (parts.length == 2) {
+        _pendingFriendMbti = parts[0].toUpperCase();
+        _pendingFriendEnnea = parts[1].replaceAll('_', 'w');
+        _pendingFriendName = queryParams['name'] != null
+            ? Uri.decodeComponent(queryParams['name']!)
+            : null;
+      }
+    }
+    
     setState(() { _mbti = mbti; _ennea = ennea; _loading = false; });
   }
 
@@ -128,6 +148,9 @@ class _AppRootState extends State<AppRoot> {
       ennea: _ennea ?? '5w4',
       onRetakeTest: _onRetakeTest,
       onThemeChanged: widget.onThemeChanged,
+      pendingFriendMbti: _pendingFriendMbti,
+      pendingFriendEnnea: _pendingFriendEnnea,
+      pendingFriendName: _pendingFriendName,
     );
   }
 }
@@ -146,7 +169,10 @@ class MainShell extends StatefulWidget {
   final String ennea;
   final VoidCallback? onRetakeTest;
   final VoidCallback? onThemeChanged;
-  const MainShell({super.key, required this.mbti, required this.ennea, this.onRetakeTest, this.onThemeChanged});
+  final String? pendingFriendMbti;
+  final String? pendingFriendEnnea;
+  final String? pendingFriendName;
+  const MainShell({super.key, required this.mbti, required this.ennea, this.onRetakeTest, this.onThemeChanged, this.pendingFriendMbti, this.pendingFriendEnnea, this.pendingFriendName});
   @override
   State<MainShell> createState() => _MainShellState();
 }
@@ -159,6 +185,37 @@ class _MainShellState extends State<MainShell> {
     _Tab('🔍', '發掘',  Color(0xFFD4A843), Color(0x20D4A843)),  // Mustard
     _Tab('👤', '我嘅',  Color(0xFFE0785A), Color(0x20E0785A)),  // Coral
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    // Handle deep link navigation after first frame
+    if (widget.pendingFriendMbti != null && widget.pendingFriendEnnea != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _openCompareWithFriend();
+      });
+    }
+  }
+
+  /// Open compare screen with a friend's type from a deep link
+  void _openCompareWithFriend() {
+    if (widget.pendingFriendMbti == null || widget.pendingFriendEnnea == null) return;
+    final accent = AppColors.purple;
+    final accentBg = Color(0x209B72AA);
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => CompareScreen(
+          myMbti: widget.mbti,
+          myEnnea: widget.ennea,
+          accent: accent,
+          accentBg: accentBg,
+          initialFriendMbti: widget.pendingFriendMbti,
+          initialFriendEnnea: widget.pendingFriendEnnea,
+          initialFriendName: widget.pendingFriendName,
+        ),
+      ),
+    );
+  }
 
   /// Navigate to settings with dark mode change callback.
   void _openSettings(Color accent, Color accentBg) {
