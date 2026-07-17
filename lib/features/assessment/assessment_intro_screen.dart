@@ -117,13 +117,13 @@ class _AssessmentIntroScreenState extends State<AssessmentIntroScreen>
                           height: 1.4,
                         ),
                       ),
-                      const SizedBox(height: 28),
+                      const SizedBox(height: 16),
 
-                      // ─── 3 Version Cards (no scroll — fixed layout) ───
+                      // ─── 3 Version Cards (compact to fit screen) ───
                       for (int i = 0; i < versions.length; i++)
                         Padding(
                           padding: EdgeInsets.only(
-                            bottom: i < versions.length - 1 ? 10 : 0,
+                            bottom: i < versions.length - 1 ? 8 : 0,
                           ),
                           child: _VersionCard(
                             emoji: versions[i].emoji,
@@ -316,7 +316,7 @@ class _VersionCard extends StatelessWidget {
                   AnimatedContainer(
                     duration: const Duration(milliseconds: 350),
                     curve: Curves.easeOutCubic,
-                    padding: const EdgeInsets.fromLTRB(14, 16, 14, 16),
+                    padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
                     decoration: BoxDecoration(
                       gradient: isSelected
                           ? LinearGradient(
