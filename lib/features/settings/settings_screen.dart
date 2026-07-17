@@ -12,16 +12,16 @@ import '../daily_quote/zodiac_service.dart';
 class SettingsScreen extends StatefulWidget {
   final Color accent;
   final Color accentBg;
-  final String mbti;
-  final String ennea;
+  final String? mbti;
+  final String? ennea;
   final VoidCallback? onRetakeTest;
 
   const SettingsScreen({
     super.key,
     required this.accent,
     required this.accentBg,
-    required this.mbti,
-    required this.ennea,
+    this.mbti,
+    this.ennea,
     this.onRetakeTest,
   });
 
@@ -117,7 +117,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
             // ── 我嘅類型 ──
             _sectionHeader('🎭 我嘅類型', widget.accent),
             const SizedBox(height: 8),
-            _TypeCard(mbti: widget.mbti, ennea: widget.ennea, accent: widget.accent),
+            if (widget.mbti != null && widget.ennea != null)
+              _TypeCard(mbti: widget.mbti!, ennea: widget.ennea!, accent: widget.accent)
+            else
+              _NoTestCard(accent: widget.accent),
             const SizedBox(height: 16),
 
             // ── 設定 ──
@@ -210,6 +213,50 @@ class _TypeCard extends StatelessWidget {
               const SizedBox(height: 2),
               Text('已完成測試', style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
             ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ── No Test Card ──
+class _NoTestCard extends StatelessWidget {
+  final Color accent;
+  const _NoTestCard({required this.accent});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 48, height: 48,
+            decoration: BoxDecoration(
+              color: accent.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: const Center(child: Text('🧪', style: TextStyle(fontSize: 24))),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('你未完成測驗', style: GoogleFonts.notoSansTc(
+                  fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.textPrimary,
+                )),
+                const SizedBox(height: 2),
+                Text('完成測驗以解鎖個人化設定', style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+              ],
+            ),
           ),
         ],
       ),

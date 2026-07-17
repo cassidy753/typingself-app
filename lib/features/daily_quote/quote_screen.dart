@@ -30,9 +30,9 @@ BoxDecoration _cardDecoration() => BoxDecoration(
 class QuoteScreen extends StatefulWidget {
   final Color accent;
   final Color accentBg;
-  final String mbti;
-  final String ennea;
-  const QuoteScreen({super.key, required this.accent, required this.accentBg, required this.mbti, required this.ennea});
+  final String? mbti;
+  final String? ennea;
+  const QuoteScreen({super.key, required this.accent, required this.accentBg, this.mbti, this.ennea});
 
   @override
   State<QuoteScreen> createState() => _QuoteScreenState();
@@ -98,11 +98,12 @@ class _QuoteScreenState extends State<QuoteScreen> {
             const SizedBox(height: 26),
 
             // ── 💬 你嘅人格對朋友講嘅說話 ──
-            _SectionHeader('💬 你嘅人格對朋友講嘅說話', accent: widget.accent, accentBg: widget.accentBg),
-            const SizedBox(height: 12),
-            _PersonalizedQuote(mbti: widget.mbti, ennea: widget.ennea, accent: widget.accent),
-
-            const SizedBox(height: 26),
+            if (_testDone) ...[
+              _SectionHeader('💬 你嘅人格對朋友講嘅說話', accent: widget.accent, accentBg: widget.accentBg),
+              const SizedBox(height: 12),
+              _PersonalizedQuote(mbti: widget.mbti, ennea: widget.ennea, accent: widget.accent),
+              const SizedBox(height: 26),
+            ],
 
             // ── 🧭 自我認識旅程 ──
             _SectionHeader('🧭 自我認識旅程', accent: widget.accent, accentBg: widget.accentBg),
@@ -127,14 +128,15 @@ class _QuoteScreenState extends State<QuoteScreen> {
 
 // ── Greeting ──
 class _GreetingHeader extends StatelessWidget {
-  final String mbti, ennea;
-  const _GreetingHeader({required this.mbti, required this.ennea});
+  final String? mbti, ennea;
+  const _GreetingHeader({this.mbti, this.ennea});
 
   @override
   Widget build(BuildContext context) {
     final hour = DateTime.now().hour;
     final greeting = hour < 12 ? '早晨' : (hour < 18 ? '你好' : '夜晚');
-    final name = _getCantoName(mbti);
+    final hasTest = mbti != null && ennea != null;
+    final name = hasTest ? _getCantoName(mbti!) : '你';
 
     return Container(
       width: double.infinity,
@@ -175,8 +177,12 @@ class _GreetingHeader extends StatelessWidget {
                 Text('$greeting，$name',
                   style: GoogleFonts.notoSerifTc(fontSize: 22, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
                 const SizedBox(height: 4),
-                Text('$mbti · $ennea',
-                  style: const TextStyle(fontSize: 13, color: AppColors.textSecondary, fontWeight: FontWeight.w500)),
+                if (hasTest)
+                  Text('$mbti · $ennea',
+                    style: const TextStyle(fontSize: 13, color: AppColors.textSecondary, fontWeight: FontWeight.w500))
+                else
+                  Text('你未完成測驗',
+                    style: const TextStyle(fontSize: 13, color: AppColors.textMuted, fontWeight: FontWeight.w500)),
               ],
             ),
           ),
@@ -401,15 +407,15 @@ class _QuoteCard extends StatelessWidget {
   }
 }
 
-// ── 💬 你嘅人格對朋友講嘅說話 ──
 class _PersonalizedQuote extends StatelessWidget {
-  final String mbti, ennea;
+  final String? mbti;
+  final String? ennea;
   final Color accent;
   const _PersonalizedQuote({required this.mbti, required this.ennea, required this.accent});
 
   @override
   Widget build(BuildContext context) {
-    final phrases = _getPhrases(mbti);
+    final phrases = _getPhrases(mbti ?? '');
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(18),
@@ -501,8 +507,8 @@ class _PersonalizedQuote extends StatelessWidget {
 class _JourneyProgress extends StatelessWidget {
   final bool testDone, shadowDone;
   final Color accent, accentBg;
-  final String mbti, ennea;
-  const _JourneyProgress({required this.testDone, required this.shadowDone, required this.accent, required this.accentBg, required this.mbti, required this.ennea});
+  final String? mbti, ennea;
+  const _JourneyProgress({required this.testDone, required this.shadowDone, required this.accent, required this.accentBg, this.mbti, this.ennea});
 
   @override
   Widget build(BuildContext context) {
@@ -532,27 +538,31 @@ class _JourneyProgress extends StatelessWidget {
             onTap: shadowDone
                 ? () {
                     final engine = ShadowReportEngine();
-                    final report = engine.generate(mbti, ennea);
+                    final report = engine.generate(mbti ?? '', ennea ?? '');
                     Navigator.of(context).push(
                       MaterialPageRoute(builder: (_) => ShadowReportScreen(report: report, onComplete: () {})),
                     );
                   }
                 : null),
           const SizedBox(height: 10),
-          _StageRow(2, '🌱', 'Stage 3', 'Growth Plan', false, accent, accentBg, locked: !shadowDone,
-            onTap: shadowDone
-                ? () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => GrowthProgressScreen(
-                        mbti: mbti, ennea: ennea,
-                        accent: accent, accentBg: accentBg,
-                      )),
-                    );
-                  }
-                : null),
+          _StageRow(2, '🌱', 'Stage 3', 'Growth Plan', false, accent, accentBg, locked: false,
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => GrowthProgressScreen(
+                  mbti: mbti ?? '', ennea: ennea ?? '',
+                  accent: accent, accentBg: accentBg,
+                )),
+              );
+            }),
           const SizedBox(height: 10),
-          _StageRow(3, '💎', 'Stage 4', 'Integration', false, accent, accentBg, locked: true,
-            onTap: null),
+          _StageRow(3, '💎', 'Stage 4', 'Integration', false, accent, accentBg, locked: false,
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => IntegratedReportScreen(
+                  mbti: mbti ?? '', ennea: ennea ?? '',
+                )),
+              );
+            }),
         ],
       ),
     );

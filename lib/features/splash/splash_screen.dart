@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/theme.dart';
+import '../onboarding/onboarding_screen.dart';
 
 // ──────────────────────────────────────────────
 // SPLASH SCREEN — animated brain+butterfly logo
@@ -77,7 +78,11 @@ class _SplashScreenState extends State<SplashScreen>
     // Auto‑navigate after animation finishes
     Future.delayed(const Duration(milliseconds: 2600), () {
       if (!mounted) return;
-      Navigator.of(context).pushReplacementNamed('/home');
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (_) => const OnboardingScreen(),
+        ),
+      );
     });
   }
 

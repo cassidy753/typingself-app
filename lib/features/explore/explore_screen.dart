@@ -31,10 +31,10 @@ BoxDecoration _cardDecoration() => BoxDecoration(
 class ExploreScreen extends StatefulWidget {
   final Color accent;
   final Color accentBg;
-  final String mbti;
-  final String ennea;
+  final String? mbti;
+  final String? ennea;
   final VoidCallback? onRetakeTest;
-  const ExploreScreen({super.key, required this.accent, required this.accentBg, required this.mbti, required this.ennea, this.onRetakeTest});
+  const ExploreScreen({super.key, required this.accent, required this.accentBg, this.mbti, this.ennea, this.onRetakeTest});
 
   @override
   State<ExploreScreen> createState() => _ExploreScreenState();
@@ -123,12 +123,15 @@ class _ExploreScreenState extends State<ExploreScreen> {
             // ── 📖 每日人格洞察 ──
             _SectionHeader('💡 每日人格洞察', widget.accent),
             const SizedBox(height: 10),
-            _PersonalityInsightCard(
-              mbti: widget.mbti,
-              ennea: widget.ennea,
-              accent: widget.accent,
-              accentBg: widget.accentBg,
-            ),
+            if (widget.mbti != null && widget.ennea != null)
+              _PersonalityInsightCard(
+                mbti: widget.mbti!,
+                ennea: widget.ennea!,
+                accent: widget.accent,
+                accentBg: widget.accentBg,
+              )
+            else
+              _NoTestCard(accent: widget.accent, accentBg: widget.accentBg),
 
             const SizedBox(height: 22),
 
@@ -138,7 +141,9 @@ class _ExploreScreenState extends State<ExploreScreen> {
             _ContentCard(
               icon: '🧠',
               title: 'MBTI + Enneagram 人格測試',
-              subtitle: '${widget.mbti} · ${widget.ennea}  — 了解你嘅思維模式同核心動機',
+              subtitle: widget.mbti != null && widget.ennea != null
+                  ? '${widget.mbti} · ${widget.ennea}  — 了解你嘅思維模式同核心動機'
+                  : '完成測試以解鎖個人化洞察',
               badge: '已解鎖',
               badgeColor: const Color(0xFF8FA87A),
               onTap: () => _showSnack('重新測試：清空記錄後可以再做一次'),
@@ -192,7 +197,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
               subtitle: '每日 1 分鐘針對你嘅 inferior function 練習 + 進度追蹤',
               badge: '需要進一步解鎖',
               badgeColor: AppColors.disabledText,
-              locked: true,
+              locked: false,
               onTap: () => _showSnack('Stage 3 成長計劃需要進一步解鎖'),
             ),
             const SizedBox(height: 12),
@@ -202,7 +207,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
               subtitle: '5 分鐘 guided check-in · 感官·觀察·對齊·反思',
               badge: '需要進一步解鎖',
               badgeColor: AppColors.disabledText,
-              locked: true,
+              locked: false,
               onTap: () => _showSnack('S.O.A.R. 日記需要進一步解鎖'),
             ),
 
@@ -217,7 +222,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
               subtitle: '完整認知功能平衡分析 + 4 階段進度 + 潛意識洞察',
               badge: '需要進一步解鎖',
               badgeColor: AppColors.disabledText,
-              locked: true,
+              locked: false,
               onTap: () => _showSnack('Stage 4 整合報告需要進一步解鎖'),
             ),
             const SizedBox(height: 12),
@@ -227,7 +232,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
               subtitle: '心情趨勢 · 成長進度 · 功能使用分佈 — 圖表化',
               badge: '需要進一步解鎖',
               badgeColor: AppColors.disabledText,
-              locked: true,
+              locked: false,
               onTap: () => _showSnack('季度趨勢需要進一步解鎖'),
             ),
 
@@ -1081,5 +1086,53 @@ class _PersonalityInsightCard extends StatelessWidget {
       'ISTP': ['實用', '冷靜', '技術'],
     };
     return tags[mbti] ?? ['探索者'];
+  }
+}
+
+// ── No Test Card ──
+class _NoTestCard extends StatelessWidget {
+  final Color accent, accentBg;
+  const _NoTestCard({required this.accent, required this.accentBg});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
+      decoration: _cardDecoration(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 42, height: 42,
+                decoration: BoxDecoration(
+                  color: accentBg,
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: accent.withValues(alpha: 0.15)),
+                ),
+                child: const Center(child: Text('🧪', style: TextStyle(fontSize: 22))),
+              ),
+              const SizedBox(width: 10),
+              Text('未完成測驗', style: GoogleFonts.notoSansTc(
+                fontSize: 13, fontWeight: FontWeight.w700,
+                color: accent,
+              )),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Text('你未完成測驗', style: GoogleFonts.notoSerifTc(
+            fontSize: 22, fontWeight: FontWeight.w800,
+            color: AppColors.textPrimary, height: 1.2,
+          )),
+          const SizedBox(height: 8),
+          Text('完成測試後，呢度會顯示你嘅人格洞察同標籤。', style: GoogleFonts.notoSansTc(
+            fontSize: 14, fontWeight: FontWeight.w400,
+            color: AppColors.textSecondary, height: 1.5,
+          )),
+        ],
+      ),
+    );
   }
 }
