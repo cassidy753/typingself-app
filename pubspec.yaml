@@ -18,6 +18,7 @@ dependencies:
   supabase_flutter: ^2.3.0
 
   # Notifications
+  timezone: ^0.9.2
 
   # Local Storage
   shared_preferences: ^2.2.0

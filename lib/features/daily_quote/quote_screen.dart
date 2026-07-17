@@ -300,28 +300,32 @@ class _GreetingHeader extends StatelessWidget {
       child: Row(
         children: [
           // ── TS brand icon: gradient purple-pink circle with "TS" ──
-          Container(
-            width: 52, height: 52,
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFF9B59B6), Color(0xFFFF6B9D)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(26),
-              boxShadow: [
-                BoxShadow(
-                  color: const Color(0xFF9B59B6).withValues(alpha: 0.3),
-                  blurRadius: 12,
-                  offset: const Offset(0, 4),
+          Semantics(
+            label: 'Typingself 型得你',
+            excludeSemantics: true,
+            child: Container(
+              width: 52, height: 52,
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF9B59B6), Color(0xFFFF6B9D)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                 ),
-              ],
-            ),
-            child: Center(
-              child: Text('TS', style: GoogleFonts.notoSansTc(
-                fontSize: 18, fontWeight: FontWeight.w800,
-                color: Colors.white, letterSpacing: -0.5,
-              )),
+                borderRadius: BorderRadius.circular(26),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF9B59B6).withValues(alpha: 0.3),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Center(
+                child: Text('TS', style: GoogleFonts.notoSansTc(
+                  fontSize: 18, fontWeight: FontWeight.w800,
+                  color: Colors.white, letterSpacing: -0.5,
+                )),
+              ),
             ),
           ),
           const SizedBox(width: 16),
@@ -577,12 +581,16 @@ class _StreakBadge extends StatelessWidget {
   }
 
   Widget _miniDot(bool active, Color color) {
-    return Container(
-      width: 8,
-      height: 8,
-      decoration: BoxDecoration(
-        color: active ? color : AppColors.border,
-        shape: BoxShape.circle,
+    return Semantics(
+      label: active ? '已完成階段' : '未完成階段',
+      excludeSemantics: true,
+      child: Container(
+        width: 8,
+        height: 8,
+        decoration: BoxDecoration(
+          color: active ? color : AppColors.border,
+          shape: BoxShape.circle,
+        ),
       ),
     );
   }
@@ -643,17 +651,21 @@ class _QuoteCard extends StatelessWidget {
           // ── Share button ──
           SizedBox(
             width: double.infinity,
-            child: ElevatedButton.icon(
-              onPressed: () => Share.share('❝怯？你就輸一世。❞ — 嚦咕嚦咕新年財\n\n⬇️ 型得你 — 認識自己嘅第一步'),
-              icon: const Icon(Icons.share, size: 16),
-              label: const Text('分享金句'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: accent.withValues(alpha: 0.08),
-                foregroundColor: accent,
-                elevation: 0,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                textStyle: GoogleFonts.notoSansTc(fontSize: 14, fontWeight: FontWeight.w600),
+            child: Semantics(
+              label: '分享金句',
+              button: true,
+              child: ElevatedButton.icon(
+                onPressed: () => Share.share('❝怯？你就輸一世。❞ — 嚦咕嚦咕新年財\\n\\n⬇️ 型得你 — 認識自己嘅第一步'),
+                icon: const Icon(Icons.share, size: 16),
+                label: const Text('分享金句'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: accent.withValues(alpha: 0.08),
+                  foregroundColor: accent,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  textStyle: GoogleFonts.notoSansTc(fontSize: 14, fontWeight: FontWeight.w600),
+                ),
               ),
             ),
           ),
@@ -932,29 +944,34 @@ class _MoodSectionState extends State<_MoodSection> {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: List.generate(5, (i) {
               final isSelected = _selected == i;
-              return GestureDetector(
-                onTap: () => setState(() => _selected = i),
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 250),
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: isSelected ? widget.accent : widget.accent.withValues(alpha: 0.08),
-                    border: Border.all(
-                      color: isSelected
-                          ? widget.accent
-                          : widget.accent.withValues(alpha: 0.15),
-                      width: isSelected ? 2.5 : 1.5,
+              return Semantics(
+                label: labels[i],
+                button: true,
+                selected: isSelected,
+                child: GestureDetector(
+                  onTap: () => setState(() => _selected = i),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 250),
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: isSelected ? widget.accent : widget.accent.withValues(alpha: 0.08),
+                      border: Border.all(
+                        color: isSelected
+                            ? widget.accent
+                            : widget.accent.withValues(alpha: 0.15),
+                        width: isSelected ? 2.5 : 1.5,
+                      ),
+                      boxShadow: isSelected
+                          ? [BoxShadow(color: widget.accent.withValues(alpha: 0.3), blurRadius: 12, offset: const Offset(0, 3))]
+                          : null,
                     ),
-                    boxShadow: isSelected
-                        ? [BoxShadow(color: widget.accent.withValues(alpha: 0.3), blurRadius: 12, offset: const Offset(0, 3))]
-                        : null,
-                  ),
-                  child: Center(
-                    child: isSelected
-                        ? const Icon(Icons.favorite, size: 20, color: Colors.white)
-                        : Icon(Icons.favorite_border, size: 18, color: widget.accent.withValues(alpha: 0.4)),
+                    child: Center(
+                      child: isSelected
+                          ? const Icon(Icons.favorite, size: 20, color: Colors.white)
+                          : Icon(Icons.favorite_border, size: 18, color: widget.accent.withValues(alpha: 0.4)),
+                    ),
                   ),
                 ),
               );

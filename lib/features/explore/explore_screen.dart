@@ -301,83 +301,86 @@ class _ShareCTA extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        Share.share(
-          '我喺「型得你」了解緊自己嘅 MBTI 同 Enneagram 🧠\n\n'
-          '一步步由人格到整合，好有趣！\n'
-          '你都嚟測下啦 👇\n'
-          'https://xingdeni.app',
-          subject: '型得你 — 認識自己嘅第一步',
-        );
-      },
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 20),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [accent, accent.withValues(alpha: 0.7)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+    return Semantics(
+      label: '分享型得你俾朋友',
+      button: true,
+      child: GestureDetector(
+        onTap: () {
+          Share.share(
+            '我喺「型得你」了解緊自己嘅 MBTI 同 Enneagram 🧠\\n\\n'
+            '一步步由人格到整合，好有趣！\\n'
+            '你都嚟測下啦 👇\\n'
+            'https://xingdeni.app',
+            subject: '型得你 — 認識自己嘅第一步',
+          );
+        },
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 20),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [accent, accent.withValues(alpha: 0.7)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: [
+              BoxShadow(
+                color: accent.withValues(alpha: 0.3),
+                blurRadius: 20,
+                offset: const Offset(0, 8),
+              ),
+            ],
           ),
-          borderRadius: BorderRadius.circular(24),
-          boxShadow: [
-            BoxShadow(
-              color: accent.withValues(alpha: 0.3),
-              blurRadius: 20,
-              offset: const Offset(0, 8),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 56,
-              height: 56,
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(20),
+          child: Row(
+            children: [
+              Container(
+                width: 56,
+                height: 56,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: const Center(child: Text('📤', style: TextStyle(fontSize: 28))),
               ),
-              child: const Center(child: Text('📤', style: TextStyle(fontSize: 28))),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('分享型得你俾朋友',
-                    style: GoogleFonts.notoSerifTc(
-                      fontSize: 19,
-                      fontWeight: FontWeight.w800,
-                      color: Colors.white,
-                      height: 1.2,
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('分享型得你俾朋友',
+                      style: GoogleFonts.notoSerifTc(
+                        fontSize: 19,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.white,
+                        height: 1.2,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 4),
-                  // ── Share CTA subtitle ──
-                  Text('叫 Friend 都測下 MBTI + Enneagram，一齊了解自己',
-                    style: GoogleFonts.notoSansTc(
-                      fontSize: 14,
-                      color: Colors.white.withValues(alpha: 0.85),
-                      height: 1.4,
+                    const SizedBox(height: 4),
+                    Text('叫 Friend 都測下 MBTI + Enneagram，一齊了解自己',
+                      style: GoogleFonts.notoSansTc(
+                        fontSize: 14,
+                        color: Colors.white.withValues(alpha: 0.85),
+                        height: 1.4,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(width: 8),
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(14),
+              const SizedBox(width: 8),
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: const Center(
+                  child: Icon(Icons.arrow_forward_ios, size: 16, color: Colors.white),
+                ),
               ),
-              child: const Center(
-                child: Icon(Icons.arrow_forward_ios, size: 16, color: Colors.white),
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -391,36 +394,40 @@ class _ShareStrip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        Share.share(
-          '我喺「型得你」了解緊自己 🧠 MBTI + Enneagram + 陰影報告\n\n'
-          '你都嚟玩下 👇\n'
-          'https://xingdeni.app',
-          subject: '型得你 — 人格成長 App',
-        );
-      },
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 16),
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.75),
-          borderRadius: BorderRadius.circular(22),
-          border: Border.all(color: accent.withValues(alpha: 0.2)),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text('📤', style: TextStyle(fontSize: 18)),
-            const SizedBox(width: 10),
-            Text('分享型得你俾朋友',
-              style: GoogleFonts.notoSansTc(
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-                color: accent,
+    return Semantics(
+      label: '分享型得你俾朋友',
+      button: true,
+      child: GestureDetector(
+        onTap: () {
+          Share.share(
+            '我喺「型得你」了解緊自己 🧠 MBTI + Enneagram + 陰影報告\\n\\n'
+            '你都嚟玩下 👇\\n'
+            'https://xingdeni.app',
+            subject: '型得你 — 人格成長 App',
+          );
+        },
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 16),
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.75),
+            borderRadius: BorderRadius.circular(22),
+            border: Border.all(color: accent.withValues(alpha: 0.2)),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text('📤', style: TextStyle(fontSize: 18)),
+              const SizedBox(width: 10),
+              Text('分享型得你俾朋友',
+                style: GoogleFonts.notoSansTc(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: accent,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -436,78 +443,82 @@ class _RetakeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onRetake,
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 20),
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.88),
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(
-            color: accent.withValues(alpha: 0.3),
-            width: 1.5,
+    return Semantics(
+      label: '重新測試',
+      button: true,
+      child: GestureDetector(
+        onTap: onRetake,
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 20),
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.88),
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(
+              color: accent.withValues(alpha: 0.3),
+              width: 1.5,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: accent.withValues(alpha: 0.1),
+                blurRadius: 16,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
-          boxShadow: [
-            BoxShadow(
-              color: accent.withValues(alpha: 0.1),
-              blurRadius: 16,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 52,
-              height: 52,
-              decoration: BoxDecoration(
-                color: accent.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: const Center(
-                child: Text('🔄', style: TextStyle(fontSize: 24)),
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('重新測試',
-                    style: GoogleFonts.notoSerifTc(
-                      fontSize: 17,
-                      fontWeight: FontWeight.w700,
-                      color: accent,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text('清空現有結果，揀新版本再測一次',
-                    style: GoogleFonts.notoSansTc(
-                      fontSize: 14,
-                      color: AppColors.textSecondary,
-                      height: 1.4,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 12),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-              decoration: BoxDecoration(
-                color: accent.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: Text('重測',
-                style: GoogleFonts.notoSansTc(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: accent,
+          child: Row(
+            children: [
+              Container(
+                width: 52,
+                height: 52,
+                decoration: BoxDecoration(
+                  color: accent.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: const Center(
+                  child: Text('🔄', style: TextStyle(fontSize: 24)),
                 ),
               ),
-            ),
-          ],
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('重新測試',
+                      style: GoogleFonts.notoSerifTc(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w700,
+                        color: accent,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text('清空現有結果，揀新版本再測一次',
+                      style: GoogleFonts.notoSansTc(
+                        fontSize: 14,
+                        color: AppColors.textSecondary,
+                        height: 1.4,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 12),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                decoration: BoxDecoration(
+                  color: accent.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Text('重測',
+                  style: GoogleFonts.notoSansTc(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: accent,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -583,20 +594,24 @@ class _HeaderStage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 10),
-        decoration: BoxDecoration(
-          color: active ? const Color(0xFF8FA87A).withValues(alpha: 0.12) : Colors.transparent,
-          borderRadius: BorderRadius.circular(12),
-          border: active ? Border.all(color: const Color(0xFF8FA87A).withValues(alpha: 0.3)) : null,
-        ),
-        child: Column(
-          children: [
-            Text(emoji, style: TextStyle(fontSize: 18, color: active ? Colors.black87 : AppColors.textMuted)),
-            const SizedBox(height: 3),
-            Text(label, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: active ? const Color(0xFF8FA87A) : AppColors.textMuted)),
-          ],
+    return Semantics(
+      label: active ? '$label — 已解鎖' : '$label — 未解鎖',
+      selected: active,
+      child: Expanded(
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          decoration: BoxDecoration(
+            color: active ? const Color(0xFF8FA87A).withValues(alpha: 0.12) : Colors.transparent,
+            borderRadius: BorderRadius.circular(12),
+            border: active ? Border.all(color: const Color(0xFF8FA87A).withValues(alpha: 0.3)) : null,
+          ),
+          child: Column(
+            children: [
+              Text(emoji, style: TextStyle(fontSize: 18, color: active ? Colors.black87 : AppColors.textMuted)),
+              const SizedBox(height: 3),
+              Text(label, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: active ? const Color(0xFF8FA87A) : AppColors.textMuted)),
+            ],
+          ),
         ),
       ),
     );
@@ -788,29 +803,34 @@ class _MoodSectionState extends State<_MoodSection> {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: List.generate(5, (i) {
               final isSelected = _selected == i;
-              return GestureDetector(
-                onTap: () => setState(() => _selected = i),
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 250),
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: isSelected ? widget.accent : widget.accent.withValues(alpha: 0.08),
-                    border: Border.all(
-                      color: isSelected
-                          ? widget.accent
-                          : widget.accent.withValues(alpha: 0.15),
-                      width: isSelected ? 2.5 : 1.5,
+              return Semantics(
+                label: labels[i],
+                button: true,
+                selected: isSelected,
+                child: GestureDetector(
+                  onTap: () => setState(() => _selected = i),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 250),
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: isSelected ? widget.accent : widget.accent.withValues(alpha: 0.08),
+                      border: Border.all(
+                        color: isSelected
+                            ? widget.accent
+                            : widget.accent.withValues(alpha: 0.15),
+                        width: isSelected ? 2.5 : 1.5,
+                      ),
+                      boxShadow: isSelected
+                          ? [BoxShadow(color: widget.accent.withValues(alpha: 0.3), blurRadius: 12, offset: const Offset(0, 3))]
+                          : null,
                     ),
-                    boxShadow: isSelected
-                        ? [BoxShadow(color: widget.accent.withValues(alpha: 0.3), blurRadius: 12, offset: const Offset(0, 3))]
-                        : null,
-                  ),
-                  child: Center(
-                    child: isSelected
-                        ? const Icon(Icons.favorite, size: 20, color: Colors.white)
-                        : Icon(Icons.favorite_border, size: 18, color: widget.accent.withValues(alpha: 0.4)),
+                    child: Center(
+                      child: isSelected
+                          ? const Icon(Icons.favorite, size: 20, color: Colors.white)
+                          : Icon(Icons.favorite_border, size: 18, color: widget.accent.withValues(alpha: 0.4)),
+                    ),
                   ),
                 ),
               );

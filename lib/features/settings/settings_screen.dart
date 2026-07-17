@@ -82,18 +82,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 height: 52,
                 child: Row(
                   children: [
-                    GestureDetector(
-                      onTap: () => Navigator.of(context).pop(),
-                      child: Container(
-                        width: 44, height: 44,
-                        padding: const EdgeInsets.all(5),
-                        decoration: BoxDecoration(
-                          color: AppColors.surface,
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: AppColors.border),
-                        ),
-                        child: const Center(
-                          child: Icon(Icons.arrow_back_rounded, size: 18, color: AppColors.textPrimary),
+                    Semantics(
+                      label: '返回',
+                      button: true,
+                      child: GestureDetector(
+                        onTap: () => Navigator.of(context).pop(),
+                        child: Container(
+                          width: 44, height: 44,
+                          padding: const EdgeInsets.all(5),
+                          decoration: BoxDecoration(
+                            color: AppColors.surface,
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: AppColors.border),
+                          ),
+                          child: const Center(
+                            child: Icon(Icons.arrow_back_rounded, size: 18, color: AppColors.textPrimary),
+                          ),
                         ),
                       ),
                     ),
@@ -395,19 +399,23 @@ class _SettingsContent extends StatelessWidget {
   }
 
   Widget _SettingsItem(IconData icon, String text, VoidCallback onTap, {Color? color}) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 10),
-        child: Row(
-          children: [
-            Icon(icon, color: color ?? AppColors.textSecondary, size: 18),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(text, style: GoogleFonts.notoSansTc(fontSize: 14, color: color ?? AppColors.textPrimary)),
-            ),
-            Icon(Icons.chevron_right, color: AppColors.textMuted, size: 16),
-          ],
+    return Semantics(
+      label: text,
+      button: true,
+      child: GestureDetector(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          child: Row(
+            children: [
+              Icon(icon, color: color ?? AppColors.textSecondary, size: 18, semanticLabel: text),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(text, style: GoogleFonts.notoSansTc(fontSize: 14, color: color ?? AppColors.textPrimary)),
+              ),
+              Icon(Icons.chevron_right, color: AppColors.textMuted, size: 16),
+            ],
+          ),
         ),
       ),
     );

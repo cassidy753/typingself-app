@@ -1,41 +1,31 @@
 /// Retention Service — app usage streak counter + daily quote notification trigger.
 ///
 /// Tracks consecutive days the user opens the app and triggers daily quote
-/// notifications via flutter_local_notifications.
+/// notifications via the NotificationService (scheduled 8am reminders).
+/// Also requests notification permission on first open.
 library;
 
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'notification_service.dart';
 
 class RetentionService {
   static const _keyStreakStart = 'app_streak_start';
   static const _keyLastOpen = 'app_last_open_date';
   static const _keyQuoteShownToday = 'app_quote_shown_today';
 
-  static final FlutterLocalNotificationsPlugin _notifications =
-      FlutterLocalNotificationsPlugin();
-
   // ─── Init ───
 
   /// Call once at app startup (e.g. from QuoteScreen.initState).
+  /// Initializes notification system and tracks the app open.
   static Future<void> init() async {
-    await _initNotifications();
-    await _trackOpen();
-  }
+    // Initialize notification service (sets up daily 8am schedule)
+    await NotificationService.init();
 
-  static Future<void> _initNotifications() async {
-    const androidSettings =
-        AndroidInitializationSettings('@mipmap/ic_launcher');
-    const iosSettings = DarwinInitializationSettings(
-      requestAlertPermission: true,
-      requestBadgePermission: true,
-      requestSoundPermission: true,
-    );
-    const settings = InitializationSettings(
-      android: androidSettings,
-      iOS: iosSettings,
-    );
-    await _notifications.initialize(settings);
+    // Request notification permission on first open (non-intrusive)
+    await NotificationService.ensurePermission();
+
+    // Track this app open for streak
+    await _trackOpen();
   }
 
   // ─── Streak ───
@@ -104,8 +94,9 @@ class RetentionService {
 
   // ─── Daily Quote Notification ───
 
-  /// Schedule or show a daily quote notification.
-  /// Returns true if notification was triggered.
+  /// Trigger the daily quote notification.
+  /// Now delegates to NotificationService which handles scheduling.
+  /// The in-app quote counter is still tracked here.
   static Future<bool> triggerDailyQuoteNotification() async {
     final prefs = await SharedPreferences.getInstance();
     final todayStr = _dateKey(DateTime.now());
@@ -119,34 +110,8 @@ class RetentionService {
     final seen = prefs.getInt('quotes_seen') ?? 0;
     await prefs.setInt('quotes_seen', seen + 1);
 
-    const androidDetails = AndroidNotificationDetails(
-      'daily_quote',
-      '是日金句',
-      channelDescription: '每日一句溫暖廣東話金句',
-      importance: Importance.low,
-      priority: Priority.low,
-      showWhen: false,
-    );
-    const iosDetails = DarwinNotificationDetails(
-      presentAlert: false,
-      presentBadge: false,
-      presentSound: false,
-    );
-    const details = NotificationDetails(
-      android: androidDetails,
-      iOS: iosDetails,
-    );
-
-    try {
-      await _notifications.show(
-        DateTime.now().millisecondsSinceEpoch ~/ 1000,
-        '📖 是日金句',
-        '怯？你就輸一世。 — 嚦咕嚦咕新年財',
-        details,
-      );
-    } catch (_) {
-      // Local notifications may fail on some platforms — safe to swallow
-    }
+    // Delegate to NotificationService
+    await NotificationService.showNow();
 
     return true;
   }

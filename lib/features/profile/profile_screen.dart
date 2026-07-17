@@ -378,18 +378,21 @@ class _UsageStats extends StatelessWidget {
   }
 
   Widget _statItem(String num, String label, Color accent, IconData icon) {
-    return Column(children: [
-      Text(num, style: GoogleFonts.notoSerifTc(fontSize: 30, fontWeight: FontWeight.w900, color: accent)),
-      const SizedBox(height: 6),
-      Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 12, color: AppColors.textMuted),
-          const SizedBox(width: 4),
-          Text(label, style: GoogleFonts.notoSansTc(fontSize: 14, color: AppColors.textMuted)),
-        ],
-      ),
-    ]);
+    return Semantics(
+      label: '$label $num',
+      child: Column(children: [
+        Text(num, style: GoogleFonts.notoSerifTc(fontSize: 30, fontWeight: FontWeight.w900, color: accent)),
+        const SizedBox(height: 6),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 12, color: AppColors.textMuted, semanticLabel: label),
+            const SizedBox(width: 4),
+            Text(label, style: GoogleFonts.notoSansTc(fontSize: 14, color: AppColors.textMuted)),
+          ],
+        ),
+      ]),
+    );
   }
 }
 
@@ -494,40 +497,49 @@ class _AchievementsSection extends StatelessWidget {
   }
 
   Widget _badgeTile(_Badge badge) {
-    return Tooltip(
-      message: badge.unlocked ? '✅ ${badge.desc}' : '🔒 ${badge.desc}',
-      child: Container(
-        width: 80,
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 6),
-        decoration: BoxDecoration(
-          color: badge.unlocked
-            ? accent.withValues(alpha: 0.10)
-            : AppColors.disabled.withValues(alpha: 0.4),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
+    final statusLabel = badge.unlocked ? '已解鎖' : '未解鎖';
+    return Semantics(
+      label: '${badge.label} — ${badge.desc} ($statusLabel)',
+      selected: badge.unlocked,
+      child: Tooltip(
+        message: badge.unlocked ? '✅ ${badge.desc}' : '🔒 ${badge.desc}',
+        child: Container(
+          width: 80,
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 6),
+          decoration: BoxDecoration(
             color: badge.unlocked
-              ? accent.withValues(alpha: 0.3)
-              : AppColors.border.withValues(alpha: 0.3),
+              ? accent.withValues(alpha: 0.10)
+              : AppColors.disabled.withValues(alpha: 0.4),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: badge.unlocked
+                ? accent.withValues(alpha: 0.3)
+                : AppColors.border.withValues(alpha: 0.3),
+            ),
           ),
-        ),
-        child: Column(
-          children: [
-            Text(badge.unlocked ? badge.emoji : '🔒',
-              style: TextStyle(fontSize: badge.unlocked ? 26 : 20,
-                color: badge.unlocked ? null : AppColors.textMuted),
-            ),
-            const SizedBox(height: 6),
-            Text(badge.label,
-              style: GoogleFonts.notoSansTc(
-                fontSize: 14,
-                fontWeight: FontWeight.w700,
-                color: badge.unlocked ? accent.withValues(alpha: 0.9) : AppColors.textMuted,
+          child: Column(
+            children: [
+              Semantics(
+                label: badge.unlocked ? badge.emoji : '🔒',
+                excludeSemantics: true,
+                child: Text(badge.unlocked ? badge.emoji : '🔒',
+                  style: TextStyle(fontSize: badge.unlocked ? 26 : 20,
+                    color: badge.unlocked ? null : AppColors.textMuted),
+                ),
               ),
-              textAlign: TextAlign.center,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ],
+              const SizedBox(height: 6),
+              Text(badge.label,
+                style: GoogleFonts.notoSansTc(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: badge.unlocked ? accent.withValues(alpha: 0.9) : AppColors.textMuted,
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
         ),
       ),
     );
