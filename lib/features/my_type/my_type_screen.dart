@@ -5,7 +5,9 @@ import '../../core/theme.dart';
 class MyTypeScreen extends StatelessWidget {
   final Color accent;
   final Color accentBg;
-  const MyTypeScreen({super.key, required this.accent, required this.accentBg});
+  final String? mbti;
+  final String? ennea;
+  const MyTypeScreen({super.key, required this.accent, required this.accentBg, this.mbti, this.ennea});
 
   @override
   Widget build(BuildContext context) {

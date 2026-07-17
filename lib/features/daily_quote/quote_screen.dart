@@ -3,6 +3,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../core/theme.dart';
+import '../../core/retention_service.dart';
+import '../../core/celebration_overlay.dart';
 import '../daily_quote/zodiac_service.dart';
 import '../assessment/assessment_intro_screen.dart';
 import '../assessment/decision_tree_engine.dart';
@@ -12,6 +14,7 @@ import '../shadow_report/shadow_report_engine.dart';
 import '../growth/progress_screen.dart';
 import '../integrated_report/integrated_report_screen.dart';
 import '../my_type/my_type_screen.dart';
+import '../personality_naming/share_card.dart';
 
 // ─── Reusable card style ───
 BoxDecoration _cardDecoration() => BoxDecoration(
@@ -41,7 +44,11 @@ class QuoteScreen extends StatefulWidget {
 class _QuoteScreenState extends State<QuoteScreen> {
   bool _testDone = false;
   bool _shadowDone = false;
+  bool _stage3Done = false;
+  bool _stage4Done = false;
   bool _expanded = false;
+  int _streak = 0;
+  bool _celebrationShown = false;
 
   @override
   void initState() {
@@ -51,10 +58,93 @@ class _QuoteScreenState extends State<QuoteScreen> {
 
   Future<void> _loadStats() async {
     final prefs = await SharedPreferences.getInstance();
+    final testDone = prefs.getBool('test_done') ?? false;
+    final shadowDone = prefs.getBool('shadow_report_viewed') ?? false;
+    final stage3Done = prefs.getBool('stage3_done') ?? false;
+    final stage4Done = prefs.getBool('stage4_done') ?? false;
+
+    final streak = await RetentionService.getStreak();
+
+    if (!mounted) return;
     setState(() {
-      _testDone = prefs.getBool('test_done') ?? false;
-      _shadowDone = prefs.getBool('shadow_report_viewed') ?? false;
+      _testDone = testDone;
+      _shadowDone = shadowDone;
+      _stage3Done = stage3Done;
+      _stage4Done = stage4Done;
+      _streak = streak;
     });
+
+    // ── Retention: track open + daily quote notification ──
+    await RetentionService.init();
+    await RetentionService.triggerDailyQuoteNotification();
+
+    // Check for new stage completion after loading
+    if (mounted) {
+      await _checkStageCompletion(prefs);
+    }
+  }
+
+  /// Detect newly completed stages and trigger celebration.
+  Future<void> _checkStageCompletion(SharedPreferences prefs) async {
+    final prevTest = prefs.getBool('prev_test_done') ?? false;
+    final prevShadow = prefs.getBool('prev_shadow_done') ?? false;
+    final prevStage3 = prefs.getBool('prev_stage3_done') ?? false;
+    final prevStage4 = prefs.getBool('prev_stage4_done') ?? false;
+
+    final nowTest = _testDone;
+    final nowShadow = _shadowDone;
+    final nowStage3 = _stage3Done;
+    final nowStage4 = _stage4Done;
+
+    // Detect which stage just completed
+    String? completedStage;
+    String emoji = '🎉';
+    Color accent = widget.accent;
+
+    if (nowTest && !prevTest) {
+      completedStage = 'Stage 1 — 人格測試';
+      emoji = '🧠';
+      accent = const Color(0xFFD4A843); // Mustard
+    } else if (nowShadow && !prevShadow) {
+      completedStage = 'Stage 2 — Shadow Report';
+      emoji = '🌑';
+      accent = const Color(0xFF9B72AA); // Purple
+    } else if (nowStage3 && !prevStage3) {
+      completedStage = 'Stage 3 — 成長計劃';
+      emoji = '🌱';
+      accent = const Color(0xFF8FA87A); // Sage
+    } else if (nowStage4 && !prevStage4) {
+      completedStage = 'Stage 4 — 整合報告';
+      emoji = '💎';
+      accent = const Color(0xFFE0785A); // Coral
+    }
+
+    // Update "previous" markers to current state
+    await prefs.setBool('prev_test_done', nowTest);
+    await prefs.setBool('prev_shadow_done', nowShadow);
+    await prefs.setBool('prev_stage3_done', nowStage3);
+    await prefs.setBool('prev_stage4_done', nowStage4);
+
+    // Show celebration if a stage was just completed
+    if (completedStage != null && mounted && !_celebrationShown) {
+      _celebrationShown = true;
+
+      // Check if ALL 4 stages are now done
+      final allDone = nowTest && nowShadow && nowStage3 && nowStage4;
+
+      final title = allDone ? '🎊 旅程完成！' : 'Stage 完成！';
+      final subtitle = allDone
+          ? '你已完成晒 4 個 Stage 🏆\n你係真正嘅自我認識大師！'
+          : '「$completedStage」完成咗！繼續下一步 👏';
+
+      await CelebrationOverlay.show(
+        context,
+        emoji: allDone ? '🏆' : emoji,
+        title: title,
+        subtitle: subtitle,
+        accent: accent,
+      );
+    }
   }
 
   @override
@@ -81,6 +171,10 @@ class _QuoteScreenState extends State<QuoteScreen> {
 
             // ── Greeting Header (Section 1 — always shown) ──
             _GreetingHeader(mbti: widget.mbti, ennea: widget.ennea),
+
+            // ── 🔥 Streak badge (always shown) ──
+            const SizedBox(height: 12),
+            _StreakBadge(streak: _streak, accent: widget.accent),
 
             // ── 🧪 Hero CTA: 人格測驗（未完成時顯示） ──
             if (!_testDone) ...[
@@ -117,11 +211,28 @@ class _QuoteScreenState extends State<QuoteScreen> {
               _JourneyProgress(
                 testDone: _testDone,
                 shadowDone: _shadowDone,
+                stage3Done: _stage3Done,
+                stage4Done: _stage4Done,
+                streak: _streak,
                 accent: widget.accent,
                 accentBg: widget.accentBg,
                 mbti: widget.mbti,
-                ennea: widget.ennea,
               ),
+
+              // ── 📤 分享你嘅結果 ──
+              const SizedBox(height: 20),
+              _SectionHeader('📤 分享你嘅結果', accent: widget.accent, accentBg: widget.accentBg),
+              const SizedBox(height: 12),
+              if (widget.mbti != null && widget.ennea != null)
+                ShareResultCard(mbti: widget.mbti!, ennea: widget.ennea!, accent: widget.accent)
+              else
+                _SharePromptCard(accent: widget.accent, accentBg: widget.accentBg),
+
+              // ── 👥 Compare with friends placeholder ──
+              const SizedBox(height: 20),
+              _SectionHeader('👥 同朋友比較', accent: widget.accent, accentBg: widget.accentBg),
+              const SizedBox(height: 12),
+              _ComparePlaceholder(accent: widget.accent, accentBg: widget.accentBg),
 
               const SizedBox(height: 28),
             ],
@@ -379,6 +490,104 @@ class _TestPromptCard extends StatelessWidget {
   }
 }
 
+// ── 🔥 Streak Badge ──
+class _StreakBadge extends StatelessWidget {
+  final int streak;
+  final Color accent;
+  const _StreakBadge({required this.streak, required this.accent});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: AppColors.surface.withValues(alpha: 0.75),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: streak >= 7
+              ? AppColors.mustard.withValues(alpha: 0.5)
+              : AppColors.border.withValues(alpha: 0.4),
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: streak >= 7
+                  ? AppColors.mustard.withValues(alpha: 0.15)
+                  : accent.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Text(
+              streak >= 7 ? '🔥' : (streak >= 3 ? '💪' : '📅'),
+              style: const TextStyle(fontSize: 18),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  streak >= 7
+                      ? '連續 $streak 日！'
+                      : streak > 0
+                          ? '連續使用 $streak 日'
+                          : '今日開 app 就有 streak 🎯',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                    color: streak >= 7 ? AppColors.mustard : AppColors.textPrimary,
+                  ),
+                ),
+                if (streak > 0)
+                  Text(
+                    streak >= 7 ? '🔥 火熱 streak！' : '繼續每日嚟睇金句 📖',
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          // Journey progress dots
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _miniDot(true, AppColors.mustard),        // Stage 1
+              const SizedBox(width: 4),
+              _miniDot(streak >= 1, AppColors.purple),  // Stage 2-ish
+              const SizedBox(width: 4),
+              _miniDot(streak >= 3, AppColors.sage),    // Stage 3-ish
+              const SizedBox(width: 4),
+              _miniDot(streak >= 7, AppColors.cta),     // Stage 4-ish
+            ],
+          ),
+          const SizedBox(width: 8),
+          Text('$streak', style: TextStyle(
+            fontSize: 18, fontWeight: FontWeight.w900,
+            color: streak >= 7 ? AppColors.mustard : accent,
+          )),
+        ],
+      ),
+    );
+  }
+
+  Widget _miniDot(bool active, Color color) {
+    return Container(
+      width: 8,
+      height: 8,
+      decoration: BoxDecoration(
+        color: active ? color : AppColors.border,
+        shape: BoxShape.circle,
+      ),
+    );
+  }
+}
+
 // ── Section Header ──
 class _SectionHeader extends StatelessWidget {
   final String text;
@@ -552,10 +761,21 @@ class _PersonalizedQuote extends StatelessWidget {
 
 // ── Journey Progress ──
 class _JourneyProgress extends StatelessWidget {
-  final bool testDone, shadowDone;
+  final bool testDone, shadowDone, stage3Done, stage4Done;
+  final int streak;
   final Color accent, accentBg;
   final String? mbti, ennea;
-  const _JourneyProgress({required this.testDone, required this.shadowDone, required this.accent, required this.accentBg, this.mbti, this.ennea});
+  const _JourneyProgress({
+    required this.testDone,
+    required this.shadowDone,
+    required this.stage3Done,
+    required this.stage4Done,
+    required this.streak,
+    required this.accent,
+    required this.accentBg,
+    this.mbti,
+    this.ennea,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -592,7 +812,7 @@ class _JourneyProgress extends StatelessWidget {
                   }
                 : null),
           const SizedBox(height: 10),
-          _StageRow(2, '🌱', 'Stage 3', 'Growth Plan', false, accent, accentBg, locked: false,
+          _StageRow(2, '🌱', 'Stage 3', 'Growth Plan', stage3Done, accent, accentBg, locked: false,
             onTap: () {
               Navigator.of(context).push(
                 MaterialPageRoute(builder: (_) => GrowthProgressScreen(
@@ -602,7 +822,7 @@ class _JourneyProgress extends StatelessWidget {
               );
             }),
           const SizedBox(height: 10),
-          _StageRow(3, '💎', 'Stage 4', 'Integration', false, accent, accentBg, locked: false,
+          _StageRow(3, '💎', 'Stage 4', 'Integration', stage4Done, accent, accentBg, locked: false,
             onTap: () {
               Navigator.of(context).push(
                 MaterialPageRoute(builder: (_) => IntegratedReportScreen(
@@ -855,6 +1075,154 @@ class _ZodiacMini extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+// ── 📤 Share Prompt Card (when no test results yet) ──
+class _SharePromptCard extends StatelessWidget {
+  final Color accent, accentBg;
+  const _SharePromptCard({required this.accent, required this.accentBg});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.surface.withValues(alpha: 0.82),
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: AppColors.border.withValues(alpha: 0.4)),
+      ),
+      child: Column(
+        children: [
+          const Text('📤', style: TextStyle(fontSize: 36)),
+          const SizedBox(height: 12),
+          Text('完成人格測驗後就可以分享你嘅結果俾朋友！',
+            style: GoogleFonts.notoSansTc(
+              fontSize: 14,
+              color: AppColors.textSecondary,
+              height: 1.4,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 16),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => AssessmentIntroScreen(
+                    engine: DecisionTreeEngine(),
+                    onComplete: (_, __) {},
+                  )),
+                );
+              },
+              icon: const Icon(Icons.rocket_launch_rounded, size: 18),
+              label: const Text('去做測驗'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: accent,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                textStyle: GoogleFonts.notoSansTc(
+                  fontSize: 15, fontWeight: FontWeight.w700,
+                ),
+                elevation: 0,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ── 👥 Compare with Friends Placeholder ──
+class _ComparePlaceholder extends StatelessWidget {
+  final Color accent, accentBg;
+  const _ComparePlaceholder({required this.accent, required this.accentBg});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('同朋友比較功能即將推出！', style: GoogleFonts.notoSansTc(fontSize: 13)),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+            margin: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      },
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: AppColors.surface.withValues(alpha: 0.82),
+          borderRadius: BorderRadius.circular(22),
+          border: Border.all(
+            color: accent.withValues(alpha: 0.25),
+            style: BorderStyle.solid,
+          ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 52,
+              height: 52,
+              decoration: BoxDecoration(
+                color: accent.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: const Center(
+                child: Text('👥', style: TextStyle(fontSize: 26)),
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('同朋友比較',
+                    style: GoogleFonts.notoSerifTc(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text('分享你嘅結果連結俾朋友，比較 MBTI 同 Enneagram 配對！',
+                    style: GoogleFonts.notoSansTc(
+                      fontSize: 14,
+                      color: AppColors.textSecondary,
+                      height: 1.4,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: accentBg,
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Text('即將推出',
+                style: GoogleFonts.notoSansTc(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: accent,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -170,6 +170,11 @@ class GrowthService {
 
     await prefs.setString(_keyLastPractice, today.toIso8601String().substring(0, 10));
 
+    // Mark stage 3 as done when first practice is completed
+    if (!(prefs.getBool('stage3_done') ?? false)) {
+      await prefs.setBool('stage3_done', true);
+    }
+
     if (lastStr == null) {
       // First practice ever
       await prefs.setString(_keyStreakStart, today.toIso8601String().substring(0, 10));

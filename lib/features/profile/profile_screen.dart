@@ -25,6 +25,7 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   int _daysUsed = 0, _quotesSeen = 0, _testsDone = 0;
   bool _shadowDone = false, _bigFiveDone = false;
+  bool _stage3Done = false, _stage4Done = false;
   bool _loaded = false;
 
   @override
@@ -38,6 +39,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _testsDone = p.getBool('test_done') ?? false ? 1 : 0;
         _shadowDone = p.getBool('shadow_report_viewed') ?? false;
         _bigFiveDone = p.getBool('big_five_done') ?? false;
+        _stage3Done = p.getBool('stage3_done') ?? false;
+        _stage4Done = p.getBool('stage4_done') ?? false;
         _loaded = true;
       });
     });
@@ -110,6 +113,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
               testsDone: _testsDone,
               shadowDone: _shadowDone,
               bigFiveDone: _bigFiveDone,
+              stage3Done: _stage3Done,
+              stage4Done: _stage4Done,
               accent: widget.accent,
               accentBg: widget.accentBg,
             ),
@@ -391,7 +396,7 @@ class _UsageStats extends StatelessWidget {
 // ── Achievements / Badges Section ──
 class _AchievementsSection extends StatelessWidget {
   final int daysUsed, quotesSeen, testsDone;
-  final bool shadowDone, bigFiveDone;
+  final bool shadowDone, bigFiveDone, stage3Done, stage4Done;
   final Color accent, accentBg;
   const _AchievementsSection({
     required this.daysUsed,
@@ -399,6 +404,8 @@ class _AchievementsSection extends StatelessWidget {
     required this.testsDone,
     required this.shadowDone,
     required this.bigFiveDone,
+    required this.stage3Done,
+    required this.stage4Done,
     required this.accent,
     required this.accentBg,
   });
@@ -453,6 +460,12 @@ class _AchievementsSection extends StatelessWidget {
         label: '忠實用戶',
         desc: '用咗 100+ 日',
         unlocked: daysUsed >= 100,
+      ),
+      _Badge(
+        emoji: '🏆',
+        label: '旅程大師',
+        desc: '完成晒 4 個 Stage',
+        unlocked: stage3Done && stage4Done,
       ),
     ];
 
