@@ -333,8 +333,15 @@ class _MainShellState extends State<MainShell> {
                     Row(children: [
                       Container(
                         width: 34, height: 34,
-                        decoration: BoxDecoration(color: t.accentBg, borderRadius: BorderRadius.circular(10)),
-                        child: const Center(child: Text('🧠', style: TextStyle(fontSize: 18))),
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFF9B59B6), Color(0xFFFF6B9D)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Center(child: Text('TS', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Colors.white, letterSpacing: -0.5))),
                       ),
                       const SizedBox(width: 6),
                       Text('Typingself | 型得你', style: GoogleFonts.notoSerifTc(fontSize: 16, fontWeight: FontWeight.w900, color: AppColors.textPrimary)),
