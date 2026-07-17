@@ -27,7 +27,7 @@ class MyTypeScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
                 decoration: BoxDecoration(color: accentBg, borderRadius: BorderRadius.circular(20)),
-                child: Text('ENFJ · 5w4', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: accent)),
+                child: Text('$mbti · $ennea', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: accent)),
               ),
               const SizedBox(height: 8),
               Container(

@@ -41,6 +41,7 @@ class QuoteScreen extends StatefulWidget {
 class _QuoteScreenState extends State<QuoteScreen> {
   bool _testDone = false;
   bool _shadowDone = false;
+  bool _expanded = false;
 
   @override
   void initState() {
@@ -78,7 +79,7 @@ class _QuoteScreenState extends State<QuoteScreen> {
           children: [
             const SizedBox(height: 14),
 
-            // ── Greeting Header ──
+            // ── Greeting Header (Section 1 — always shown) ──
             _GreetingHeader(mbti: widget.mbti, ennea: widget.ennea),
 
             // ── 🧪 Hero CTA: 人格測驗（未完成時顯示） ──
@@ -90,35 +91,78 @@ class _QuoteScreenState extends State<QuoteScreen> {
 
             const SizedBox(height: 26),
 
-            // ── 🏠 Section: 是日金句 ──
+            // ── 📖 Daily Quote (Section 2 — always shown) ──
             _SectionHeader('📖 是日金句', accent: widget.accent, accentBg: widget.accentBg),
             const SizedBox(height: 12),
             _QuoteCard(accent: widget.accent),
 
             const SizedBox(height: 26),
 
-            // ── 💬 你嘅人格對朋友講嘅說話 ──
-            if (_testDone) ...[
-              _SectionHeader('💬 你嘅人格對朋友講嘅說話', accent: widget.accent, accentBg: widget.accentBg),
+            // ── Expand / Collapse toggle ──
+            _buildExpandToggle(),
+
+            // ── Collapsed sections (shown when expanded) ──
+            if (_expanded) ...[
+              // ── 💬 你嘅人格對朋友講嘅說話 ──
+              if (_testDone) ...[
+                _SectionHeader('💬 你嘅人格對朋友講嘅說話', accent: widget.accent, accentBg: widget.accentBg),
+                const SizedBox(height: 12),
+                _PersonalizedQuote(mbti: widget.mbti, ennea: widget.ennea, accent: widget.accent),
+                const SizedBox(height: 26),
+              ],
+
+              // ── 🧭 自我認識旅程 ──
+              _SectionHeader('🧭 自我認識旅程', accent: widget.accent, accentBg: widget.accentBg),
               const SizedBox(height: 12),
-              _PersonalizedQuote(mbti: widget.mbti, ennea: widget.ennea, accent: widget.accent),
-              const SizedBox(height: 26),
+              _JourneyProgress(
+                testDone: _testDone,
+                shadowDone: _shadowDone,
+                accent: widget.accent,
+                accentBg: widget.accentBg,
+                mbti: widget.mbti,
+                ennea: widget.ennea,
+              ),
+
+              const SizedBox(height: 28),
             ],
 
-            // ── 🧭 自我認識旅程 ──
-            _SectionHeader('🧭 自我認識旅程', accent: widget.accent, accentBg: widget.accentBg),
-            const SizedBox(height: 12),
-            _JourneyProgress(
-              testDone: _testDone,
-              shadowDone: _shadowDone,
-              accent: widget.accent,
-              accentBg: widget.accentBg,
-              mbti: widget.mbti,
-              ennea: widget.ennea,
-            ),
-
-            const SizedBox(height: 28),
             const SizedBox(height: 32),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildExpandToggle() {
+    return GestureDetector(
+      onTap: () => setState(() => _expanded = !_expanded),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        decoration: BoxDecoration(
+          color: AppColors.surface.withValues(alpha: 0.6),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: widget.accent.withValues(alpha: _expanded ? 0.25 : 0.15),
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              _expanded ? Icons.unfold_less_rounded : Icons.unfold_more_rounded,
+              size: 18,
+              color: widget.accent,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              _expanded ? '收起其他內容' : '展開更多內容',
+              style: GoogleFonts.notoSansTc(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: widget.accent,
+              ),
+            ),
           ],
         ),
       ),
@@ -179,10 +223,10 @@ class _GreetingHeader extends StatelessWidget {
                 const SizedBox(height: 4),
                 if (hasTest)
                   Text('$mbti · $ennea',
-                    style: const TextStyle(fontSize: 13, color: AppColors.textSecondary, fontWeight: FontWeight.w500))
+                    style: const TextStyle(fontSize: 14, color: AppColors.textSecondary, fontWeight: FontWeight.w500))
                 else
                   Text('你未完成測驗',
-                    style: const TextStyle(fontSize: 13, color: AppColors.textMuted, fontWeight: FontWeight.w500)),
+                    style: const TextStyle(fontSize: 14, color: AppColors.textMuted, fontWeight: FontWeight.w500)),
               ],
             ),
           ),
@@ -263,10 +307,13 @@ class _TestPromptCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 10),
-                Text('人格測驗', style: GoogleFonts.notoSansTc(
-                  fontSize: 13, fontWeight: FontWeight.w700,
-                  color: AppColors.cta,
-                )),
+                Semantics(
+                  label: '人格測驗',
+                  child: Text('人格測驗', style: GoogleFonts.notoSansTc(
+                    fontSize: 14, fontWeight: FontWeight.w700,
+                    color: AppColors.cta,
+                  )),
+                ),
               ],
             ),
             const SizedBox(height: 14),
@@ -320,7 +367,7 @@ class _TestPromptCard extends StatelessWidget {
             Center(
               child: Text('撳 skip 繼續碌落去睇內容',
                 style: GoogleFonts.notoSansTc(
-                  fontSize: 12, fontWeight: FontWeight.w500,
+                  fontSize: 14, fontWeight: FontWeight.w500,
                   color: AppColors.textMuted,
                 ),
               ),
@@ -445,7 +492,7 @@ class _PersonalizedQuote extends StatelessWidget {
                     ),
                   ],
                 ),
-                child: Center(child: Text('${i + 1}', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.white))),
+                child: Center(child: Text('${i + 1}', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Colors.white))),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -468,9 +515,9 @@ class _PersonalizedQuote extends StatelessWidget {
                 child: IconButton(
                   icon: Icon(Icons.share, size: 16, color: accent),
                   onPressed: () => Share.share('「${phrases[i]}」\n\n— 型得你 @typingself\n了解你嘅 MBTI 人格：https://xingdeni.app'),
-                  constraints: const BoxConstraints(minWidth: 38, minHeight: 38),
+                  constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
                   padding: EdgeInsets.zero,
-                  splashRadius: 18,
+                  splashRadius: 22,
                 ),
               ),
             ],
@@ -607,27 +654,27 @@ class _StageRow extends StatelessWidget {
               children: [
                 Text(title, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
                 const SizedBox(height: 2),
-                Text(subtitle, style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                Text(subtitle, style: const TextStyle(fontSize: 14, color: AppColors.textSecondary)),
               ],
             ),
           ),
           if (done)
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               decoration: BoxDecoration(color: const Color(0xFF8FA87A).withValues(alpha: 0.12), borderRadius: BorderRadius.circular(8)),
-              child: const Text('完成', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF8FA87A))),
+              child: const Text('完成', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF8FA87A))),
             )
           else if (locked)
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               decoration: BoxDecoration(color: accentBg, borderRadius: BorderRadius.circular(8)),
-              child: Text('未解鎖', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: accent)),
+              child: Text('未解鎖', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: accent)),
             )
           else
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               decoration: BoxDecoration(color: accentBg, borderRadius: BorderRadius.circular(8)),
-              child: Text('進行中', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: accent)),
+              child: Text('進行中', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: accent)),
             ),
         ],
       ),
@@ -700,25 +747,25 @@ class _MoodSectionState extends State<_MoodSection> {
             children: List.generate(5, (i) => Text(
               labels[i],
               style: TextStyle(
-                fontSize: 12,
+                fontSize: 14,
                 fontWeight: _selected == i ? FontWeight.w700 : FontWeight.w500,
                 color: _selected == i ? widget.accent : AppColors.textMuted,
               ),
-            )),
-          ),
-          const SizedBox(height: 12),
-          // ── Selected mood feedback ──
-          Center(
-            child: Container(
+              )),
+              ),
+              const SizedBox(height: 12),
+              // ── Selected mood feedback ──
+              Center(
+              child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
-                color: _selected != null ? widget.accent.withValues(alpha: 0.08) : Colors.transparent,
-                borderRadius: BorderRadius.circular(16),
+              color: _selected != null ? widget.accent.withValues(alpha: 0.08) : Colors.transparent,
+              borderRadius: BorderRadius.circular(16),
               ),
               child: Text(
-                _selected != null ? _moodLabel(_selected!) : '㩒個圓點記錄今日心情',
-                style: TextStyle(
-                  fontSize: 13,
+              _selected != null ? _moodLabel(_selected!) : '㩒個圓點記錄今日心情',
+              style: TextStyle(
+                fontSize: 14,
                   fontWeight: FontWeight.w600,
                   color: _selected != null ? widget.accent : AppColors.textMuted,
                 ),
@@ -803,7 +850,7 @@ class _ZodiacMini extends StatelessWidget {
                   color: accentBg,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Text('設定星座 →', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: accent)),
+                child: Text('設定星座 →', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: accent)),
               ),
             ),
           ),

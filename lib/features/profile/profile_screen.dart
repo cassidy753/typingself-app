@@ -215,7 +215,7 @@ class _SettingsBar extends StatelessWidget {
                     fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.textPrimary,
                   )),
                   Text('星座・同意・資料管理', style: GoogleFonts.notoSansTc(
-                    fontSize: 12, color: AppColors.textSecondary,
+                    fontSize: 14, color: AppColors.textSecondary,
                   )),
                 ],
               ),
@@ -309,7 +309,7 @@ class _ProfileCard extends StatelessWidget {
     return Column(children: [
       Text(value, style: GoogleFonts.notoSansTc(fontSize: 14, fontWeight: FontWeight.w700, color: color)),
       const SizedBox(height: 2),
-      Text(label, style: GoogleFonts.notoSansTc(fontSize: 11, color: color.withValues(alpha: 0.7))),
+      Text(label, style: GoogleFonts.notoSansTc(fontSize: 14, color: color.withValues(alpha: 0.7))),
     ]);
   }
 
@@ -381,7 +381,7 @@ class _UsageStats extends StatelessWidget {
         children: [
           Icon(icon, size: 12, color: AppColors.textMuted),
           const SizedBox(width: 4),
-          Text(label, style: GoogleFonts.notoSansTc(fontSize: 12, color: AppColors.textMuted)),
+          Text(label, style: GoogleFonts.notoSansTc(fontSize: 14, color: AppColors.textMuted)),
         ],
       ),
     ]);
@@ -506,7 +506,7 @@ class _AchievementsSection extends StatelessWidget {
             const SizedBox(height: 6),
             Text(badge.label,
               style: GoogleFonts.notoSansTc(
-                fontSize: 11,
+                fontSize: 14,
                 fontWeight: FontWeight.w700,
                 color: badge.unlocked ? accent.withValues(alpha: 0.9) : AppColors.textMuted,
               ),
@@ -802,7 +802,7 @@ class _IntegratedReportCTA extends StatelessWidget {
         borderRadius: BorderRadius.circular(10),
       ),
       child: Text(label, style: GoogleFonts.notoSansTc(
-        fontSize: 10, fontWeight: FontWeight.w700, color: color,
+        fontSize: 14, fontWeight: FontWeight.w700, color: color,
       )),
     );
   }
@@ -840,7 +840,7 @@ class _DonationSection extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           Text('一筆過 · 無附加功能 · 純粹支持',
-            style: GoogleFonts.notoSansTc(fontSize: 11, color: AppColors.textMuted)),
+            style: GoogleFonts.notoSansTc(fontSize: 14, color: AppColors.textMuted)),
         ],
       ),
     );

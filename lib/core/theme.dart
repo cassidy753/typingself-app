@@ -9,10 +9,11 @@ class AppColors {
   static const border = Color(0xFFE5DCCE);
   static const divider = Color(0xFFE5DCCE);
 
-  // Text (all Dark Brown — passes 9.39:1 on white ✅)
+  // Text (all Dark Brown)
+  // Contrast ratios on #F5EDE0 (background): 8:1, 5.65:1, 4.67:1 ✅
   static const textPrimary = Color(0xFF5C4033);
-  static const textSecondary = Color(0xFFA0806A);
-  static const textMuted = Color(0xFFC2A48C);
+  static const textSecondary = Color(0xFF7A5540);
+  static const textMuted = Color(0xFF7A6658);
 
   // Accents (background/decorative only, never text on light bg)
   static const primary = Color(0xFF5C4033);       // Dark Brown

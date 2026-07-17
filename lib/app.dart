@@ -122,6 +122,8 @@ class _MainShellState extends State<MainShell> {
   @override
   Widget build(BuildContext context) {
     final t = _tabs[_tab];
+    final reduceMotion = MediaQuery.of(context).disableAnimations;
+
     return Scaffold(
       backgroundColor: Color.lerp(AppColors.background, t.accent, 0.15) ?? AppColors.background,
       appBar: PreferredSize(
@@ -147,37 +149,45 @@ class _MainShellState extends State<MainShell> {
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Center(
-                          child: Text('TS', style: GoogleFonts.notoSerifTc(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w900,
-                            color: AppColors.purple,
-                          )),
+                          child: Semantics(
+                            label: 'Typingself',
+                            child: Text('TS', style: GoogleFonts.notoSerifTc(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w900,
+                              color: AppColors.purple,
+                            )),
+                          ),
                         ),
                       ),
                       const SizedBox(width: 6),
                       Text('Typingself | 型得你・人格成長', style: GoogleFonts.notoSerifTc(fontSize: 16, fontWeight: FontWeight.w900, color: AppColors.textPrimary)),
                     ]),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => SettingsScreen(
-                              accent: t.accent,
-                              accentBg: t.accentBg,
-                              mbti: widget.mbti,
-                              ennea: widget.ennea,
-                              onRetakeTest: widget.onRetakeTest,
+                    Semantics(
+                      label: '設定',
+                      button: true,
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => SettingsScreen(
+                                accent: t.accent,
+                                accentBg: t.accentBg,
+                                mbti: widget.mbti,
+                                ennea: widget.ennea,
+                                onRetakeTest: widget.onRetakeTest,
+                              ),
                             ),
+                          );
+                        },
+                        child: Container(
+                          width: 44, height: 44,
+                          padding: const EdgeInsets.all(5),
+                          decoration: BoxDecoration(
+                            color: AppColors.surface, borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: AppColors.border),
                           ),
-                        );
-                      },
-                      child: Container(
-                        width: 34, height: 34,
-                        decoration: BoxDecoration(
-                          color: AppColors.surface, borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: AppColors.border),
+                          child: const Center(child: Text('⚙️', style: TextStyle(fontSize: 16))),
                         ),
-                        child: const Center(child: Text('⚙️', style: TextStyle(fontSize: 16))),
                       ),
                     ),
                   ],
@@ -187,27 +197,29 @@ class _MainShellState extends State<MainShell> {
           ),
         ),
       ),
-      body: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 400),
-        switchInCurve: Curves.easeOutCubic,
-        switchOutCurve: Curves.easeInCubic,
-        transitionBuilder: (child, animation) {
-          return SlideTransition(
-            position: Tween<Offset>(
-              begin: const Offset(0, 0.06),
-              end: Offset.zero,
-            ).animate(CurvedAnimation(
-              parent: animation,
-              curve: Curves.easeOutCubic,
-            )),
-            child: FadeTransition(
-              opacity: animation,
-              child: child,
+      body: reduceMotion
+          ? _buildScreen()
+          : AnimatedSwitcher(
+              duration: const Duration(milliseconds: 400),
+              switchInCurve: Curves.easeOutCubic,
+              switchOutCurve: Curves.easeInCubic,
+              transitionBuilder: (child, animation) {
+                return SlideTransition(
+                  position: Tween<Offset>(
+                    begin: const Offset(0, 0.06),
+                    end: Offset.zero,
+                  ).animate(CurvedAnimation(
+                    parent: animation,
+                    curve: Curves.easeOutCubic,
+                  )),
+                  child: FadeTransition(
+                    opacity: animation,
+                    child: child,
+                  ),
+                );
+              },
+              child: _buildScreen(),
             ),
-          );
-        },
-        child: _buildScreen(),
-      ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: AppColors.surface,
@@ -240,31 +252,37 @@ class _MainShellState extends State<MainShell> {
   Widget _navItem(int i) {
     final active = _tab == i;
     final t = _tabs[i];
-    return GestureDetector(
-      onTap: () => setState(() => _tab = i),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOutCubic,
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
-        decoration: BoxDecoration(
-          color: active ? t.accentBg : Colors.transparent,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            AnimatedDefaultTextStyle(
-              duration: const Duration(milliseconds: 300),
-              style: TextStyle(fontSize: active ? 22 : 20, color: active ? t.accent : AppColors.textMuted),
-              child: Text(t.icon),
-            ),
-            const SizedBox(height: 3),
-            Text(t.label, style: TextStyle(
-              fontSize: 11,
-              fontWeight: active ? FontWeight.w700 : FontWeight.w400,
-              color: active ? t.accent : AppColors.textMuted,
-            )),
-          ],
+    return Semantics(
+      label: t.label,
+      button: true,
+      selected: active,
+      child: GestureDetector(
+        onTap: () => setState(() => _tab = i),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOutCubic,
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+          constraints: const BoxConstraints(minHeight: 44, minWidth: 44),
+          decoration: BoxDecoration(
+            color: active ? t.accentBg : Colors.transparent,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              AnimatedDefaultTextStyle(
+                duration: const Duration(milliseconds: 300),
+                style: TextStyle(fontSize: active ? 22 : 20, color: active ? t.accent : AppColors.textMuted),
+                child: Text(t.icon),
+              ),
+              const SizedBox(height: 3),
+              Text(t.label, style: TextStyle(
+                fontSize: 14,
+                fontWeight: active ? FontWeight.w700 : FontWeight.w400,
+                color: active ? t.accent : AppColors.textMuted,
+              )),
+            ],
+          ),
         ),
       ),
     );

@@ -354,9 +354,10 @@ class _ShareCTA extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 4),
+                  // ── Share CTA subtitle ──
                   Text('叫 Friend 都測下 MBTI + Enneagram，一齊了解自己',
                     style: GoogleFonts.notoSansTc(
-                      fontSize: 13,
+                      fontSize: 14,
                       color: Colors.white.withValues(alpha: 0.85),
                       height: 1.4,
                     ),
@@ -483,7 +484,7 @@ class _RetakeCard extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text('清空現有結果，揀新版本再測一次',
                     style: GoogleFonts.notoSansTc(
-                      fontSize: 13,
+                      fontSize: 14,
                       color: AppColors.textSecondary,
                       height: 1.4,
                     ),
@@ -594,7 +595,7 @@ class _HeaderStage extends StatelessWidget {
           children: [
             Text(emoji, style: TextStyle(fontSize: 18, color: active ? Colors.black87 : AppColors.textMuted)),
             const SizedBox(height: 3),
-            Text(label, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: active ? const Color(0xFF8FA87A) : AppColors.textMuted)),
+            Text(label, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: active ? const Color(0xFF8FA87A) : AppColors.textMuted)),
           ],
         ),
       ),
@@ -706,7 +707,7 @@ class _ContentCard extends StatelessWidget {
                   const SizedBox(height: 6),
                   Text(subtitle,
                     style: GoogleFonts.notoSansTc(
-                      fontSize: 13,
+                      fontSize: 14,
                       color: textSecondary,
                       height: 1.5,
                     ),
@@ -726,7 +727,7 @@ class _ContentCard extends StatelessWidget {
                 ),
                 child: Text(badge,
                   style: GoogleFonts.notoSansTc(
-                    fontSize: 12,
+                    fontSize: 14,
                     fontWeight: FontWeight.w600,
                     color: badgeColor,
                     height: 1.3,
@@ -822,7 +823,7 @@ class _MoodSectionState extends State<_MoodSection> {
             children: List.generate(5, (i) => Text(
               labels[i],
               style: TextStyle(
-                fontSize: 12,
+                fontSize: 14,
                 fontWeight: _selected == i ? FontWeight.w700 : FontWeight.w500,
                 color: _selected == i ? widget.accent : AppColors.textMuted,
               ),
@@ -840,7 +841,7 @@ class _MoodSectionState extends State<_MoodSection> {
               child: Text(
                 _selected != null ? _moodLabel(_selected!) : '㩒個圓點記錄今日心情',
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: 14,
                   fontWeight: FontWeight.w600,
                   color: _selected != null ? widget.accent : AppColors.textMuted,
                 ),
@@ -923,7 +924,7 @@ class _ZodiacMini extends StatelessWidget {
                   color: accentBg,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Text('設定星座', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: accent)),
+                child: Text('設定星座', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: accent)),
               ),
             ],
           ),
@@ -937,7 +938,7 @@ class _ZodiacMini extends StatelessWidget {
               borderRadius: BorderRadius.circular(14),
               border: Border.all(color: accent.withValues(alpha: 0.08)),
             ),
-            child: Text(horoscope, style: const TextStyle(fontSize: 13, color: AppColors.textSecondary, height: 1.5)),
+            child: Text(horoscope, style: const TextStyle(fontSize: 14, color: AppColors.textSecondary, height: 1.5)),
           ),
         ],
       ),

@@ -85,7 +85,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     GestureDetector(
                       onTap: () => Navigator.of(context).pop(),
                       child: Container(
-                        width: 34, height: 34,
+                        width: 44, height: 44,
+                        padding: const EdgeInsets.all(5),
                         decoration: BoxDecoration(
                           color: AppColors.surface,
                           borderRadius: BorderRadius.circular(10),
@@ -303,7 +304,7 @@ class _SettingsContent extends StatelessWidget {
             child: DropdownButton<String>(
               value: zodiac,
               isExpanded: true,
-              hint: Text('揀你嘅太陽星座…', style: GoogleFonts.notoSansTc(fontSize: 13, color: AppColors.textMuted)),
+              hint: Text('揀你嘅太陽星座…', style: GoogleFonts.notoSansTc(fontSize: 14, color: AppColors.textMuted)),
               items: ZodiacService.signs.map((s) => DropdownMenuItem(
                 value: s,
                 child: Text('${ZodiacService.signEmoji[s] ?? ''} $s',
@@ -348,8 +349,8 @@ class _SettingsContent extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('資料使用同意', style: GoogleFonts.notoSansTc(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
-                  Text('用於個人化語句同分析', style: GoogleFonts.notoSansTc(fontSize: 11, color: AppColors.textSecondary)),
+                  Text('資料使用同意', style: GoogleFonts.notoSansTc(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
+                  Text('用於個人化語句同分析', style: GoogleFonts.notoSansTc(fontSize: 14, color: AppColors.textSecondary)),
                 ],
               ),
               Switch(
@@ -379,7 +380,7 @@ class _SettingsContent extends StatelessWidget {
               child: OutlinedButton.icon(
                 onPressed: onRetakeTest,
                 icon: const Icon(Icons.refresh_rounded, size: 16),
-                label: Text('重新測試', style: GoogleFonts.notoSansTc(fontSize: 13, fontWeight: FontWeight.w600)),
+                label: Text('重新測試', style: GoogleFonts.notoSansTc(fontSize: 14, fontWeight: FontWeight.w600)),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: AppColors.cta,
                   side: BorderSide(color: AppColors.cta.withValues(alpha: 0.3)),
@@ -397,13 +398,13 @@ class _SettingsContent extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 6),
+        padding: const EdgeInsets.symmetric(vertical: 10),
         child: Row(
           children: [
             Icon(icon, color: color ?? AppColors.textSecondary, size: 18),
             const SizedBox(width: 10),
             Expanded(
-              child: Text(text, style: GoogleFonts.notoSansTc(fontSize: 13, color: color ?? AppColors.textPrimary)),
+              child: Text(text, style: GoogleFonts.notoSansTc(fontSize: 14, color: color ?? AppColors.textPrimary)),
             ),
             Icon(Icons.chevron_right, color: AppColors.textMuted, size: 16),
           ],
