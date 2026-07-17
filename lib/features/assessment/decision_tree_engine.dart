@@ -34,15 +34,22 @@ class Question {
   });
 }
 
+// ─── WEIGHTED SELECTION (multi-select with intensity) ───
+class WeightedSelection {
+  final int optionIndex;
+  final int intensity; // 1–10
+  const WeightedSelection({required this.optionIndex, required this.intensity});
+}
+
 // ─── ANSWER RECORD ───
 class AnswerRecord {
   final String questionId;
-  final int optionIndex;
-  final String optionText;
-  final Map<String, int> scores;
+  final List<WeightedSelection> selections;
+  final String optionText; // joined with " | "
+  final Map<String, int> scores; // weighted scores already aggregated
   const AnswerRecord({
     required this.questionId,
-    required this.optionIndex,
+    required this.selections,
     required this.optionText,
     required this.scores,
   });
@@ -281,13 +288,34 @@ class DecisionTreeEngine {
     return q;
   }
 
-  void submitAnswer(int optIndex) {
+  /// Submit a weighted multi-select answer.
+  /// Each entry is (optionIndex, intensity) where intensity is 1–10.
+  void submitAnswer(List<MapEntry<int, int>> selections) {
     final q = _fillTemplate(_computePath()[state.currentQuestionIndex]);
-    final opt = q.options[optIndex];
-    state.applyScores(opt.scores);
+
+    // Compute weighted scores across all selected options
+    final weightedScores = <String, int>{};
+    final selectedTexts = <String>[];
+
+    for (final entry in selections) {
+      final optIndex = entry.key;
+      final intensity = entry.value;
+      final opt = q.options[optIndex];
+      selectedTexts.add(opt.text);
+
+      for (final s in opt.scores.entries) {
+        weightedScores[s.key] =
+            (weightedScores[s.key] ?? 0) + (s.value * intensity);
+      }
+    }
+
+    state.applyScores(weightedScores);
     state.history.add(AnswerRecord(
-      questionId: q.id, optionIndex: optIndex,
-      optionText: opt.text, scores: Map.from(opt.scores),
+      questionId: q.id,
+      selections:
+          selections.map((e) => WeightedSelection(optionIndex: e.key, intensity: e.value)).toList(),
+      optionText: selectedTexts.join(' ｜ '),
+      scores: Map.from(weightedScores),
     ));
     state.currentQuestionIndex++;
     _checkPhaseTransition();

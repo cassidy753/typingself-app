@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/theme.dart';
+import '../integrated_report/integrated_report_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   final Color accent;
@@ -61,6 +62,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
             testsDone: _testsDone,
             shadowDone: _shadowDone,
             accent: widget.accent,
+          ),
+
+          const SizedBox(height: 14),
+
+          // ── 📋 整合報告 ──
+          _SectionHeader('📋 完整人格報告', widget.accent),
+          const SizedBox(height: 8),
+          _IntegratedReportCTA(
+            mbti: widget.mbti,
+            ennea: widget.ennea,
+            accent: widget.accent,
+            accentBg: widget.accentBg,
           ),
 
           const SizedBox(height: 14),
@@ -381,6 +394,122 @@ class _ReportItem extends StatelessWidget {
           child: Text('需要進一步解鎖', style: GoogleFonts.notoSansTc(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.disabledText)),
         ),
       ]),
+    );
+  }
+}
+
+// ── Integrated Report CTA ──
+class _IntegratedReportCTA extends StatelessWidget {
+  final String mbti, ennea;
+  final Color accent, accentBg;
+  const _IntegratedReportCTA({
+    required this.mbti,
+    required this.ennea,
+    required this.accent,
+    required this.accentBg,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            accent.withValues(alpha: 0.12),
+            accentBg.withValues(alpha: 0.06),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: accent.withValues(alpha: 0.2)),
+      ),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: accent.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Text('📋', style: TextStyle(fontSize: 24)),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('整合報告', style: GoogleFonts.notoSerifTc(
+                      fontSize: 16, fontWeight: FontWeight.w900, color: AppColors.textPrimary,
+                    )),
+                    const SizedBox(height: 2),
+                    Text('一次過睇晒 3 個 Stage 嘅結果', style: GoogleFonts.notoSansTc(
+                      fontSize: 11, color: AppColors.textSecondary,
+                    )),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          SizedBox(
+            width: double.infinity,
+            height: 48,
+            child: FilledButton.icon(
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => IntegratedReportScreen(
+                      mbti: mbti,
+                      ennea: ennea,
+                    ),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.auto_awesome_rounded, size: 18),
+              label: const Text('睇我嘅完整報告'),
+              style: FilledButton.styleFrom(
+                backgroundColor: accent,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(18),
+                ),
+                textStyle: GoogleFonts.notoSansTc(
+                  fontSize: 15, fontWeight: FontWeight.w700,
+                ),
+                elevation: 0,
+              ),
+            ),
+          ),
+          const SizedBox(height: 6),
+          Row(
+            children: [
+              _stageBadge('① 型格', AppColors.cta),
+              const SizedBox(width: 6),
+              _stageBadge('② 暗影', AppColors.purple),
+              const SizedBox(width: 6),
+              _stageBadge('③ 成長', AppColors.sage),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _stageBadge(String label, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Text(label, style: GoogleFonts.notoSansTc(
+        fontSize: 9, fontWeight: FontWeight.w600, color: color,
+      )),
     );
   }
 }

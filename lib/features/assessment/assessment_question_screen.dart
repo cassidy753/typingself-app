@@ -1,6 +1,7 @@
 // ═══════════════════════════════════════════════════════════════════════
-// AssessmentQuestionScreen — Dynamic question display with adaptive path
-// Shows progress bar, back button, phase indicator, animated transitions
+// AssessmentQuestionScreen — Weighted Multi-Select Question Display
+// Each option has a checkbox to toggle + intensity slider (1–10).
+// Daebi palette · Adaptive path · Animated transitions
 // ═══════════════════════════════════════════════════════════════════════
 
 import 'package:flutter/material.dart';
@@ -29,7 +30,9 @@ class _AssessmentQuestionScreenState extends State<AssessmentQuestionScreen>
   late Animation<Offset> _slideIn;
   late Question _currentQuestion;
   bool _answered = false;
-  int? _selectedOption;
+
+  /// optionIndex → intensity (1.0–10.0)
+  final Map<int, double> _selections = {};
 
   @override
   void initState() {
@@ -52,16 +55,35 @@ class _AssessmentQuestionScreenState extends State<AssessmentQuestionScreen>
     super.dispose();
   }
 
-  void _selectOption(int index) {
+  void _toggleOption(int index) {
     if (_answered) return;
     setState(() {
-      _answered = true;
-      _selectedOption = index;
+      if (_selections.containsKey(index)) {
+        _selections.remove(index);
+      } else {
+        _selections[index] = 5.0; // default intensity
+      }
     });
+  }
 
-    // Check if user selected "完全唔係" (last option of verification questions)
+  void _updateIntensity(int index, double value) {
+    if (_answered) return;
+    setState(() {
+      _selections[index] = value;
+    });
+  }
+
+  void _submitAnswer() {
+    if (_selections.isEmpty || _answered) return;
+    setState(() => _answered = true);
+
+    // Check if user rejected the verification type
+    // (last option selected with intensity >= 7)
     final currentQ = _currentQuestion;
-    final isTotalReject = currentQ.id.startsWith('verify') && index == currentQ.options.length - 1;
+    final rejectIndex = currentQ.options.length - 1;
+    final isTotalReject = currentQ.id.startsWith('verify') &&
+        _selections.containsKey(rejectIndex) &&
+        _selections[rejectIndex]! >= 7.0;
 
     if (isTotalReject) {
       Future.delayed(const Duration(milliseconds: 400), () => _showRetestDialog());
@@ -69,11 +91,15 @@ class _AssessmentQuestionScreenState extends State<AssessmentQuestionScreen>
     }
 
     Future.delayed(const Duration(milliseconds: 500), () {
-      widget.engine.submitAnswer(index);
+      // Build weighted selections: [(optionIndex, intensity)]
+      final weightedSelections = _selections.entries
+          .map((e) => MapEntry(e.key, e.value.round()))
+          .toList();
+
+      widget.engine.submitAnswer(weightedSelections);
 
       if (!widget.engine.hasMoreQuestions ||
           widget.engine.state.phase == AssessmentPhase.result) {
-        // Assessment complete
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
             builder: (_) => AssessmentResultScreen(
@@ -91,7 +117,7 @@ class _AssessmentQuestionScreenState extends State<AssessmentQuestionScreen>
       setState(() {
         _currentQuestion = widget.engine.getCurrentQuestion();
         _answered = false;
-        _selectedOption = null;
+        _selections.clear();
       });
       _slideCtrl.reset();
       _slideCtrl.forward();
@@ -101,15 +127,13 @@ class _AssessmentQuestionScreenState extends State<AssessmentQuestionScreen>
   void _goBack() {
     final success = widget.engine.goBack();
     if (!success) {
-      // No history — pop back to intro
       Navigator.of(context).pop();
       return;
     }
-    // Reload the previous question with animation
     setState(() {
       _currentQuestion = widget.engine.getCurrentQuestion();
       _answered = false;
-      _selectedOption = null;
+      _selections.clear();
     });
     _slideCtrl.reset();
     _slideCtrl.forward();
@@ -176,7 +200,7 @@ class _AssessmentQuestionScreenState extends State<AssessmentQuestionScreen>
                     ),
                   ),
                   const SizedBox(width: 12),
-                  Text('${done}/$totalEst',
+                  Text('$done/$totalEst',
                     style: GoogleFonts.notoSansTc(
                       fontSize: 12,
                       color: AppColors.textMuted,
@@ -187,22 +211,22 @@ class _AssessmentQuestionScreenState extends State<AssessmentQuestionScreen>
               ),
             ),
 
-            const SizedBox(height: 36),
+            const SizedBox(height: 24),
 
             // ─── Question body (animated) ───
             Expanded(
               child: SlideTransition(
                 position: _slideIn,
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Question text
+                      // Question text card
                       Container(
                         width: double.infinity,
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 20, vertical: 24,
+                          horizontal: 20, vertical: 22,
                         ),
                         decoration: BoxDecoration(
                           color: AppColors.surface,
@@ -212,7 +236,7 @@ class _AssessmentQuestionScreenState extends State<AssessmentQuestionScreen>
                         child: Text(
                           _currentQuestion.text,
                           style: GoogleFonts.notoSerifTc(
-                            fontSize: 19,
+                            fontSize: 18,
                             fontWeight: FontWeight.w700,
                             color: AppColors.textPrimary,
                             height: 1.6,
@@ -220,85 +244,146 @@ class _AssessmentQuestionScreenState extends State<AssessmentQuestionScreen>
                         ),
                       ),
 
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 20),
 
-                      // Answer options
+                      // Options — checkbox + intensity slider
                       Expanded(
                         child: ListView.separated(
                           physics: const BouncingScrollPhysics(),
                           itemCount: _currentQuestion.options.length,
                           separatorBuilder: (_, __) =>
-                              const SizedBox(height: 8),
+                              const SizedBox(height: 6),
                           itemBuilder: (ctx, i) {
                             final opt = _currentQuestion.options[i];
-                            final isSelected = _selectedOption == i;
-                            final showResult = _answered && isSelected;
+                            final isSelected = _selections.containsKey(i);
+                            final intensity = _selections[i] ?? 5.0;
 
                             return AnimatedContainer(
                               duration: const Duration(milliseconds: 250),
                               curve: Curves.easeOutCubic,
-                              child: SizedBox(
-                                width: double.infinity,
-                                child: TextButton(
-                                  onPressed: _answered ? null :
-                                      () => _selectOption(i),
-                                  style: TextButton.styleFrom(
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 16, horizontal: 20),
-                                    backgroundColor: showResult
-                                        ? AppColors.cta.withValues(alpha: 0.12)
-                                        : AppColors.surface,
-                                    foregroundColor: showResult
-                                        ? AppColors.cta
-                                        : AppColors.textPrimary,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(20),
-                                      side: BorderSide(
-                                        color: showResult
-                                            ? AppColors.cta
-                                            : _answered
-                                                ? AppColors.border.withValues(
-                                                    alpha: 0.5)
-                                                : AppColors.border,
-                                        width: showResult ? 2 : 1,
-                                      ),
-                                    ),
-                                    textStyle: GoogleFonts.notoSansTc(
-                                      fontSize: 15,
-                                      fontWeight: isSelected
-                                          ? FontWeight.w700
-                                          : FontWeight.w500,
-                                    ),
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      // Check circle
-                                      Container(
-                                        width: 24,
-                                        height: 24,
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          color: isSelected
-                                              ? AppColors.cta
-                                              : Colors.transparent,
-                                          border: Border.all(
-                                            color: isSelected
-                                                ? AppColors.cta
-                                                : AppColors.textMuted,
-                                            width: 1.5,
-                                          ),
+                              decoration: BoxDecoration(
+                                color: isSelected
+                                    ? AppColors.cta.withValues(alpha: 0.06)
+                                    : AppColors.surface,
+                                borderRadius: BorderRadius.circular(18),
+                                border: Border.all(
+                                  color: isSelected
+                                      ? AppColors.cta.withValues(alpha: 0.4)
+                                      : AppColors.border,
+                                  width: isSelected ? 1.5 : 1,
+                                ),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.fromLTRB(14, 10, 14, 10),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    // ── Checkbox row ──
+                                    InkWell(
+                                      onTap: _answered ? null : () => _toggleOption(i),
+                                      borderRadius: BorderRadius.circular(14),
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(vertical: 4),
+                                        child: Row(
+                                          children: [
+                                            Container(
+                                              width: 24,
+                                              height: 24,
+                                              decoration: BoxDecoration(
+                                                shape: BoxShape.rectangle,
+                                                borderRadius: BorderRadius.circular(6),
+                                                color: isSelected
+                                                    ? AppColors.cta
+                                                    : Colors.transparent,
+                                                border: Border.all(
+                                                  color: isSelected
+                                                      ? AppColors.cta
+                                                      : AppColors.textMuted,
+                                                  width: 1.5,
+                                                ),
+                                              ),
+                                              child: isSelected
+                                                  ? const Icon(Icons.check,
+                                                      size: 16, color: Colors.white)
+                                                  : null,
+                                            ),
+                                            const SizedBox(width: 12),
+                                            Expanded(
+                                              child: Text(
+                                                opt.text,
+                                                style: GoogleFonts.notoSansTc(
+                                                  fontSize: 14,
+                                                  fontWeight: isSelected
+                                                      ? FontWeight.w600
+                                                      : FontWeight.w400,
+                                                  color: isSelected
+                                                      ? AppColors.textPrimary
+                                                      : AppColors.textSecondary,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
                                         ),
-                                        child: isSelected
-                                            ? const Icon(Icons.check,
-                                                size: 14, color: Colors.white)
-                                            : null,
                                       ),
-                                      const SizedBox(width: 14),
-                                      Expanded(
-                                        child: Text(opt.text),
+                                    ),
+
+                                    // ── Intensity slider (only when selected) ──
+                                    if (isSelected) ...[
+                                      const SizedBox(height: 4),
+                                      Row(
+                                        children: [
+                                          Text('強度',
+                                            style: GoogleFonts.notoSansTc(
+                                              fontSize: 11,
+                                              color: AppColors.textMuted,
+                                            ),
+                                          ),
+                                          Expanded(
+                                            child: SliderTheme(
+                                              data: SliderThemeData(
+                                                activeTrackColor: AppColors.cta,
+                                                inactiveTrackColor: AppColors.border,
+                                                thumbColor: AppColors.cta,
+                                                overlayColor: AppColors.cta.withValues(alpha: 0.12),
+                                                trackHeight: 4,
+                                                thumbShape: const RoundSliderThumbShape(
+                                                  enabledThumbRadius: 8,
+                                                ),
+                                                valueIndicatorColor: AppColors.cta,
+                                                valueIndicatorTextStyle: GoogleFonts.notoSansTc(
+                                                  color: Colors.white,
+                                                  fontSize: 11,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                              ),
+                                              child: Slider(
+                                                value: intensity,
+                                                min: 1,
+                                                max: 10,
+                                                divisions: 9,
+                                                label: intensity.round().toString(),
+                                                onChanged: _answered
+                                                    ? null
+                                                    : (v) => _updateIntensity(i, v),
+                                              ),
+                                            ),
+                                          ),
+                                          SizedBox(
+                                            width: 28,
+                                            child: Text(
+                                              intensity.round().toString(),
+                                              textAlign: TextAlign.center,
+                                              style: GoogleFonts.notoSansTc(
+                                                fontSize: 13,
+                                                fontWeight: FontWeight.w700,
+                                                color: AppColors.cta,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ],
-                                  ),
+                                  ],
                                 ),
                               ),
                             );
@@ -311,15 +396,45 @@ class _AssessmentQuestionScreenState extends State<AssessmentQuestionScreen>
               ),
             ),
 
-            // ─── Bottom hint ───
+            // ─── Bottom: Submit + Hint ───
             Padding(
-              padding: const EdgeInsets.only(bottom: 20),
-              child: Text(
-                '揀一個最接近你嘅答案',
-                style: GoogleFonts.notoSansTc(
-                  fontSize: 12,
-                  color: AppColors.textMuted,
-                ),
+              padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+              child: Column(
+                children: [
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: _answered || _selections.isEmpty
+                          ? null
+                          : _submitAnswer,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.cta,
+                        foregroundColor: Colors.white,
+                        disabledBackgroundColor: AppColors.disabled,
+                        disabledForegroundColor: AppColors.disabledText,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        textStyle: GoogleFonts.notoSansTc(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      child: Text(_selections.isNotEmpty
+                          ? '確認答案（${_selections.length}項）'
+                          : '揀選項以繼續'),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    '揀幾多個都得 · 滑條表示你有幾同意（1–10）',
+                    style: GoogleFonts.notoSansTc(
+                      fontSize: 12,
+                      color: AppColors.textMuted,
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
@@ -337,9 +452,9 @@ class _AssessmentQuestionScreenState extends State<AssessmentQuestionScreen>
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('🔄', style: TextStyle(fontSize: 48)),
+            const Text('🔄', style: TextStyle(fontSize: 48)),
             const SizedBox(height: 16),
-            Text('我哋會根據你既答案\n重新調整問題，再試多次？',
+            Text('我哋會根據你既答案\\n重新調整問題，再試多次？',
               textAlign: TextAlign.center,
               style: GoogleFonts.notoSerifTc(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.textPrimary, height: 1.6),
             ),
@@ -357,7 +472,7 @@ class _AssessmentQuestionScreenState extends State<AssessmentQuestionScreen>
                   setState(() {
                     _currentQuestion = widget.engine.getCurrentQuestion();
                     _answered = false;
-                    _selectedOption = null;
+                    _selections.clear();
                   });
                   _slideCtrl.reset();
                   _slideCtrl.forward();
@@ -369,15 +484,18 @@ class _AssessmentQuestionScreenState extends State<AssessmentQuestionScreen>
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                   textStyle: GoogleFonts.notoSansTc(fontSize: 16, fontWeight: FontWeight.w600),
                 ),
-                child: Text('好，再試一次'),
+                child: const Text('好，再試一次'),
               ),
             ),
             const SizedBox(height: 10),
             TextButton(
               onPressed: () {
                 Navigator.of(ctx).pop();
-                // Submit the rejection and move on with adjusted questions
-                widget.engine.submitAnswer(_selectedOption!);
+                // Build weighted selections from current state
+                final weightedSelections = _selections.entries
+                    .map((e) => MapEntry(e.key, e.value.round()))
+                    .toList();
+                widget.engine.submitAnswer(weightedSelections);
                 if (!widget.engine.hasMoreQuestions) {
                   Navigator.of(context).pushReplacement(
                     MaterialPageRoute(
@@ -393,13 +511,13 @@ class _AssessmentQuestionScreenState extends State<AssessmentQuestionScreen>
                   setState(() {
                     _currentQuestion = widget.engine.getCurrentQuestion();
                     _answered = false;
-                    _selectedOption = null;
+                    _selections.clear();
                   });
                   _slideCtrl.reset();
                   _slideCtrl.forward();
                 }
               },
-              child: Text('繼續用現有結果', style: TextStyle(color: AppColors.textMuted, fontSize: 14)),
+              child: const Text('繼續用現有結果', style: TextStyle(color: AppColors.textMuted, fontSize: 14)),
             ),
           ],
         ),
