@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'core/theme.dart';
+import 'core/settings_service.dart';
 import 'core/fixed_frame.dart';
 import 'features/splash/splash_screen.dart';
-import 'features/daily_quote/quote_screen.dart';
-import 'features/explore/explore_screen.dart';
-import 'features/profile/profile_screen.dart';
+import 'features/bookshelf/bookshelf_screen.dart';
+import 'features/explore_v2/explore_grid_screen.dart';
+import 'features/feed/feed_screen.dart';
+import 'features/profile_v2/profile_v2_screen.dart';
 import 'features/settings/settings_screen.dart';
 import 'features/assessment/assessment_intro_screen.dart';
 import 'features/assessment/decision_tree_engine.dart';
@@ -31,6 +33,7 @@ class _TypingselfAppState extends State<TypingselfApp> {
   }
 
   Future<void> _loadTheme() async {
+    await SettingsService().init();
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       _darkMode = prefs.getBool('dark_mode') ?? false;
@@ -143,7 +146,7 @@ class _AppRootState extends State<AppRoot> {
   @override
   Widget build(BuildContext context) {
     if (_loading) return const SizedBox();
-    return MainShell(
+    return MainShell4(
       mbti: _mbti ?? 'ENFJ',
       ennea: _ennea ?? '5w4',
       onRetakeTest: _onRetakeTest,
@@ -156,15 +159,15 @@ class _AppRootState extends State<AppRoot> {
 }
 
 
-// ──────── 3-TAB CONFIG ────────
-class _Tab {
+// ──────── 4-TAB CONFIG ────────
+class _Tab4 {
   final String icon, label;
   final Color accent, accentBg;
-  const _Tab(this.icon, this.label, this.accent, this.accentBg);
+  const _Tab4(this.icon, this.label, this.accent, this.accentBg);
 }
 
-// ──────── MAIN SHELL ────────
-class MainShell extends StatefulWidget {
+// ──────── MAIN SHELL (4 tabs) ────────
+class MainShell4 extends StatefulWidget {
   final String mbti;
   final String ennea;
   final VoidCallback? onRetakeTest;
@@ -172,18 +175,19 @@ class MainShell extends StatefulWidget {
   final String? pendingFriendMbti;
   final String? pendingFriendEnnea;
   final String? pendingFriendName;
-  const MainShell({super.key, required this.mbti, required this.ennea, this.onRetakeTest, this.onThemeChanged, this.pendingFriendMbti, this.pendingFriendEnnea, this.pendingFriendName});
+  const MainShell4({super.key, required this.mbti, required this.ennea, this.onRetakeTest, this.onThemeChanged, this.pendingFriendMbti, this.pendingFriendEnnea, this.pendingFriendName});
   @override
-  State<MainShell> createState() => _MainShellState();
+  State<MainShell4> createState() => _MainShell4State();
 }
 
-class _MainShellState extends State<MainShell> {
+class _MainShell4State extends State<MainShell4> {
   int _tab = 0;
 
-  static const _tabs = <_Tab>[
-    _Tab('🏠', '首頁',  Color(0xFF9B72AA), Color(0x209B72AA)),  // Purple
-    _Tab('🔍', '發掘',  Color(0xFFD4A843), Color(0x20D4A843)),  // Mustard
-    _Tab('👤', '我嘅',  Color(0xFFE0785A), Color(0x20E0785A)),  // Coral
+  static const _tabs = <_Tab4>[
+    _Tab4('📚', '書架', Color(0xFF9B72AA), Color(0x209B72AA)),  // Purple
+    _Tab4('🔍', '探索', Color(0xFFD4A843), Color(0x20D4A843)),  // Mustard
+    _Tab4('💬', '動態', Color(0xFF8FA87A), Color(0x208FA87A)),  // Sage
+    _Tab4('👤', '我',   Color(0xFFE0785A), Color(0x20E0785A)),  // Coral
   ];
 
   @override
@@ -244,7 +248,7 @@ class _MainShellState extends State<MainShell> {
     // Dynamic background color based on theme
     final bgColor = isDark
         ? Color.lerp(AppColors.darkBackground, t.accent, 0.08) ?? AppColors.darkBackground
-        : Color.lerp(AppColors.background, t.accent, 0.15) ?? AppColors.background;
+        : Color.lerp(AppColors.background, t.accent, 0.12) ?? AppColors.background;
 
     return Scaffold(
       backgroundColor: bgColor,
@@ -255,8 +259,8 @@ class _MainShellState extends State<MainShell> {
             decoration: BoxDecoration(
               color: isDark
                   ? t.accent.withValues(alpha: 0.05)
-                  : t.accent.withValues(alpha: 0.08),
-              border: Border(bottom: BorderSide(color: t.accent.withValues(alpha: 0.2))),
+                  : t.accent.withValues(alpha: 0.06),
+              border: Border(bottom: BorderSide(color: t.accent.withValues(alpha: 0.15))),
             ),
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -267,16 +271,16 @@ class _MainShellState extends State<MainShell> {
                   children: [
                     Row(children: [
                       Container(
-                        width: 34, height: 34,
+                        width: 30, height: 30,
                         decoration: BoxDecoration(
                           color: AppColors.purple.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius: BorderRadius.circular(9),
                         ),
                         child: Center(
                           child: Semantics(
                             label: 'Typingself',
                             child: Text('TS', style: GoogleFonts.notoSerifTc(
-                              fontSize: 13,
+                              fontSize: 11,
                               fontWeight: FontWeight.w900,
                               color: AppColors.purple,
                             )),
@@ -284,26 +288,9 @@ class _MainShellState extends State<MainShell> {
                         ),
                       ),
                       const SizedBox(width: 6),
-                      Text('Typingself | 型得你・人格成長', style: GoogleFonts.notoSerifTc(fontSize: 16, fontWeight: FontWeight.w900,
+                      Text('Typingself | 型得你', style: GoogleFonts.notoSerifTc(fontSize: 15, fontWeight: FontWeight.w900,
                         color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary)),
                     ]),
-                    Semantics(
-                      label: '設定',
-                      button: true,
-                      child: GestureDetector(
-                        onTap: () => _openSettings(t.accent, t.accentBg),
-                        child: Container(
-                          width: 44, height: 44,
-                          padding: const EdgeInsets.all(5),
-                          decoration: BoxDecoration(
-                            color: isDark ? AppColors.darkSurface : AppColors.surface,
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.border),
-                          ),
-                          child: const Center(child: Text('⚙️', style: TextStyle(fontSize: 16))),
-                        ),
-                      ),
-                    ),
                   ],
                 ),
               ),
@@ -342,10 +329,10 @@ class _MainShellState extends State<MainShell> {
         ),
         child: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(12, 8, 12, 14),
+            padding: const EdgeInsets.fromLTRB(8, 6, 8, 10),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: List.generate(3, (i) => _navItem(i)),
+              children: List.generate(4, (i) => _navItem(i)),
             ),
           ),
         ),
@@ -354,12 +341,18 @@ class _MainShellState extends State<MainShell> {
   }
 
   Widget _buildScreen() {
-    final t = _tabs[_tab];
     switch (_tab) {
-      case 0: return QuoteScreen(key: const ValueKey('q'), accent: t.accent, accentBg: t.accentBg, mbti: widget.mbti, ennea: widget.ennea);
-      case 1: return ExploreScreen(key: const ValueKey('k'), accent: t.accent, accentBg: t.accentBg, mbti: widget.mbti, ennea: widget.ennea, onRetakeTest: widget.onRetakeTest);
-      case 2: return ProfileScreen(key: const ValueKey('p'), accent: t.accent, accentBg: t.accentBg, mbti: widget.mbti, ennea: widget.ennea);
-      default: return const SizedBox();
+      case 0:
+        return BookshelfScreen(key: const ValueKey('b'), mbti: widget.mbti, ennea: widget.ennea);
+      case 1:
+        return ExploreGridScreen(key: const ValueKey('e'), mbti: widget.mbti, ennea: widget.ennea, onRetakeTest: widget.onRetakeTest);
+      case 2:
+        return FeedScreen(key: const ValueKey('f'), mbti: widget.mbti, ennea: widget.ennea);
+      case 3:
+        return ProfileV2Screen(key: const ValueKey('p'), mbti: widget.mbti, ennea: widget.ennea,
+          onRetakeTest: widget.onRetakeTest, onThemeChanged: widget.onThemeChanged);
+      default:
+        return const SizedBox();
     }
   }
 
@@ -376,11 +369,11 @@ class _MainShellState extends State<MainShell> {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 300),
           curve: Curves.easeOutCubic,
-          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
           constraints: const BoxConstraints(minHeight: 44, minWidth: 44),
           decoration: BoxDecoration(
             color: active ? t.accentBg : Colors.transparent,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(14),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -390,9 +383,9 @@ class _MainShellState extends State<MainShell> {
                 style: TextStyle(fontSize: active ? 22 : 20, color: active ? t.accent : (isDark ? AppColors.darkTextMuted : AppColors.textMuted)),
                 child: Text(t.icon),
               ),
-              const SizedBox(height: 3),
+              const SizedBox(height: 2),
               Text(t.label, style: TextStyle(
-                fontSize: 14,
+                fontSize: 11,
                 fontWeight: active ? FontWeight.w700 : FontWeight.w400,
                 color: active ? t.accent : (isDark ? AppColors.darkTextMuted : AppColors.textMuted),
               )),
