@@ -1,10 +1,9 @@
 // ═══════════════════════════════════════════════════════════════════════
-// BookshelfScreen — 📚 書架 (Tab 1)
-// 類似微信讀書書架風格
-// 頭部：閱讀狀態卡片（本週閱讀時數、完成度）
-// 書架列表：每個「書」= 一個MBTI type / domain
-// 進度條顯示閱讀%
-// Filter tabs: 全部 / 進行中 / 已完成
+// BookshelfScreen — 📚 書架 (Tab 1) — Edition 4
+// 類似微信讀書書架 + Apple Books 閱讀目標風格
+// 頭部：閱讀目標卡片（一週進度）
+// 書架網格：每個「書」= 一個MBTI type / domain
+// Filter chips: 全部 / 進行中 / 已完成 / 未開始
 // ═══════════════════════════════════════════════════════════════════════
 
 import 'package:flutter/material.dart';
@@ -14,7 +13,7 @@ import '../../core/settings_service.dart';
 import '../reading/reading_content.dart';
 import '../reading/reading_screen.dart';
 
-enum BookshelfFilter { all, inProgress, completed }
+enum BookshelfFilter { all, inProgress, completed, notStarted }
 
 class BookshelfScreen extends StatefulWidget {
   final String? mbti;
@@ -50,49 +49,60 @@ class _BookshelfScreenState extends State<BookshelfScreen> {
     final books = ReadingContentProvider.allBooks;
     final completedIds = _settings.getCompletedBookIds();
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bgColor = isDark ? AppColors.darkBackground : AppColors.background;
+
+    // Build progress tracking per book
+    final bookProgress = <String, double>{};
+    for (final book in books) {
+      if (completedIds.contains(book.id)) {
+        bookProgress[book.id] = 1.0;
+      }
+    }
 
     // Filter books
     List<ReadingBook> filtered;
     switch (_filter) {
       case BookshelfFilter.inProgress:
-        filtered = books.where((b) {
-          // Books with some progress but not completed
-          return !completedIds.contains(b.id) &&
-              (b.id == widget.mbti?.toLowerCase() ||
-               b.category == 'Growth');
-        }).toList();
-        // If we already completed some, still show max 3 in-progress
+        // Books with some progress but not completed
+        filtered = books.where((b) => !completedIds.contains(b.id)).toList();
+        if (filtered.isEmpty) {
+          filtered = ReadingContentProvider.getRecommended(widget.mbti, widget.ennea);
+        }
         break;
       case BookshelfFilter.completed:
         filtered = books.where((b) => completedIds.contains(b.id)).toList();
+        break;
+      case BookshelfFilter.notStarted:
+        filtered = books.where((b) => !completedIds.contains(b.id)).toList();
         break;
       case BookshelfFilter.all:
         filtered = books;
     }
 
-    // If in-progress is empty, show recommended
-    if (_filter == BookshelfFilter.inProgress && filtered.isEmpty) {
-      filtered = ReadingContentProvider.getRecommended(widget.mbti, widget.ennea);
-    }
+    // Calculate weekly stats
+    final weeklyGoalMinutes = 60;
+    final weeklyMinutes = _settings.totalReadingMinutes % weeklyGoalMinutes;
+    final weeklyProgress = (weeklyMinutes / weeklyGoalMinutes).clamp(0.0, 1.0);
 
     return Container(
-      color: bgColor,
+      color: isDark ? AppColors.darkBackground : AppColors.background,
       child: CustomScrollView(
         slivers: [
-          // ── Header: reading stats card ──
+          // ── Weekly Reading Goal Card (Apple Books style) ──
           SliverToBoxAdapter(
-            child: _ReadingStatsCard(
-              readingMinutes: _settings.totalReadingMinutes,
-              completedBooks: _settings.booksCompleted,
+            child: _WeeklyGoalCard(
+              weeklyProgress: weeklyProgress,
+              weeklyMinutes: weeklyMinutes,
+              goalMinutes: weeklyGoalMinutes,
+              totalReadingMinutes: _settings.totalReadingMinutes,
+              completedBooks: completedIds.length,
               totalBooks: books.length,
               streakDays: _settings.streakDays,
             ),
           ),
 
-          // ── Filter tabs ──
+          // ── Filter Chips ──
           SliverToBoxAdapter(
-            child: _FilterTabs(
+            child: _FilterChips(
               current: _filter,
               onChanged: (f) => setState(() => _filter = f),
               allCount: books.length,
@@ -109,7 +119,7 @@ class _BookshelfScreenState extends State<BookshelfScreen> {
                 crossAxisCount: 2,
                 mainAxisSpacing: 16,
                 crossAxisSpacing: 16,
-                childAspectRatio: 0.75,
+                childAspectRatio: 0.78,
               ),
               delegate: SliverChildBuilderDelegate(
                 (context, index) => _BookCard(
@@ -121,6 +131,9 @@ class _BookshelfScreenState extends State<BookshelfScreen> {
               ),
             ),
           ),
+
+          // ── Bottom spacer ──
+          const SliverToBoxAdapter(child: SizedBox(height: 16)),
         ],
       ),
     );
@@ -133,20 +146,26 @@ class _BookshelfScreenState extends State<BookshelfScreen> {
         builder: (_) => ReadingScreen(book: book),
       ),
     ).then((_) {
-      setState(() {}); // Refresh after returning
+      setState(() {});
     });
   }
 }
 
-// ─── Reading Stats Card ───
-class _ReadingStatsCard extends StatelessWidget {
-  final int readingMinutes;
+// ─── Weekly Reading Goal Card (Apple Books style) ───
+class _WeeklyGoalCard extends StatelessWidget {
+  final double weeklyProgress;
+  final int weeklyMinutes;
+  final int goalMinutes;
+  final int totalReadingMinutes;
   final int completedBooks;
   final int totalBooks;
   final int streakDays;
 
-  const _ReadingStatsCard({
-    required this.readingMinutes,
+  const _WeeklyGoalCard({
+    required this.weeklyProgress,
+    required this.weeklyMinutes,
+    required this.goalMinutes,
+    required this.totalReadingMinutes,
     required this.completedBooks,
     required this.totalBooks,
     required this.streakDays,
@@ -155,75 +174,105 @@ class _ReadingStatsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final hours = (readingMinutes / 60).toStringAsFixed(1);
-    final progress = totalBooks > 0 ? (completedBooks / totalBooks) : 0.0;
-    final bgCard = isDark ? AppColors.darkSurface : Colors.white;
+    final hours = (totalReadingMinutes / 60).toStringAsFixed(1);
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
       child: Container(
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              AppColors.purple.withValues(alpha: 0.15),
-              AppColors.mustard.withValues(alpha: 0.10),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
+          color: isDark ? AppColors.darkSurface : AppColors.surface,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: AppColors.purple.withValues(alpha: 0.2),
-          ),
+          boxShadow: AppShadows.card,
         ),
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
+            // Title row
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                // Reading time
-                _StatChip(
-                  icon: '⏱️',
-                  value: '$hours hr',
-                  label: '閱讀時數',
-                  bgCard: bgCard,
+                Container(
+                  width: 32, height: 32,
+                  decoration: BoxDecoration(
+                    color: AppColors.accentEarth.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(Icons.auto_stories_rounded, size: 18, color: AppColors.accentEarth),
                 ),
-                // Books completed
-                _StatChip(
-                  icon: '📚',
-                  value: '$completedBooks/$totalBooks',
-                  label: '完成書本',
-                  bgCard: bgCard,
+                const SizedBox(width: 10),
+                Text('本週閱讀目標',
+                  style: GoogleFonts.notoSerifTc(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
+                  ),
                 ),
-                // Streak
-                _StatChip(
-                  icon: '🔥',
-                  value: '$streakDays',
-                  label: '連續日數',
-                  bgCard: bgCard,
+                const Spacer(),
+                Text('${weeklyMinutes} / ${goalMinutes} 分鐘',
+                  style: GoogleFonts.notoSansTc(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
+                  ),
                 ),
               ],
             ),
-            const SizedBox(height: 16),
-            // Progress bar
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: LinearProgressIndicator(
-                value: progress,
-                minHeight: 8,
-                backgroundColor: AppColors.purple.withValues(alpha: 0.12),
-                valueColor: AlwaysStoppedAnimation<Color>(AppColors.purple),
-              ),
-            ),
-            const SizedBox(height: 6),
+            const SizedBox(height: 14),
+            // Progress ring + stats
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('閱讀進度',
-                  style: GoogleFonts.notoSansTc(fontSize: 12, color: AppColors.textMuted)),
-                Text('${(progress * 100).round()}%',
-                  style: GoogleFonts.notoSansTc(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.purple)),
+                // Circular progress
+                SizedBox(
+                  width: 60, height: 60,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      SizedBox(
+                        width: 60, height: 60,
+                        child: CircularProgressIndicator(
+                          value: weeklyProgress,
+                          strokeWidth: 5,
+                          backgroundColor: isDark ? AppColors.darkBorder : AppColors.border,
+                          valueColor: const AlwaysStoppedAnimation<Color>(AppColors.accentEarth),
+                        ),
+                      ),
+                      Text('${(weeklyProgress * 100).round()}%',
+                        style: GoogleFonts.notoSansTc(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.accentEarth,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 24),
+                // Stats rows
+                Expanded(
+                  child: Column(
+                    children: [
+                      _StatRow(
+                        icon: Icons.timer_outlined,
+                        label: '總閱讀時數',
+                        value: '${hours}h',
+                        isDark: isDark,
+                      ),
+                      const SizedBox(height: 8),
+                      _StatRow(
+                        icon: Icons.menu_book_rounded,
+                        label: '已完成書本',
+                        value: '$completedBooks/$totalBooks',
+                        isDark: isDark,
+                      ),
+                      const SizedBox(height: 8),
+                      _StatRow(
+                        icon: Icons.local_fire_department_rounded,
+                        label: '連續閱讀',
+                        value: '$streakDays 天',
+                        isDark: isDark,
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
           ],
@@ -233,39 +282,51 @@ class _ReadingStatsCard extends StatelessWidget {
   }
 }
 
-class _StatChip extends StatelessWidget {
-  final String icon, value, label;
-  final Color bgCard;
-  const _StatChip({required this.icon, required this.value, required this.label, required this.bgCard});
+class _StatRow extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String value;
+  final bool isDark;
+
+  const _StatRow({
+    required this.icon,
+    required this.label,
+    required this.value,
+    required this.isDark,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      decoration: BoxDecoration(
-        color: bgCard.withValues(alpha: 0.7),
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Column(
-        children: [
-          Text(icon, style: const TextStyle(fontSize: 20)),
-          const SizedBox(height: 4),
-          Text(value, style: GoogleFonts.notoSerifTc(
-            fontSize: 18, fontWeight: FontWeight.w900, color: AppColors.textPrimary)),
-          Text(label, style: GoogleFonts.notoSansTc(fontSize: 11, color: AppColors.textMuted)),
-        ],
-      ),
+    return Row(
+      children: [
+        Icon(icon, size: 14, color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary),
+        const SizedBox(width: 6),
+        Text(label,
+          style: GoogleFonts.notoSansTc(
+            fontSize: 12,
+            color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
+          ),
+        ),
+        const Spacer(),
+        Text(value,
+          style: GoogleFonts.notoSansTc(
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
+          ),
+        ),
+      ],
     );
   }
 }
 
-// ─── Filter Tabs ───
-class _FilterTabs extends StatelessWidget {
+// ─── Filter Chips ───
+class _FilterChips extends StatelessWidget {
   final BookshelfFilter current;
   final ValueChanged<BookshelfFilter> onChanged;
   final int allCount, inProgressCount, completedCount;
 
-  const _FilterTabs({
+  const _FilterChips({
     required this.current,
     required this.onChanged,
     required this.allCount,
@@ -275,52 +336,83 @@ class _FilterTabs extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tabs = [
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final chips = [
       (BookshelfFilter.all, '全部', allCount),
       (BookshelfFilter.inProgress, '進行中', inProgressCount),
       (BookshelfFilter.completed, '已完成', completedCount),
+      (BookshelfFilter.notStarted, '未開始', allCount - completedCount),
     ];
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
-      child: Row(
-        children: tabs.map((t) {
-          final active = current == t.$1;
-          return Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4),
+      padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: chips.map((c) {
+            final active = current == c.$1;
+            return Padding(
+              padding: const EdgeInsets.only(right: 8),
               child: GestureDetector(
-                onTap: () => onChanged(t.$1),
+                onTap: () => onChanged(c.$1),
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 250),
-                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   decoration: BoxDecoration(
-                    color: active ? AppColors.purple.withValues(alpha: 0.12) : Colors.transparent,
-                    borderRadius: BorderRadius.circular(14),
-                    border: active
-                        ? Border.all(color: AppColors.purple.withValues(alpha: 0.3))
-                        : Border.all(color: Colors.transparent),
-                  ),
-                  child: Text(
-                    '${t.$2} (${t.$3})',
-                    textAlign: TextAlign.center,
-                    style: GoogleFonts.notoSansTc(
-                      fontSize: 13,
-                      fontWeight: active ? FontWeight.w700 : FontWeight.w500,
-                      color: active ? AppColors.purple : AppColors.textMuted,
+                    color: active
+                        ? AppColors.accentEarth.withValues(alpha: 0.1)
+                        : (isDark ? AppColors.darkSurface : Colors.white),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: active
+                          ? AppColors.accentEarth.withValues(alpha: 0.3)
+                          : (isDark ? AppColors.darkBorder : AppColors.border),
                     ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(c.$2,
+                        style: GoogleFonts.notoSansTc(
+                          fontSize: 13,
+                          fontWeight: active ? FontWeight.w600 : FontWeight.w500,
+                          color: active
+                              ? AppColors.accentEarth
+                              : (isDark ? AppColors.darkTextSecondary : AppColors.textSecondary),
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                        decoration: BoxDecoration(
+                          color: active
+                              ? AppColors.accentEarth.withValues(alpha: 0.15)
+                              : (isDark ? AppColors.darkBorder : AppColors.border),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Text('${c.$3}',
+                          style: GoogleFonts.notoSansTc(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600,
+                            color: active
+                                ? AppColors.accentEarth
+                                : (isDark ? AppColors.darkTextSecondary : AppColors.textMuted),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
-            ),
-          );
-        }).toList(),
+            );
+          }).toList(),
+        ),
       ),
     );
   }
 }
 
-// ─── Book Card ───
+// ─── Book Card (Edition 4) ───
 class _BookCard extends StatelessWidget {
   final ReadingBook book;
   final bool isCompleted;
@@ -344,15 +436,9 @@ class _BookCard extends StatelessWidget {
         onTap: onTap,
         child: Container(
           decoration: BoxDecoration(
-            color: isDark ? AppColors.darkSurface : Colors.white,
-            borderRadius: BorderRadius.circular(18),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
-                blurRadius: 12,
-                offset: const Offset(0, 4),
-              ),
-            ],
+            color: isDark ? AppColors.darkSurface : AppColors.surface,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: AppShadows.card,
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -369,13 +455,13 @@ class _BookCard extends StatelessWidget {
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
-                    borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
+                    borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
                   ),
                   child: Stack(
                     children: [
                       // Emoji
                       Center(
-                        child: Text(book.emoji, style: const TextStyle(fontSize: 48)),
+                        child: Text(book.emoji, style: const TextStyle(fontSize: 44)),
                       ),
                       // Completed badge
                       if (isCompleted)
@@ -385,7 +471,7 @@ class _BookCard extends StatelessWidget {
                           child: Container(
                             padding: const EdgeInsets.all(4),
                             decoration: const BoxDecoration(
-                              color: Color(0xFF8FA87A),
+                              color: AppColors.accentSage,
                               shape: BoxShape.circle,
                             ),
                             child: const Icon(Icons.check, size: 14, color: Colors.white),
@@ -418,24 +504,25 @@ class _BookCard extends StatelessWidget {
                   children: [
                     Text(book.title,
                       style: GoogleFonts.notoSansTc(
-                        fontSize: 14, fontWeight: FontWeight.w700, color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary),
+                        fontSize: 14, fontWeight: FontWeight.w700,
+                        color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary),
                       maxLines: 1, overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 2),
                     Text(book.subtitle,
                       style: GoogleFonts.notoSansTc(
-                        fontSize: 10, color: AppColors.textMuted),
+                        fontSize: 10, color: isDark ? AppColors.darkTextMuted : AppColors.textMuted),
                       maxLines: 1, overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 6),
+                    const SizedBox(height: 8),
                     // Mini progress
                     ClipRRect(
                       borderRadius: BorderRadius.circular(4),
                       child: LinearProgressIndicator(
                         value: isCompleted ? 1.0 : 0.0,
                         minHeight: 4,
-                        backgroundColor: AppColors.purple.withValues(alpha: 0.1),
-                        valueColor: AlwaysStoppedAnimation<Color>(AppColors.purple),
+                        backgroundColor: AppColors.accentDusty.withValues(alpha: 0.1),
+                        valueColor: const AlwaysStoppedAnimation<Color>(AppColors.accentDusty),
                       ),
                     ),
                   ],

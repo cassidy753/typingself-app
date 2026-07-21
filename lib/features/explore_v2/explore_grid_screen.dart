@@ -1,7 +1,6 @@
 // ═══════════════════════════════════════════════════════════════════════
-// ExploreGridScreen — 🔍 探索 (Tab 2)
-// 搜尋bar + 144 Combo圖譜（16×9 matrix grid）
-// 分類scroll sections：MBTI 16型 / 九型9型 / 其他系統
+// ExploreGridScreen — 🔍 探索 (Tab 2) — Edition 4
+// 搜尋bar + 本週精選 + 144 Combo圖譜 + 分類scroll sections
 // ═══════════════════════════════════════════════════════════════════════
 
 import 'package:flutter/material.dart';
@@ -78,6 +77,13 @@ class _ExploreGridScreenState extends State<ExploreGridScreen> {
                 onTap: (book) => _openBook(book),
               )
             else ...[
+              // ── 本週精選 Featured Section ──
+              _FeaturedSection(
+                books: ReadingContentProvider.getRecommended(widget.mbti, widget.ennea).take(3).toList(),
+                onTap: _openBook,
+              ),
+              const SizedBox(height: 28),
+
               // ── 144 Combo Map ──
               _ComboMap(
                 mbtiTypes: _mbtiTypes,
@@ -93,7 +99,8 @@ class _ExploreGridScreenState extends State<ExploreGridScreen> {
 
               // ── MBTI 16 types ──
               _CategorySection(
-                title: '🧠 MBTI 16型人格',
+                title: 'MBTI 16型人格',
+                emoji: '🧠',
                 books: ReadingContentProvider.getBooksByCategory('MBTI'),
                 onTap: _openBook,
               ),
@@ -101,7 +108,8 @@ class _ExploreGridScreenState extends State<ExploreGridScreen> {
 
               // ── Enneagram 9 types ──
               _CategorySection(
-                title: '🌀 九型人格 Enneagram',
+                title: '九型人格 Enneagram',
+                emoji: '🌀',
                 books: ReadingContentProvider.getBooksByCategory('Enneagram'),
                 onTap: _openBook,
               ),
@@ -109,11 +117,21 @@ class _ExploreGridScreenState extends State<ExploreGridScreen> {
 
               // ── Growth series ──
               _CategorySection(
-                title: '🌱 成長系列',
+                title: '成長系列',
+                emoji: '🌱',
                 books: ReadingContentProvider.getBooksByCategory('Growth'),
                 onTap: _openBook,
               ),
               const SizedBox(height: 24),
+
+              // ── Other Systems ──
+              _CategorySection(
+                title: '其他系統',
+                emoji: '🔮',
+                books: ReadingContentProvider.getBooksByCategory('Other'),
+                onTap: _openBook,
+              ),
+              const SizedBox(height: 40),
             ],
           ],
         ),
@@ -134,6 +152,122 @@ class _ExploreGridScreenState extends State<ExploreGridScreen> {
   }
 }
 
+// ─── Featured Section (本週精選) ───
+class _FeaturedSection extends StatelessWidget {
+  final List<ReadingBook> books;
+  final void Function(ReadingBook) onTap;
+
+  const _FeaturedSection({required this.books, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Container(
+              width: 28, height: 28,
+              decoration: BoxDecoration(
+                color: AppColors.accentGold.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(Icons.auto_awesome_rounded, size: 16, color: AppColors.accentGold),
+            ),
+            const SizedBox(width: 8),
+            Text('本週精選',
+              style: GoogleFonts.notoSerifTc(
+                fontSize: 20, fontWeight: FontWeight.w800,
+                color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary)),
+          ],
+        ),
+        const SizedBox(height: 4),
+        Text('為你推薦嘅閱讀內容',
+          style: GoogleFonts.notoSansTc(
+            fontSize: 12, color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary)),
+        const SizedBox(height: 12),
+        SizedBox(
+          height: 190,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            itemCount: books.length,
+            separatorBuilder: (_, __) => const SizedBox(width: 12),
+            itemBuilder: (context, i) => _FeaturedCard(
+              book: books[i],
+              onTap: () => onTap(books[i]),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _FeaturedCard extends StatelessWidget {
+  final ReadingBook book;
+  final VoidCallback onTap;
+
+  const _FeaturedCard({required this.book, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final coverColor = int.tryParse(book.coverColor) ?? 0xFF9B72AA;
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 140,
+        decoration: BoxDecoration(
+          color: isDark ? AppColors.darkSurface : AppColors.surface,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: AppShadows.elevated,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Cover
+            Expanded(
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Color(coverColor), Color(coverColor).withValues(alpha: 0.7)],
+                    begin: Alignment.topLeft, end: Alignment.bottomRight,
+                  ),
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                ),
+                child: Center(
+                  child: Text(book.emoji, style: const TextStyle(fontSize: 42)),
+                ),
+              ),
+            ),
+            // Info
+            Padding(
+              padding: const EdgeInsets.all(10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(book.title,
+                    style: GoogleFonts.notoSansTc(
+                      fontSize: 13, fontWeight: FontWeight.w700,
+                      color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary),
+                    maxLines: 1, overflow: TextOverflow.ellipsis),
+                  const SizedBox(height: 2),
+                  Text(book.category,
+                    style: GoogleFonts.notoSansTc(
+                      fontSize: 10, color: isDark ? AppColors.darkTextMuted : AppColors.textMuted)),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 // ─── Search Bar ───
 class _SearchBar extends StatelessWidget {
   final TextEditingController controller;
@@ -145,20 +279,21 @@ class _SearchBar extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       decoration: BoxDecoration(
-        color: isDark ? AppColors.darkSurface : Colors.white,
+        color: isDark ? AppColors.darkSurface : AppColors.surface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.border),
+        boxShadow: AppShadows.card,
       ),
       child: TextField(
         controller: controller,
         onChanged: onChanged,
         decoration: InputDecoration(
-          hintText: '🔍 搜尋人格類型、主題...',
-          hintStyle: GoogleFonts.notoSansTc(fontSize: 14, color: AppColors.textMuted),
-          prefixIcon: Icon(Icons.search_rounded, color: AppColors.textMuted, size: 22),
+          hintText: '搜尋人格類型、主題...',
+          hintStyle: GoogleFonts.notoSansTc(fontSize: 14, color: isDark ? AppColors.darkTextMuted : AppColors.textMuted),
+          prefixIcon: Icon(Icons.search_rounded, color: isDark ? AppColors.darkTextMuted : AppColors.textMuted, size: 22),
           suffixIcon: controller.text.isNotEmpty
               ? IconButton(
-                  icon: Icon(Icons.clear_rounded, color: AppColors.textMuted, size: 18),
+                  icon: Icon(Icons.clear_rounded, color: isDark ? AppColors.darkTextMuted : AppColors.textMuted, size: 18),
                   onPressed: () { controller.clear(); onChanged(''); },
                 )
               : null,
@@ -191,21 +326,32 @@ class _ComboMap extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
-            Text('🗺️', style: const TextStyle(fontSize: 20)),
+            Container(
+              width: 28, height: 28,
+              decoration: BoxDecoration(
+                color: AppColors.accentDusty.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(Icons.grid_view_rounded, size: 16, color: AppColors.accentDusty),
+            ),
             const SizedBox(width: 8),
             Text('144 Combo 圖譜',
               style: GoogleFonts.notoSerifTc(
-                fontSize: 20, fontWeight: FontWeight.w800, color: AppColors.textPrimary)),
+                fontSize: 20, fontWeight: FontWeight.w800,
+                color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary)),
           ],
         ),
         const SizedBox(height: 4),
-        Text('彩色 = 已讀，灰色 = 未讀',
-          style: GoogleFonts.notoSansTc(fontSize: 12, color: AppColors.textMuted)),
+        Text('彩色 = 已讀，灰色 = 未讀 · 點擊方格即睇對應內容',
+          style: GoogleFonts.notoSansTc(fontSize: 12,
+            color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary)),
         const SizedBox(height: 12),
 
         // Horizontal scroll for the grid
@@ -219,11 +365,12 @@ class _ComboMap extends StatelessWidget {
                 // Column headers (Enneagram numbers)
                 Row(
                   children: [
-                    const SizedBox(width: 48), // space for row labels
+                    const SizedBox(width: 48),
                     ...enneaTypes.map((e) => SizedBox(
                       width: 28,
                       child: Center(child: Text(e,
-                        style: GoogleFonts.notoSansTc(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.textMuted))),
+                        style: GoogleFonts.notoSansTc(fontSize: 11, fontWeight: FontWeight.w700,
+                          color: isDark ? AppColors.darkTextMuted : AppColors.textMuted))),
                     )),
                   ],
                 ),
@@ -241,7 +388,7 @@ class _ComboMap extends StatelessWidget {
                             style: GoogleFonts.notoSansTc(
                               fontSize: 10,
                               fontWeight: isUserType ? FontWeight.w800 : FontWeight.w500,
-                              color: isUserType ? AppColors.purple : AppColors.textMuted,
+                              color: isUserType ? AppColors.accentDusty : (isDark ? AppColors.darkTextMuted : AppColors.textMuted),
                             )),
                         ),
                         ...enneaTypes.map((ennea) {
@@ -255,15 +402,15 @@ class _ComboMap extends StatelessWidget {
                               margin: const EdgeInsets.only(right: 2),
                               decoration: BoxDecoration(
                                 color: isRead
-                                    ? AppColors.purple.withValues(alpha: 0.6)
-                                    : AppColors.textMuted.withValues(alpha: 0.1),
+                                    ? AppColors.accentDusty.withValues(alpha: 0.5)
+                                    : (isDark ? AppColors.darkBorder : AppColors.border),
                                 borderRadius: BorderRadius.circular(6),
                                 border: isUserType
-                                    ? Border.all(color: AppColors.purple.withValues(alpha: 0.4))
+                                    ? Border.all(color: AppColors.accentDusty.withValues(alpha: 0.5))
                                     : null,
                               ),
                               child: isUserType
-                                  ? Center(child: Icon(Icons.star, size: 12, color: AppColors.mustard))
+                                  ? Center(child: Icon(Icons.star, size: 12, color: AppColors.accentGold))
                                   : null,
                             ),
                           );
@@ -308,10 +455,11 @@ class _SearchResults extends StatelessWidget {
         child: Center(
           child: Column(
             children: [
-              Text('🔍', style: const TextStyle(fontSize: 48)),
+              Icon(Icons.search_off_rounded, size: 48, color: AppColors.textMuted),
               const SizedBox(height: 12),
               Text('搵唔到相關結果',
-                style: GoogleFonts.notoSansTc(fontSize: 16, color: AppColors.textMuted)),
+                style: GoogleFonts.notoSansTc(fontSize: 16,
+                  color: AppColors.textMuted)),
             ],
           ),
         ),
@@ -322,7 +470,8 @@ class _SearchResults extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text('搜尋結果 (${results.length})',
-          style: GoogleFonts.notoSansTc(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textSecondary)),
+          style: GoogleFonts.notoSansTc(fontSize: 14, fontWeight: FontWeight.w600,
+            color: AppColors.textSecondary)),
         const SizedBox(height: 12),
         ...results.map((book) => Padding(
           padding: const EdgeInsets.only(bottom: 8),
@@ -348,9 +497,10 @@ class _BookSearchTile extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: isDark ? AppColors.darkSurface : Colors.white,
+          color: isDark ? AppColors.darkSurface : AppColors.surface,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.border),
+          boxShadow: AppShadows.card,
         ),
         child: Row(
           children: [
@@ -371,12 +521,14 @@ class _BookSearchTile extends StatelessWidget {
                     style: GoogleFonts.notoSansTc(fontSize: 15, fontWeight: FontWeight.w700,
                       color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary)),
                   Text(book.subtitle,
-                    style: GoogleFonts.notoSansTc(fontSize: 11, color: AppColors.textMuted),
+                    style: GoogleFonts.notoSansTc(fontSize: 11,
+                      color: isDark ? AppColors.darkTextMuted : AppColors.textMuted),
                     maxLines: 1, overflow: TextOverflow.ellipsis),
                 ],
               ),
             ),
-            Icon(Icons.chevron_right_rounded, color: AppColors.textMuted, size: 20),
+            Icon(Icons.chevron_right_rounded,
+              color: isDark ? AppColors.darkTextMuted : AppColors.textMuted, size: 20),
           ],
         ),
       ),
@@ -387,11 +539,13 @@ class _BookSearchTile extends StatelessWidget {
 // ─── Category Section ───
 class _CategorySection extends StatelessWidget {
   final String title;
+  final String emoji;
   final List<ReadingBook> books;
   final void Function(ReadingBook) onTap;
 
   const _CategorySection({
     required this.title,
+    required this.emoji,
     required this.books,
     required this.onTap,
   });
@@ -400,12 +554,20 @@ class _CategorySection extends StatelessWidget {
   Widget build(BuildContext context) {
     if (books.isEmpty) return const SizedBox();
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title,
-          style: GoogleFonts.notoSerifTc(
-            fontSize: 18, fontWeight: FontWeight.w800, color: AppColors.textPrimary)),
+        Row(
+          children: [
+            Text('$emoji ', style: const TextStyle(fontSize: 18)),
+            Text(title,
+              style: GoogleFonts.notoSerifTc(
+                fontSize: 18, fontWeight: FontWeight.w800,
+                color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary)),
+          ],
+        ),
         const SizedBox(height: 12),
         SizedBox(
           height: 180,
@@ -439,15 +601,9 @@ class _HorizontalBookCard extends StatelessWidget {
       child: Container(
         width: 130,
         decoration: BoxDecoration(
-          color: isDark ? AppColors.darkSurface : Colors.white,
+          color: isDark ? AppColors.darkSurface : AppColors.surface,
           borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
-              blurRadius: 10,
-              offset: const Offset(0, 3),
-            ),
-          ],
+          boxShadow: AppShadows.card,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

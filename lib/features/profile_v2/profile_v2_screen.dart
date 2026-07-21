@@ -1,9 +1,6 @@
 // ═══════════════════════════════════════════════════════════════════════
-// ProfileV2Screen — 👤 我 (Tab 4)
-// 閱讀統計Dashboard（已探索combo數、閱讀時數、連續日數）
-// 用戶MBTI+九型結果
-// 設定（語言風格toggle、深色模式、字體大小）
-// 年齡選擇器（Life Stage Lens）
+// ProfileV2Screen — 👤 我 (Tab 4) — Edition 4
+// MBTI type card + 閱讀統計Dashboard + 設定
 // ═══════════════════════════════════════════════════════════════════════
 
 import 'package:flutter/material.dart';
@@ -55,19 +52,18 @@ class _ProfileV2ScreenState extends State<ProfileV2Screen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final completedIds = _settings.getCompletedBookIds();
     final allBooks = ReadingContentProvider.allBooks;
-    final bgColor = isDark ? AppColors.darkBackground : AppColors.background;
 
     return Container(
-      color: bgColor,
+      color: isDark ? AppColors.darkBackground : AppColors.background,
       child: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(20, 16, 20, 40),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // ── Header ──
-            Text('👤 我',
+            Text('我',
               style: GoogleFonts.notoSerifTc(
-                fontSize: 28, fontWeight: FontWeight.w900,
+                fontSize: 24, fontWeight: FontWeight.w900,
                 color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary)),
             const SizedBox(height: 16),
 
@@ -90,19 +86,33 @@ class _ProfileV2ScreenState extends State<ProfileV2Screen> {
             const SizedBox(height: 24),
 
             // ── Settings Section ──
-            Text('⚙️ 設定',
-              style: GoogleFonts.notoSerifTc(
-                fontSize: 20, fontWeight: FontWeight.w800,
-                color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary)),
+            Row(
+              children: [
+                Container(
+                  width: 24, height: 24,
+                  decoration: BoxDecoration(
+                    color: AppColors.accentEarth.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(7),
+                  ),
+                  child: const Icon(Icons.settings_outlined, size: 14, color: AppColors.accentEarth),
+                ),
+                const SizedBox(width: 8),
+                Text('設定',
+                  style: GoogleFonts.notoSerifTc(
+                    fontSize: 18, fontWeight: FontWeight.w800,
+                    color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary)),
+              ],
+            ),
             const SizedBox(height: 12),
 
             // Dark mode toggle
             _SettingsTile(
-              icon: isDark ? '🌙' : '☀️',
+              icon: isDark ? Icons.dark_mode_rounded : Icons.light_mode_rounded,
+              iconColor: isDark ? AppColors.accentDusty : AppColors.accentGold,
               title: '深色模式',
               trailing: Switch.adaptive(
                 value: _settings.darkMode,
-                activeColor: AppColors.purple,
+                activeColor: AppColors.accentDusty,
                 onChanged: (v) {
                   _settings.darkMode = v;
                   widget.onThemeChanged?.call();
@@ -114,12 +124,13 @@ class _ProfileV2ScreenState extends State<ProfileV2Screen> {
 
             // Language style toggle
             _SettingsTile(
-              icon: _settings.isNaturalCanto ? '🗣️' : '📝',
+              icon: Icons.translate_rounded,
+              iconColor: AppColors.accentSage,
               title: '語言風格',
               subtitle: _settings.isNaturalCanto ? '自然粵語' : '書面粵語',
               trailing: Switch.adaptive(
                 value: _settings.isNaturalCanto,
-                activeColor: AppColors.cta,
+                activeColor: AppColors.accentSage,
                 onChanged: (v) {
                   _settings.languageStyle = v ? LanguageStyle.naturalCanto : LanguageStyle.writtenCanto;
                   setState(() {});
@@ -129,67 +140,13 @@ class _ProfileV2ScreenState extends State<ProfileV2Screen> {
             const SizedBox(height: 8),
 
             // Font size
-            _SettingsTile(
-              icon: '🔤',
-              title: '字體大小',
-              subtitle: '${_settings.fontSize.round()}px',
-              trailing: SizedBox(
-                width: 140,
-                child: Row(
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        _settings.fontSize = _settings.fontSize - 2;
-                        setState(() {});
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.all(6),
-                        decoration: BoxDecoration(
-                          color: AppColors.purple.withValues(alpha: 0.08),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: const Icon(Icons.text_decrease, size: 16, color: AppColors.purple),
-                      ),
-                    ),
-                    Expanded(
-                      child: SliderTheme(
-                        data: SliderThemeData(
-                          trackHeight: 4,
-                          thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
-                          overlayShape: const RoundSliderOverlayShape(overlayRadius: 16),
-                          activeTrackColor: AppColors.purple,
-                          inactiveTrackColor: AppColors.purple.withValues(alpha: 0.15),
-                          thumbColor: AppColors.purple,
-                        ),
-                        child: Slider(
-                          value: _settings.fontSize,
-                          min: 12,
-                          max: 24,
-                          divisions: 6,
-                          onChanged: (v) {
-                            _settings.fontSize = v;
-                            setState(() {});
-                          },
-                        ),
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        _settings.fontSize = _settings.fontSize + 2;
-                        setState(() {});
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.all(6),
-                        decoration: BoxDecoration(
-                          color: AppColors.purple.withValues(alpha: 0.08),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: const Icon(Icons.text_increase, size: 16, color: AppColors.purple),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+            _FontSizeTile(
+              currentSize: _settings.fontSize,
+              isDark: isDark,
+              onChanged: (v) {
+                _settings.fontSize = v;
+                setState(() {});
+              },
             ),
             const SizedBox(height: 8),
 
@@ -206,29 +163,44 @@ class _ProfileV2ScreenState extends State<ProfileV2Screen> {
             const SizedBox(height: 24),
 
             // ── Actions ──
-            Text('📋 更多',
-              style: GoogleFonts.notoSerifTc(
-                fontSize: 20, fontWeight: FontWeight.w800,
-                color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary)),
+            Row(
+              children: [
+                Container(
+                  width: 24, height: 24,
+                  decoration: BoxDecoration(
+                    color: AppColors.accentCoral.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(7),
+                  ),
+                  child: const Icon(Icons.more_horiz_rounded, size: 14, color: AppColors.accentCoral),
+                ),
+                const SizedBox(width: 8),
+                Text('更多',
+                  style: GoogleFonts.notoSerifTc(
+                    fontSize: 18, fontWeight: FontWeight.w800,
+                    color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary)),
+              ],
+            ),
             const SizedBox(height: 12),
 
             _ActionTile(
-              icon: '🧪',
+              icon: Icons.replay_rounded,
+              iconColor: AppColors.accentCoral,
               title: '重新做人格測試',
               subtitle: '清除結果，重新開始',
               onTap: widget.onRetakeTest,
             ),
             const SizedBox(height: 8),
             _ActionTile(
-              icon: '⚙️',
+              icon: Icons.tune_rounded,
+              iconColor: AppColors.accentDusty,
               title: '進階設定',
               subtitle: '星座・同意・資料管理',
               onTap: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (_) => SettingsScreen(
-                      accent: AppColors.purple,
-                      accentBg: AppColors.purple.withValues(alpha: 0.12),
+                      accent: AppColors.accentDusty,
+                      accentBg: AppColors.accentDusty.withValues(alpha: 0.12),
                       mbti: widget.mbti,
                       ennea: widget.ennea,
                       onRetakeTest: widget.onRetakeTest,
@@ -239,7 +211,8 @@ class _ProfileV2ScreenState extends State<ProfileV2Screen> {
             ),
             const SizedBox(height: 8),
             _ActionTile(
-              icon: '📄',
+              icon: Icons.assignment_rounded,
+              iconColor: AppColors.accentEarth,
               title: '完整人格報告',
               subtitle: 'MBTI 九型深度分析',
               onTap: () {},
@@ -273,16 +246,16 @@ class _TypeCard extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppColors.purple,
-            AppColors.purple.withValues(alpha: 0.85),
+            AppColors.accentEarth,
+            AppColors.accentEarth.withValues(alpha: 0.85),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: AppColors.purple.withValues(alpha: 0.3),
+            color: AppColors.accentEarth.withValues(alpha: 0.3),
             blurRadius: 20,
             offset: const Offset(0, 6),
           ),
@@ -291,20 +264,20 @@ class _TypeCard extends StatelessWidget {
       child: Column(
         children: [
           Container(
-            width: 64, height: 64,
+            width: 60, height: 60,
             decoration: BoxDecoration(
               color: Colors.white.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(18),
+              borderRadius: BorderRadius.circular(16),
             ),
             child: Center(child: Text(
               isCompleted ? _getEmoji(mbti) : '🧠',
-              style: const TextStyle(fontSize: 34))),
+              style: const TextStyle(fontSize: 32))),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
           Text(
             isCompleted ? _getName(mbti) : '未進行測試',
             style: GoogleFonts.notoSerifTc(
-              fontSize: 22, fontWeight: FontWeight.w900, color: Colors.white)),
+              fontSize: 20, fontWeight: FontWeight.w900, color: Colors.white)),
           const SizedBox(height: 6),
           if (isCompleted)
             Container(
@@ -317,12 +290,12 @@ class _TypeCard extends StatelessWidget {
                 style: GoogleFonts.notoSansTc(
                   fontSize: 14, fontWeight: FontWeight.w700, color: Colors.white)),
             ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
           if (onRetake != null)
             GestureDetector(
               onTap: onRetake,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 7),
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(12),
@@ -379,23 +352,51 @@ class _StatsDashboard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.darkSurface : Colors.white,
+        color: isDark ? AppColors.darkSurface : AppColors.surface,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.border),
+        boxShadow: AppShadows.card,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('📊 閱讀統計',
-            style: GoogleFonts.notoSerifTc(
-              fontSize: 18, fontWeight: FontWeight.w800,
-              color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary)),
+          Row(
+            children: [
+              Container(
+                width: 24, height: 24,
+                decoration: BoxDecoration(
+                  color: AppColors.accentEarth.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(7),
+                ),
+                child: const Icon(Icons.bar_chart_rounded, size: 14, color: AppColors.accentEarth),
+              ),
+              const SizedBox(width: 8),
+              Text('閱讀統計',
+                style: GoogleFonts.notoSerifTc(
+                  fontSize: 16, fontWeight: FontWeight.w800,
+                  color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary)),
+            ],
+          ),
           const SizedBox(height: 16),
           Row(
             children: [
-              Expanded(child: _StatTile(icon: '🗺️', value: '$comboCount', label: '已探索Combo', accent: AppColors.purple)),
-              Expanded(child: _StatTile(icon: '⏱️', value: '${hours}h', label: '閱讀時數', accent: AppColors.cta)),
-              Expanded(child: _StatTile(icon: '🔥', value: '$streakDays', label: '連續日數', accent: AppColors.mustard)),
+              Expanded(child: _StatTile(
+                icon: Icons.grid_view_rounded,
+                value: '$comboCount',
+                label: '已探索Combo',
+                accent: AppColors.accentDusty,
+              )),
+              Expanded(child: _StatTile(
+                icon: Icons.timer_outlined,
+                value: '${hours}h',
+                label: '閱讀時數',
+                accent: AppColors.accentCoral,
+              )),
+              Expanded(child: _StatTile(
+                icon: Icons.local_fire_department_rounded,
+                value: '$streakDays',
+                label: '連續日數',
+                accent: AppColors.accentGold,
+              )),
             ],
           ),
           const SizedBox(height: 12),
@@ -405,8 +406,8 @@ class _StatsDashboard extends StatelessWidget {
             child: LinearProgressIndicator(
               value: totalBooks > 0 ? completedBooks / totalBooks : 0,
               minHeight: 8,
-              backgroundColor: AppColors.purple.withValues(alpha: 0.1),
-              valueColor: AlwaysStoppedAnimation<Color>(AppColors.purple),
+              backgroundColor: AppColors.accentEarth.withValues(alpha: 0.1),
+              valueColor: const AlwaysStoppedAnimation<Color>(AppColors.accentEarth),
             ),
           ),
           const SizedBox(height: 6),
@@ -414,9 +415,11 @@ class _StatsDashboard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text('書本完成度',
-                style: GoogleFonts.notoSansTc(fontSize: 12, color: AppColors.textMuted)),
+                style: GoogleFonts.notoSansTc(fontSize: 12,
+                  color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary)),
               Text('$completedBooks/$totalBooks',
-                style: GoogleFonts.notoSansTc(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.purple)),
+                style: GoogleFonts.notoSansTc(fontSize: 12, fontWeight: FontWeight.w600,
+                  color: AppColors.accentEarth)),
             ],
           ),
         ],
@@ -426,7 +429,8 @@ class _StatsDashboard extends StatelessWidget {
 }
 
 class _StatTile extends StatelessWidget {
-  final String icon, value, label;
+  final IconData icon;
+  final String value, label;
   final Color accent;
   const _StatTile({required this.icon, required this.value, required this.label, required this.accent});
 
@@ -434,7 +438,7 @@ class _StatTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text(icon, style: const TextStyle(fontSize: 24)),
+        Icon(icon, size: 22, color: accent),
         const SizedBox(height: 4),
         Text(value,
           style: GoogleFonts.notoSerifTc(
@@ -448,13 +452,16 @@ class _StatTile extends StatelessWidget {
 
 // ─── Settings Tile ───
 class _SettingsTile extends StatelessWidget {
-  final String icon, title;
+  final IconData icon;
+  final Color iconColor;
+  final String title;
   final String? subtitle;
   final Widget? trailing;
   final VoidCallback? onTap;
 
   const _SettingsTile({
     required this.icon,
+    required this.iconColor,
     required this.title,
     this.subtitle,
     this.trailing,
@@ -469,13 +476,14 @@ class _SettingsTile extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          color: isDark ? AppColors.darkSurface : Colors.white,
+          color: isDark ? AppColors.darkSurface : AppColors.surface,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.border),
+          boxShadow: AppShadows.card,
         ),
         child: Row(
           children: [
-            Text(icon, style: const TextStyle(fontSize: 20)),
+            Icon(icon, size: 20, color: iconColor),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -486,13 +494,96 @@ class _SettingsTile extends StatelessWidget {
                       color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary)),
                   if (subtitle != null)
                     Text(subtitle!,
-                      style: GoogleFonts.notoSansTc(fontSize: 12, color: AppColors.textMuted)),
+                      style: GoogleFonts.notoSansTc(fontSize: 12,
+                        color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary)),
                 ],
               ),
             ),
             if (trailing != null) trailing!,
           ],
         ),
+      ),
+    );
+  }
+}
+
+// ─── Font Size Tile ───
+class _FontSizeTile extends StatelessWidget {
+  final double currentSize;
+  final bool isDark;
+  final ValueChanged<double> onChanged;
+
+  const _FontSizeTile({
+    required this.currentSize,
+    required this.isDark,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.darkSurface : AppColors.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.border),
+        boxShadow: AppShadows.card,
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.text_fields_rounded, size: 20, color: AppColors.accentEarth),
+          const SizedBox(width: 12),
+          Text('字體大小',
+            style: GoogleFonts.notoSansTc(fontSize: 15, fontWeight: FontWeight.w600,
+              color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary)),
+          const Spacer(),
+          GestureDetector(
+            onTap: () => onChanged((currentSize - 2).clamp(12, 24)),
+            child: Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: AppColors.accentEarth.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(Icons.text_decrease, size: 16, color: AppColors.accentEarth),
+            ),
+          ),
+          SizedBox(
+            width: 80,
+            child: SliderTheme(
+              data: SliderThemeData(
+                trackHeight: 4,
+                thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
+                overlayShape: const RoundSliderOverlayShape(overlayRadius: 16),
+                activeTrackColor: AppColors.accentEarth,
+                inactiveTrackColor: AppColors.accentEarth.withValues(alpha: 0.15),
+                thumbColor: AppColors.accentEarth,
+              ),
+              child: Slider(
+                value: currentSize,
+                min: 12,
+                max: 24,
+                divisions: 6,
+                onChanged: onChanged,
+              ),
+            ),
+          ),
+          GestureDetector(
+            onTap: () => onChanged((currentSize + 2).clamp(12, 24)),
+            child: Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: AppColors.accentEarth.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(Icons.text_increase, size: 16, color: AppColors.accentEarth),
+            ),
+          ),
+          const SizedBox(width: 4),
+          Text('${currentSize.round()}',
+            style: GoogleFonts.notoSansTc(fontSize: 13, fontWeight: FontWeight.w600,
+              color: AppColors.accentEarth)),
+        ],
       ),
     );
   }
@@ -517,16 +608,17 @@ class _AgeSelector extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.darkSurface : Colors.white,
+        color: isDark ? AppColors.darkSurface : AppColors.surface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.border),
+        boxShadow: AppShadows.card,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Text('🎂', style: const TextStyle(fontSize: 18)),
+              const Icon(Icons.celebration_rounded, size: 18, color: AppColors.accentCoral),
               const SizedBox(width: 8),
               Text('Life Stage Lens',
                 style: GoogleFonts.notoSansTc(fontSize: 15, fontWeight: FontWeight.w600,
@@ -535,44 +627,53 @@ class _AgeSelector extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
-                  color: AppColors.cta.withValues(alpha: 0.1),
+                  color: AppColors.accentCoral.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text('年齡篩選',
-                  style: GoogleFonts.notoSansTc(fontSize: 10, fontWeight: FontWeight.w600, color: AppColors.cta)),
+                  style: GoogleFonts.notoSansTc(fontSize: 10, fontWeight: FontWeight.w600,
+                    color: AppColors.accentCoral)),
               ),
             ],
           ),
           const SizedBox(height: 12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: List.generate(labels.length, (i) {
-              final isSelected = values[i] == currentValue;
-              return GestureDetector(
-                onTap: () => onChanged(values[i]),
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 250),
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                  decoration: BoxDecoration(
-                    color: isSelected ? AppColors.cta.withValues(alpha: 0.12) : Colors.transparent,
-                    borderRadius: BorderRadius.circular(12),
-                    border: isSelected
-                        ? Border.all(color: AppColors.cta.withValues(alpha: 0.3))
-                        : null,
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: List.generate(labels.length, (i) {
+                final isSelected = values[i] == currentValue;
+                return Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: GestureDetector(
+                    onTap: () => onChanged(values[i]),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 250),
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: isSelected ? AppColors.accentCoral.withValues(alpha: 0.12) : Colors.transparent,
+                        borderRadius: BorderRadius.circular(12),
+                        border: isSelected
+                            ? Border.all(color: AppColors.accentCoral.withValues(alpha: 0.3))
+                            : null,
+                      ),
+                      child: Text(labels[i],
+                        style: GoogleFonts.notoSansTc(
+                          fontSize: 13,
+                          fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                          color: isSelected ? AppColors.accentCoral : (isDark ? AppColors.darkTextSecondary : AppColors.textMuted),
+                        )),
+                    ),
                   ),
-                  child: Text(labels[i],
-                    style: GoogleFonts.notoSansTc(
-                      fontSize: 13,
-                      fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                      color: isSelected ? AppColors.cta : AppColors.textMuted,
-                    )),
-                ),
-              );
-            }),
+                );
+              }),
+            ),
           ),
           const SizedBox(height: 8),
           Text('內容將根據你嘅人生階段調整',
-            style: GoogleFonts.notoSansTc(fontSize: 11, color: AppColors.textMuted, fontStyle: FontStyle.italic)),
+            style: GoogleFonts.notoSansTc(fontSize: 11,
+              color: isDark ? AppColors.darkTextMuted : AppColors.textMuted,
+              fontStyle: FontStyle.italic)),
         ],
       ),
     );
@@ -581,11 +682,14 @@ class _AgeSelector extends StatelessWidget {
 
 // ─── Action Tile ───
 class _ActionTile extends StatelessWidget {
-  final String icon, title, subtitle;
+  final IconData icon;
+  final Color iconColor;
+  final String title, subtitle;
   final VoidCallback? onTap;
 
   const _ActionTile({
     required this.icon,
+    required this.iconColor,
     required this.title,
     required this.subtitle,
     this.onTap,
@@ -599,13 +703,14 @@ class _ActionTile extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: isDark ? AppColors.darkSurface : Colors.white,
+          color: isDark ? AppColors.darkSurface : AppColors.surface,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.border),
+          boxShadow: AppShadows.card,
         ),
         child: Row(
           children: [
-            Text(icon, style: const TextStyle(fontSize: 22)),
+            Icon(icon, size: 22, color: iconColor),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -615,11 +720,13 @@ class _ActionTile extends StatelessWidget {
                     style: GoogleFonts.notoSansTc(fontSize: 15, fontWeight: FontWeight.w600,
                       color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary)),
                   Text(subtitle,
-                    style: GoogleFonts.notoSansTc(fontSize: 12, color: AppColors.textMuted)),
+                    style: GoogleFonts.notoSansTc(fontSize: 12,
+                      color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary)),
                 ],
               ),
             ),
-            Icon(Icons.chevron_right_rounded, color: AppColors.textMuted, size: 20),
+            Icon(Icons.chevron_right_rounded,
+              color: isDark ? AppColors.darkTextMuted : AppColors.textMuted, size: 20),
           ],
         ),
       ),

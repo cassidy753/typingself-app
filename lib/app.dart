@@ -49,7 +49,6 @@ class _TypingselfAppState extends State<TypingselfApp> {
   @override
   Widget build(BuildContext context) {
     if (!_loaded) {
-      // Show splash immediately — theme will snap once loaded
       return MaterialApp(
         title: 'Typingself | 型得你',
         debugShowCheckedModeBanner: false,
@@ -114,7 +113,6 @@ class _AppRootState extends State<AppRoot> {
   }
 
   void _onRetakeTest() {
-    // Clear old results before starting fresh assessment
     SharedPreferences.getInstance().then((prefs) {
       prefs.remove('mbti');
       prefs.remove('ennea');
@@ -126,13 +124,11 @@ class _AppRootState extends State<AppRoot> {
         builder: (_) => AssessmentIntroScreen(
           engine: DecisionTreeEngine(),
           onComplete: (mbti, ennea) {
-            // Save new results
             SharedPreferences.getInstance().then((prefs) {
               prefs.setString('mbti', mbti);
               prefs.setString('ennea', ennea);
               prefs.setBool('test_done', true);
             });
-            // Pop back and refresh state
             if (mounted) {
               Navigator.of(context).popUntil((route) => route.isFirst);
               _check();
@@ -158,15 +154,15 @@ class _AppRootState extends State<AppRoot> {
   }
 }
 
-
-// ──────── 4-TAB CONFIG ────────
-class _Tab4 {
-  final String icon, label;
-  final Color accent, accentBg;
-  const _Tab4(this.icon, this.label, this.accent, this.accentBg);
+// ──────── TAB CONFIG ────────
+class _TabItem {
+  final IconData icon;
+  final IconData activeIcon;
+  final String label;
+  const _TabItem(this.icon, this.activeIcon, this.label);
 }
 
-// ──────── MAIN SHELL (4 tabs) ────────
+// ──────── MAIN SHELL 4 (Edition 4 — Apple Books style) ────────
 class MainShell4 extends StatefulWidget {
   final String mbti;
   final String ennea;
@@ -180,20 +176,21 @@ class MainShell4 extends StatefulWidget {
   State<MainShell4> createState() => _MainShell4State();
 }
 
-class _MainShell4State extends State<MainShell4> {
+class _MainShell4State extends State<MainShell4> with SingleTickerProviderStateMixin {
   int _tab = 0;
+  late final PageController _pageCtrl;
 
-  static const _tabs = <_Tab4>[
-    _Tab4('📚', '書架', Color(0xFF9B72AA), Color(0x209B72AA)),  // Purple
-    _Tab4('🔍', '探索', Color(0xFFD4A843), Color(0x20D4A843)),  // Mustard
-    _Tab4('💬', '動態', Color(0xFF8FA87A), Color(0x208FA87A)),  // Sage
-    _Tab4('👤', '我',   Color(0xFFE0785A), Color(0x20E0785A)),  // Coral
+  static const _tabs = <_TabItem>[
+    _TabItem(Icons.library_books_outlined, Icons.library_books_rounded, '書架'),
+    _TabItem(Icons.explore_outlined, Icons.explore_rounded, '探索'),
+    _TabItem(Icons.dynamic_feed_outlined, Icons.dynamic_feed_rounded, '動態'),
+    _TabItem(Icons.person_outline_rounded, Icons.person_rounded, '我'),
   ];
 
   @override
   void initState() {
     super.initState();
-    // Handle deep link navigation after first frame
+    _pageCtrl = PageController(initialPage: 0);
     if (widget.pendingFriendMbti != null && widget.pendingFriendEnnea != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _openCompareWithFriend();
@@ -201,11 +198,16 @@ class _MainShell4State extends State<MainShell4> {
     }
   }
 
-  /// Open compare screen with a friend's type from a deep link
+  @override
+  void dispose() {
+    _pageCtrl.dispose();
+    super.dispose();
+  }
+
   void _openCompareWithFriend() {
     if (widget.pendingFriendMbti == null || widget.pendingFriendEnnea == null) return;
-    final accent = AppColors.purple;
-    final accentBg = Color(0x209B72AA);
+    final accent = AppColors.accentDusty;
+    final accentBg = AppColors.accentDusty.withValues(alpha: 0.12);
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => CompareScreen(
@@ -221,7 +223,6 @@ class _MainShell4State extends State<MainShell4> {
     );
   }
 
-  /// Navigate to settings with dark mode change callback.
   void _openSettings(Color accent, Color accentBg) {
     Navigator.of(context).push(
       MaterialPageRoute(
@@ -234,105 +235,108 @@ class _MainShell4State extends State<MainShell4> {
         ),
       ),
     ).then((_) {
-      // When coming back from settings, refresh theme
       widget.onThemeChanged?.call();
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final t = _tabs[_tab];
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final reduceMotion = MediaQuery.of(context).disableAnimations;
-
-    // Dynamic background color based on theme
-    final bgColor = isDark
-        ? Color.lerp(AppColors.darkBackground, t.accent, 0.08) ?? AppColors.darkBackground
-        : Color.lerp(AppColors.background, t.accent, 0.12) ?? AppColors.background;
+    final accentColors = [
+      AppColors.accentDusty,
+      AppColors.accentSage,
+      AppColors.accentGold,
+      AppColors.accentCoral,
+    ];
+    final accent = accentColors[_tab];
 
     return Scaffold(
-      backgroundColor: bgColor,
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(52),
-        child: SafeArea(
-          child: Container(
-            decoration: BoxDecoration(
-              color: isDark
-                  ? t.accent.withValues(alpha: 0.05)
-                  : t.accent.withValues(alpha: 0.06),
-              border: Border(bottom: BorderSide(color: t.accent.withValues(alpha: 0.15))),
+      backgroundColor: isDark ? AppColors.darkBackground : AppColors.background,
+      body: Column(
+        children: [
+          // ── Thin AppBar (Apple Books style) ──
+          _buildAppBar(isDark, accent),
+
+          // ── Page content ──
+          Expanded(
+            child: PageView(
+              controller: _pageCtrl,
+              physics: const ClampingScrollPhysics(),
+              onPageChanged: (i) => setState(() => _tab = i),
+              children: [
+                BookshelfScreen(key: const ValueKey('b'), mbti: widget.mbti, ennea: widget.ennea),
+                ExploreGridScreen(key: const ValueKey('e'), mbti: widget.mbti, ennea: widget.ennea, onRetakeTest: widget.onRetakeTest),
+                FeedScreen(key: const ValueKey('f'), mbti: widget.mbti, ennea: widget.ennea),
+                ProfileV2Screen(key: const ValueKey('p'), mbti: widget.mbti, ennea: widget.ennea,
+                  onRetakeTest: widget.onRetakeTest, onThemeChanged: widget.onThemeChanged),
+              ],
             ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: SizedBox(
-                height: 52,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(children: [
-                      Container(
-                        width: 30, height: 30,
-                        decoration: BoxDecoration(
-                          color: AppColors.purple.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(9),
-                        ),
-                        child: Center(
-                          child: Semantics(
-                            label: 'Typingself',
-                            child: Text('TS', style: GoogleFonts.notoSerifTc(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w900,
-                              color: AppColors.purple,
-                            )),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      Text('Typingself | 型得你', style: GoogleFonts.notoSerifTc(fontSize: 15, fontWeight: FontWeight.w900,
-                        color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary)),
-                    ]),
-                  ],
-                ),
-              ),
-            ),
+          ),
+        ],
+      ),
+      bottomNavigationBar: _buildBottomNav(isDark, accent),
+    );
+  }
+
+  Widget _buildAppBar(bool isDark, Color accent) {
+    final tabLabels = ['書架', '探索', '動態', '我'];
+    return Container(
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.darkSurface : AppColors.surface,
+        border: Border(
+          bottom: BorderSide(
+            color: isDark ? AppColors.darkBorder : AppColors.border,
+            width: 0.5,
           ),
         ),
       ),
-      body: reduceMotion
-          ? _buildScreen()
-          : AnimatedSwitcher(
-              duration: const Duration(milliseconds: 400),
-              switchInCurve: Curves.easeOutCubic,
-              switchOutCurve: Curves.easeInCubic,
-              transitionBuilder: (child, animation) {
-                return SlideTransition(
-                  position: Tween<Offset>(
-                    begin: const Offset(0, 0.06),
-                    end: Offset.zero,
-                  ).animate(CurvedAnimation(
-                    parent: animation,
-                    curve: Curves.easeOutCubic,
-                  )),
-                  child: FadeTransition(
-                    opacity: animation,
-                    child: child,
-                  ),
-                );
-              },
-              child: _buildScreen(),
-            ),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: isDark ? AppColors.darkSurface : AppColors.surface,
-          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 20, offset: const Offset(0, -4))],
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-        ),
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(8, 6, 8, 10),
+      child: SafeArea(
+        bottom: false,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: SizedBox(
+            height: 48,
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: List.generate(4, (i) => _navItem(i)),
+              children: [
+                // Logo
+                Row(
+                  children: [
+                    Container(
+                      width: 26, height: 26,
+                      decoration: BoxDecoration(
+                        color: accent.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(7),
+                      ),
+                      child: Center(
+                        child: Text('TS',
+                          style: GoogleFonts.notoSerifTc(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w900,
+                            color: accent,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Text('型得你',
+                      style: GoogleFonts.notoSerifTc(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
+                      ),
+                    ),
+                  ],
+                ),
+                const Spacer(),
+                // Tab label
+                Text(tabLabels[_tab],
+                  style: GoogleFonts.notoSansTc(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                    color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
+                  ),
+                ),
+              ],
             ),
           ),
         ),
@@ -340,56 +344,78 @@ class _MainShell4State extends State<MainShell4> {
     );
   }
 
-  Widget _buildScreen() {
-    switch (_tab) {
-      case 0:
-        return BookshelfScreen(key: const ValueKey('b'), mbti: widget.mbti, ennea: widget.ennea);
-      case 1:
-        return ExploreGridScreen(key: const ValueKey('e'), mbti: widget.mbti, ennea: widget.ennea, onRetakeTest: widget.onRetakeTest);
-      case 2:
-        return FeedScreen(key: const ValueKey('f'), mbti: widget.mbti, ennea: widget.ennea);
-      case 3:
-        return ProfileV2Screen(key: const ValueKey('p'), mbti: widget.mbti, ennea: widget.ennea,
-          onRetakeTest: widget.onRetakeTest, onThemeChanged: widget.onThemeChanged);
-      default:
-        return const SizedBox();
-    }
-  }
-
-  Widget _navItem(int i) {
-    final active = _tab == i;
-    final t = _tabs[i];
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    return Semantics(
-      label: t.label,
-      button: true,
-      selected: active,
-      child: GestureDetector(
-        onTap: () => setState(() => _tab = i),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeOutCubic,
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-          constraints: const BoxConstraints(minHeight: 44, minWidth: 44),
-          decoration: BoxDecoration(
-            color: active ? t.accentBg : Colors.transparent,
-            borderRadius: BorderRadius.circular(14),
+  Widget _buildBottomNav(bool isDark, Color accent) {
+    return Container(
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.darkSurface : AppColors.surface,
+        border: Border(
+          top: BorderSide(
+            color: isDark ? AppColors.darkBorder : AppColors.border,
+            width: 0.5,
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              AnimatedDefaultTextStyle(
-                duration: const Duration(milliseconds: 300),
-                style: TextStyle(fontSize: active ? 22 : 20, color: active ? t.accent : (isDark ? AppColors.darkTextMuted : AppColors.textMuted)),
-                child: Text(t.icon),
-              ),
-              const SizedBox(height: 2),
-              Text(t.label, style: TextStyle(
-                fontSize: 11,
-                fontWeight: active ? FontWeight.w700 : FontWeight.w400,
-                color: active ? t.accent : (isDark ? AppColors.darkTextMuted : AppColors.textMuted),
-              )),
-            ],
+        ),
+      ),
+      child: SafeArea(
+        top: false,
+        child: SizedBox(
+          height: 56,
+          child: Row(
+            children: List.generate(4, (i) {
+              final active = _tab == i;
+              final t = _tabs[i];
+              return Expanded(
+                child: Semantics(
+                  label: t.label,
+                  button: true,
+                  selected: active,
+                  child: GestureDetector(
+                    onTap: () {
+                      if (_tab == i) return;
+                      setState(() => _tab = i);
+                      _pageCtrl.animateToPage(i,
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeOutCubic,
+                      );
+                    },
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        // Active indicator dot
+                        AnimatedContainer(
+                          duration: const Duration(milliseconds: 250),
+                          width: active ? 20 : 0,
+                          height: 3,
+                          margin: const EdgeInsets.only(bottom: 4),
+                          decoration: BoxDecoration(
+                            color: accent,
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                        ),
+                        // Icon
+                        Icon(
+                          active ? t.activeIcon : t.icon,
+                          size: 22,
+                          color: active
+                              ? accent
+                              : (isDark ? AppColors.darkTextMuted : AppColors.textMuted),
+                        ),
+                        const SizedBox(height: 2),
+                        // Label
+                        Text(t.label,
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: active ? FontWeight.w600 : FontWeight.w400,
+                            color: active
+                                ? accent
+                                : (isDark ? AppColors.darkTextMuted : AppColors.textMuted),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            }),
           ),
         ),
       ),

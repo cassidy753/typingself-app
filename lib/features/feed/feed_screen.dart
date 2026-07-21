@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════════════
-// FeedScreen — 💬 動態 (Tab 3)
+// FeedScreen — 💬 動態 (Tab 3) — Edition 4
 // 閱讀成就通知 + 閱讀紀錄timeline
 // ═══════════════════════════════════════════════════════════════════════
 
@@ -54,13 +54,14 @@ class _FeedScreenState extends State<FeedScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('💬 動態',
+                  Text('動態',
                     style: GoogleFonts.notoSerifTc(
-                      fontSize: 28, fontWeight: FontWeight.w900,
+                      fontSize: 24, fontWeight: FontWeight.w900,
                       color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary)),
                   const SizedBox(height: 4),
                   Text('你嘅閱讀旅程記錄',
-                    style: GoogleFonts.notoSansTc(fontSize: 14, color: AppColors.textMuted)),
+                    style: GoogleFonts.notoSansTc(fontSize: 14,
+                      color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary)),
                 ],
               ),
             ),
@@ -75,14 +76,27 @@ class _FeedScreenState extends State<FeedScreen> {
             ),
           ),
 
-          // ── Activity timeline ──
+          // ── Timeline section ──
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
-              child: Text('📜 閱讀紀錄',
-                style: GoogleFonts.notoSerifTc(
-                  fontSize: 18, fontWeight: FontWeight.w800,
-                  color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary)),
+              padding: const EdgeInsets.fromLTRB(20, 24, 20, 8),
+              child: Row(
+                children: [
+                  Container(
+                    width: 24, height: 24,
+                    decoration: BoxDecoration(
+                      color: AppColors.accentSage.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(7),
+                    ),
+                    child: const Icon(Icons.timeline_rounded, size: 14, color: AppColors.accentSage),
+                  ),
+                  const SizedBox(width: 8),
+                  Text('閱讀紀錄',
+                    style: GoogleFonts.notoSerifTc(
+                      fontSize: 18, fontWeight: FontWeight.w800,
+                      color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary)),
+                ],
+              ),
             ),
           ),
 
@@ -160,16 +174,23 @@ class _AchievementSection extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: isDark ? AppColors.darkSurface : Colors.white,
+          color: isDark ? AppColors.darkSurface : AppColors.surface,
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.border),
+          boxShadow: AppShadows.card,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
-                Text('🏅', style: const TextStyle(fontSize: 18)),
+                Container(
+                  width: 28, height: 28,
+                  decoration: BoxDecoration(
+                    color: AppColors.accentGold.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(Icons.emoji_events_rounded, size: 16, color: AppColors.accentGold),
+                ),
                 const SizedBox(width: 8),
                 Text('成就',
                   style: GoogleFonts.notoSansTc(
@@ -177,7 +198,8 @@ class _AchievementSection extends StatelessWidget {
                     color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary)),
                 const Spacer(),
                 Text('${achievements.where((a) => a.unlocked).length}/${achievements.length}',
-                  style: GoogleFonts.notoSansTc(fontSize: 13, color: AppColors.textMuted)),
+                  style: GoogleFonts.notoSansTc(fontSize: 13,
+                    color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary)),
               ],
             ),
             const SizedBox(height: 12),
@@ -210,19 +232,19 @@ class _AchievementBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final opacity = achievement.unlocked ? 1.0 : 0.35;
+    final opacity = achievement.unlocked ? 1.0 : 0.3;
     return Opacity(
       opacity: opacity,
       child: Container(
-        width: 80,
+        width: 82,
         padding: const EdgeInsets.symmetric(vertical: 8),
         decoration: BoxDecoration(
-          color: AppColors.purple.withValues(alpha: achievement.unlocked ? 0.08 : 0.04),
+          color: AppColors.accentGold.withValues(alpha: achievement.unlocked ? 0.08 : 0.03),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: achievement.unlocked
-                ? AppColors.purple.withValues(alpha: 0.2)
-                : AppColors.divider,
+                ? AppColors.accentGold.withValues(alpha: 0.2)
+                : AppColors.border,
           ),
         ),
         child: Column(
@@ -261,18 +283,22 @@ class _TimelineSection extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(32),
           decoration: BoxDecoration(
-            color: isDark ? AppColors.darkSurface : Colors.white,
+            color: isDark ? AppColors.darkSurface : AppColors.surface,
             borderRadius: BorderRadius.circular(18),
+            boxShadow: AppShadows.card,
           ),
           child: Column(
             children: [
-              Text('📖', style: const TextStyle(fontSize: 48)),
+              Icon(Icons.menu_book_rounded, size: 48,
+                color: isDark ? AppColors.darkTextMuted : AppColors.textMuted),
               const SizedBox(height: 12),
               Text('未有閱讀紀錄',
-                style: GoogleFonts.notoSansTc(fontSize: 16, color: AppColors.textMuted)),
+                style: GoogleFonts.notoSansTc(fontSize: 16,
+                  color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary)),
               const SizedBox(height: 4),
               Text('去書架揀本書開始閱讀啦！',
-                style: GoogleFonts.notoSansTc(fontSize: 13, color: AppColors.textMuted)),
+                style: GoogleFonts.notoSansTc(fontSize: 13,
+                  color: isDark ? AppColors.darkTextMuted : AppColors.textMuted)),
             ],
           ),
         ),
@@ -357,7 +383,7 @@ class _TimelineItem extends StatelessWidget {
                 Container(
                   width: 32, height: 32,
                   decoration: BoxDecoration(
-                    color: AppColors.purple.withValues(alpha: 0.1),
+                    color: AppColors.accentEarth.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
                   child: Center(child: Text(entry.emoji, style: const TextStyle(fontSize: 14))),
@@ -366,7 +392,7 @@ class _TimelineItem extends StatelessWidget {
                   Expanded(
                     child: Container(
                       width: 2,
-                      color: AppColors.purple.withValues(alpha: 0.12),
+                      color: AppColors.accentEarth.withValues(alpha: 0.12),
                     ),
                   ),
               ],
@@ -379,9 +405,10 @@ class _TimelineItem extends StatelessWidget {
               margin: const EdgeInsets.only(bottom: 16),
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: isDark ? AppColors.darkSurface : Colors.white,
+                color: isDark ? AppColors.darkSurface : AppColors.surface,
                 borderRadius: BorderRadius.circular(14),
                 border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.border),
+                boxShadow: AppShadows.card,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -392,7 +419,8 @@ class _TimelineItem extends StatelessWidget {
                       color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary)),
                   const SizedBox(height: 4),
                   Text(entry.subtitle,
-                    style: GoogleFonts.notoSansTc(fontSize: 12, color: AppColors.textMuted)),
+                    style: GoogleFonts.notoSansTc(fontSize: 12,
+                      color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary)),
                 ],
               ),
             ),

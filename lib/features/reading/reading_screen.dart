@@ -1,9 +1,7 @@
 // ═══════════════════════════════════════════════════════════════════════
-// ReadingScreen — 閱讀界面
+// ReadingScreen — 閱讀界面 (Edition 4)
 // 顯示文章內容（emoji format、詩意標題）
-// 底部progress bar
-// 字體大小調整
-// 語言風格切換
+// 底部progress bar + 字體調整 + 語言切換
 // 文章底部：相關文章推薦 + feedback buttons
 // ═══════════════════════════════════════════════════════════════════════
 
@@ -28,7 +26,6 @@ class _ReadingScreenState extends State<ReadingScreen> {
   double _fontSize = 16;
   bool _isNaturalCanto = false;
   final ScrollController _scrollCtrl = ScrollController();
-  bool _showSettings = false;
 
   @override
   void initState() {
@@ -93,7 +90,6 @@ class _ReadingScreenState extends State<ReadingScreen> {
 
   String _transformContent(String content) {
     if (!_isNaturalCanto) return content;
-    // Simple natural Canto transformations
     return content
         .replaceAll('嘅時候', '時')
         .replaceAll('嘅嘢', '嘢')
@@ -104,13 +100,9 @@ class _ReadingScreenState extends State<ReadingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bgColor = isDark ? AppColors.darkBackground : const Color(0xFFF5EDE0);
-    final textColor = isDark ? AppColors.darkTextPrimary : AppColors.textPrimary;
-
     return Scaffold(
-      backgroundColor: bgColor,
-      appBar: _buildAppBar(isDark),
+      backgroundColor: AppColors.background,
+      appBar: _buildAppBar(),
       body: Column(
         children: [
           // ── Progress bar ──
@@ -118,48 +110,48 @@ class _ReadingScreenState extends State<ReadingScreen> {
             borderRadius: BorderRadius.zero,
             child: LinearProgressIndicator(
               value: _progress,
-              minHeight: 3,
-              backgroundColor: AppColors.purple.withValues(alpha: 0.1),
-              valueColor: AlwaysStoppedAnimation<Color>(AppColors.purple),
+              minHeight: 2,
+              backgroundColor: AppColors.accentEarth.withValues(alpha: 0.08),
+              valueColor: const AlwaysStoppedAnimation<Color>(AppColors.accentEarth),
             ),
           ),
 
           // ── Reading content ──
           Expanded(
             child: GestureDetector(
-              onTap: () => setState(() => _showSettings = !_showSettings),
+              onTap: () {},
               child: SingleChildScrollView(
                 controller: _scrollCtrl,
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.fromLTRB(24, 16, 24, 40),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Chapter header
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
-                        color: AppColors.purple.withValues(alpha: 0.08),
-                        borderRadius: BorderRadius.circular(12),
+                        color: AppColors.accentEarth.withValues(alpha: 0.06),
+                        borderRadius: BorderRadius.circular(10),
                       ),
                       child: Text(
                         '${_chapter.emoji} ${_chapter.title}',
                         style: GoogleFonts.notoSansTc(
-                          fontSize: 14,
+                          fontSize: 13,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.purple,
+                          color: AppColors.accentEarth,
                         ),
                       ),
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 16),
 
                     // Section title
                     Text(
                       _section.title,
                       style: GoogleFonts.notoSerifTc(
-                        fontSize: _fontSize + 4,
+                        fontSize: _fontSize + 6,
                         fontWeight: FontWeight.w900,
-                        color: textColor,
-                        height: 1.4,
+                        color: AppColors.textPrimary,
+                        height: 1.3,
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -169,13 +161,13 @@ class _ReadingScreenState extends State<ReadingScreen> {
                       _transformContent(_section.content),
                       style: GoogleFonts.notoSansTc(
                         fontSize: _fontSize,
-                        color: textColor,
-                        height: 1.8,
-                        letterSpacing: 0.3,
+                        color: AppColors.textPrimary,
+                        height: 1.9,
+                        letterSpacing: 0.2,
                       ),
                     ),
 
-                    const SizedBox(height: 40),
+                    const SizedBox(height: 48),
 
                     // ── Navigation buttons ──
                     Row(
@@ -204,10 +196,9 @@ class _ReadingScreenState extends State<ReadingScreen> {
                             onTap: () {
                               _settings.markBookCompleted(widget.book.id);
                               ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('🎉 已完成《${widget.book.title}》！',
-                                  style: GoogleFonts.notoSansTc(fontSize: 14)),
-                                  behavior: SnackBarBehavior.floating,
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                                SnackBar(
+                                  content: Text('🎉 已完成《${widget.book.title}》！',
+                                    style: GoogleFonts.notoSansTc(fontSize: 14)),
                                 ),
                               );
                               Navigator.of(context).pop();
@@ -216,7 +207,7 @@ class _ReadingScreenState extends State<ReadingScreen> {
                       ],
                     ),
 
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 40),
 
                     // ── Related books recommendation ──
                     _RelatedBooksSection(
@@ -234,10 +225,12 @@ class _ReadingScreenState extends State<ReadingScreen> {
                       },
                     ),
 
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 32),
 
                     // ── Feedback buttons ──
-                    _FeedbackButtons(bookTitle: widget.book.title),
+                    _FeedbackButtons(
+                      bookTitle: widget.book.title,
+                    ),
 
                     const SizedBox(height: 40),
                   ],
@@ -246,31 +239,32 @@ class _ReadingScreenState extends State<ReadingScreen> {
             ),
           ),
 
-          // ── Bottom settings bar (toggle on tap) ──
-          if (_showSettings)
-            _SettingsBar(
-              fontSize: _fontSize,
-              isNaturalCanto: _isNaturalCanto,
-              onFontSizeChanged: (v) {
-                setState(() => _fontSize = v);
-                _settings.fontSize = v;
-              },
-              onLanguageToggle: () {
-                setState(() => _isNaturalCanto = !_isNaturalCanto);
-                _settings.languageStyle = _isNaturalCanto ? LanguageStyle.naturalCanto : LanguageStyle.writtenCanto;
-              },
-            ),
+          // ── Bottom settings bar ──
+          _SettingsBar(
+            fontSize: _fontSize,
+            progressPercent: (_progress * 100).round(),
+            isNaturalCanto: _isNaturalCanto,
+            onFontSizeChanged: (v) {
+              setState(() => _fontSize = v);
+              _settings.fontSize = v;
+            },
+            onLanguageToggle: () {
+              setState(() => _isNaturalCanto = !_isNaturalCanto);
+              _settings.languageStyle = _isNaturalCanto ? LanguageStyle.naturalCanto : LanguageStyle.writtenCanto;
+            },
+          ),
         ],
       ),
     );
   }
 
-  PreferredSizeWidget _buildAppBar(bool isDark) {
+  PreferredSizeWidget _buildAppBar() {
     return AppBar(
-      backgroundColor: Colors.transparent,
+      backgroundColor: AppColors.surface,
       elevation: 0,
+      scrolledUnderElevation: 0.5,
       leading: IconButton(
-        icon: Icon(Icons.close_rounded, color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary),
+        icon: const Icon(Icons.close_rounded, color: AppColors.textPrimary),
         onPressed: () => Navigator.of(context).pop(),
       ),
       title: Column(
@@ -278,23 +272,21 @@ class _ReadingScreenState extends State<ReadingScreen> {
         children: [
           Text(_book.title,
             style: GoogleFonts.notoSansTc(
-              fontSize: 16, fontWeight: FontWeight.w700,
-              color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary),
+              fontSize: 15, fontWeight: FontWeight.w700,
+              color: AppColors.textPrimary),
             maxLines: 1, overflow: TextOverflow.ellipsis,
           ),
           Text('${_chapter.title} · ${_section.title}',
             style: GoogleFonts.notoSansTc(
-              fontSize: 11, color: AppColors.textMuted),
+              fontSize: 10, color: AppColors.textSecondary),
             maxLines: 1, overflow: TextOverflow.ellipsis,
           ),
         ],
       ),
-      actions: [
-        IconButton(
-          icon: Icon(Icons.text_fields, color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary),
-          onPressed: () => setState(() => _showSettings = !_showSettings),
-        ),
-      ],
+      bottom: PreferredSize(
+        preferredSize: const Size.fromHeight(0.5),
+        child: Container(color: AppColors.border, height: 0.5),
+      ),
     );
   }
 }
@@ -315,7 +307,7 @@ class _NavButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = isPrimary ? AppColors.cta : AppColors.textMuted;
+    final color = isPrimary ? AppColors.accentEarth : AppColors.textSecondary;
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -347,12 +339,14 @@ class _NavButton extends StatelessWidget {
 // ─── Settings Bar (bottom) ───
 class _SettingsBar extends StatelessWidget {
   final double fontSize;
+  final int progressPercent;
   final bool isNaturalCanto;
   final ValueChanged<double> onFontSizeChanged;
   final VoidCallback onLanguageToggle;
 
   const _SettingsBar({
     required this.fontSize,
+    required this.progressPercent,
     required this.isNaturalCanto,
     required this.onFontSizeChanged,
     required this.onLanguageToggle,
@@ -360,14 +354,11 @@ class _SettingsBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.darkSurface : Colors.white,
-        border: Border(top: BorderSide(
-          color: isDark ? AppColors.darkBorder : AppColors.border,
-        )),
+        color: AppColors.surface,
+        border: Border(top: BorderSide(color: AppColors.border)),
       ),
       child: SafeArea(
         top: false,
@@ -379,26 +370,26 @@ class _SettingsBar extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: AppColors.purple.withValues(alpha: 0.08),
+                  color: AppColors.accentEarth.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Icon(Icons.text_decrease, size: 18, color: AppColors.purple),
+                child: const Icon(Icons.text_decrease, size: 18, color: AppColors.accentEarth),
               ),
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: 6),
             Text('${fontSize.round()}',
               style: GoogleFonts.notoSansTc(fontSize: 14, fontWeight: FontWeight.w600,
-                color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary)),
-            const SizedBox(width: 8),
+                color: AppColors.textPrimary)),
+            const SizedBox(width: 6),
             GestureDetector(
               onTap: () => onFontSizeChanged((fontSize + 2).clamp(12, 24)),
               child: Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: AppColors.purple.withValues(alpha: 0.08),
+                  color: AppColors.accentEarth.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Icon(Icons.text_increase, size: 18, color: AppColors.purple),
+                child: const Icon(Icons.text_increase, size: 18, color: AppColors.accentEarth),
               ),
             ),
 
@@ -412,20 +403,31 @@ class _SettingsBar extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 decoration: BoxDecoration(
-                  color: AppColors.cta.withValues(alpha: 0.08),
+                  color: AppColors.accentSage.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Row(
                   children: [
-                    Text(isNaturalCanto ? '🗣️' : '📝', style: const TextStyle(fontSize: 14)),
+                    Icon(
+                      isNaturalCanto ? Icons.record_voice_over_rounded : Icons.text_snippet_rounded,
+                      size: 16,
+                      color: AppColors.accentSage,
+                    ),
                     const SizedBox(width: 6),
                     Text(isNaturalCanto ? '自然粵語' : '書面粵語',
                       style: GoogleFonts.notoSansTc(fontSize: 12, fontWeight: FontWeight.w600,
-                        color: AppColors.cta)),
+                        color: AppColors.accentSage)),
                   ],
                 ),
               ),
             ),
+
+            const Spacer(),
+
+            // Reading progress text
+            Text('$progressPercent%',
+              style: GoogleFonts.notoSansTc(fontSize: 12, fontWeight: FontWeight.w500,
+                color: AppColors.textSecondary)),
           ],
         ),
       ),
@@ -453,9 +455,22 @@ class _RelatedBooksSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('📖 相關推薦',
-          style: GoogleFonts.notoSerifTc(
-            fontSize: 18, fontWeight: FontWeight.w800, color: AppColors.textPrimary)),
+        Row(
+          children: [
+            Container(
+              width: 24, height: 24,
+              decoration: BoxDecoration(
+                color: AppColors.accentSage.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(7),
+              ),
+              child: const Icon(Icons.auto_stories_rounded, size: 14, color: AppColors.accentSage),
+            ),
+            const SizedBox(width: 8),
+            Text('相關推薦',
+              style: GoogleFonts.notoSerifTc(
+                fontSize: 18, fontWeight: FontWeight.w800, color: AppColors.textPrimary)),
+          ],
+        ),
         const SizedBox(height: 12),
         ...related.map((book) => Padding(
           padding: const EdgeInsets.only(bottom: 8),
@@ -464,9 +479,9 @@ class _RelatedBooksSection extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppColors.purple.withValues(alpha: 0.06),
+                color: AppColors.accentSage.withValues(alpha: 0.04),
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: AppColors.purple.withValues(alpha: 0.12)),
+                border: Border.all(color: AppColors.accentSage.withValues(alpha: 0.1)),
               ),
               child: Row(
                 children: [
@@ -481,7 +496,7 @@ class _RelatedBooksSection extends StatelessWidget {
                             fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
                         Text(book.subtitle,
                           style: GoogleFonts.notoSansTc(
-                            fontSize: 11, color: AppColors.textMuted)),
+                            fontSize: 11, color: AppColors.textSecondary)),
                       ],
                     ),
                   ),
@@ -536,7 +551,6 @@ class _FeedbackButtonsState extends State<_FeedbackButtons> {
                   SnackBar(
                     content: Text(active ? '已取消' : '已記錄你嘅反饋 🙏',
                       style: GoogleFonts.notoSansTc(fontSize: 13)),
-                    behavior: SnackBarBehavior.floating,
                     duration: const Duration(seconds: 1),
                   ),
                 );
@@ -545,10 +559,10 @@ class _FeedbackButtonsState extends State<_FeedbackButtons> {
                 duration: const Duration(milliseconds: 200),
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 decoration: BoxDecoration(
-                  color: active ? AppColors.purple.withValues(alpha: 0.12) : Colors.transparent,
+                  color: active ? AppColors.accentEarth.withValues(alpha: 0.1) : Colors.transparent,
                   borderRadius: BorderRadius.circular(14),
                   border: active
-                      ? Border.all(color: AppColors.purple.withValues(alpha: 0.3))
+                      ? Border.all(color: AppColors.accentEarth.withValues(alpha: 0.25))
                       : null,
                 ),
                 child: Column(
@@ -558,7 +572,7 @@ class _FeedbackButtonsState extends State<_FeedbackButtons> {
                     Text(b.$2,
                       style: GoogleFonts.notoSansTc(
                         fontSize: 11, fontWeight: FontWeight.w500,
-                        color: active ? AppColors.purple : AppColors.textMuted)),
+                        color: active ? AppColors.accentEarth : AppColors.textMuted)),
                   ],
                 ),
               ),
