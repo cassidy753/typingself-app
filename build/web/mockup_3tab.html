@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;600;700;900&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#3a2c22;display:flex;justify-content:center;min-height:100vh;font-family:'Noto Sans TC',sans-serif}
+.phone{width:390px;height:844px;background:#f5ede0;position:relative;overflow-y:auto;margin:20px auto;border-radius:40px;box-shadow:0 20px 60px rgba(0,0,0,0.3)}
+.status{height:44px;display:flex;justify-content:space-between;align-items:center;padding:0 24px;color:#5c4033;font-size:12px;font-weight:600}
+.appbar{height:52px;display:flex;justify-content:space-between;align-items:center;padding:0 16px;border-bottom:1px solid rgba(92,64,51,0.1)}
+.appbar-left{display:flex;align-items:center;gap:8px}
+.appbar-icon{width:34px;height:34px;background:rgba(224,120,90,0.15);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px}
+.appbar-title{font-weight:900;font-size:18px;color:#5c4033}
+.appbar-right{width:34px;height:34px;background:#fff9f0;border-radius:10px;border:1px solid rgba(92,64,51,0.12);display:flex;align-items:center;justify-content:center;font-size:16px}
+.tab-content{padding:20px}
+
+.date-header{font-size:13px;font-weight:600;color:#8b7d72;margin-bottom:16px;letter-spacing:1px;display:flex;justify-content:space-between;align-items:center}
+.date-header span{background:rgba(92,64,51,0.06);padding:4px 12px;border-radius:12px;font-size:11px}
+
+.mood-fun{background:#fff9f0;border-radius:24px;padding:24px;border:1px solid rgba(92,64,51,0.08);margin-bottom:16px;text-align:center}
+.mood-question{font-size:18px;font-weight:700;color:#5c4033;margin-bottom:16px}
+.mood-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+.mood-card-fun{padding:12px 8px;border-radius:20px;background:rgba(92,64,51,0.04);cursor:pointer;text-align:center}
+.mood-card-fun.active{background:rgba(224,120,90,0.12);border:2px solid #e0785a}
+.mood-card-fun .emoji{font-size:28px;margin-bottom:4px}
+.mood-card-fun .label{font-size:10px;font-weight:600;color:#5c4033}
+.mood-card-fun.active .label{color:#e0785a}
+.mood-result{font-size:13px;color:#8b7d72;font-weight:600}
+.mood-result span{color:#e0785a}
+
+.share-card{background:linear-gradient(135deg,#e0785a15,#d4a84315);border-radius:24px;padding:24px;border:1px solid rgba(92,64,51,0.08);margin-bottom:16px;position:relative;overflow:hidden}
+.share-card::before{content:'"';position:absolute;top:-10px;right:16px;font-size:80px;color:rgba(224,120,90,0.1);font-weight:900}
+.share-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(224,120,90,0.12);color:#e0785a;font-size:11px;font-weight:700;padding:5px 14px;border-radius:14px;margin-bottom:14px}
+.share-text{font-size:20px;font-weight:700;color:#5c4033;line-height:1.6;margin-bottom:10px}
+.share-context{font-size:13px;color:#8b7d72;line-height:1.5;margin-bottom:16px}
+.share-actions{display:flex;gap:10px}
+.share-btn{flex:1;padding:10px;border-radius:16px;font-size:13px;font-weight:700;text-align:center;cursor:pointer}
+.share-btn.coral{background:#e0785a;color:white}
+.share-btn.outline{background:transparent;border:1.5px solid rgba(92,64,51,0.15);color:#5c4033}
+
+.journey-card{background:#fff9f0;border-radius:20px;padding:18px;border:1px solid rgba(92,64,51,0.08);margin-bottom:12px;display:flex;justify-content:space-between;align-items:center}
+.journey-left{flex:1}
+.journey-tag{font-size:10px;font-weight:700;color:#9b72aa;margin-bottom:4px}
+.journey-title{font-size:15px;font-weight:600;color:#5c4033}
+.journey-arrow{width:32px;height:32px;border-radius:50%;background:rgba(155,114,170,0.1);display:flex;align-items:center;justify-content:center;font-size:16px}
+
+.stats-row{display:flex;gap:8px;margin-top:4px}
+.stat-item{flex:1;background:#fff9f0;border-radius:16px;padding:14px 8px;border:1px solid rgba(92,64,51,0.08);text-align:center}
+.stat-num{font-size:22px;font-weight:900;color:#5c4033;margin-bottom:2px}
+.stat-label{font-size:10px;color:#8b7d72;font-weight:600}
+
+.sub-tabs{display:flex;gap:8px;padding:0 20px;margin-bottom:16px;overflow-x:auto}
+.sub-tab{padding:8px 18px;border-radius:16px;font-size:13px;font-weight:600;white-space:nowrap;cursor:pointer}
+.sub-tab.active{background:#e0785a;color:white}
+.sub-tab.inactive{background:rgba(92,64,51,0.06);color:#8b7d72}
+
+.content-item{background:#fff9f0;border-radius:20px;padding:16px 20px;border:1px solid rgba(92,64,51,0.08);margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
+.content-left{flex:1}
+.content-tag{font-size:10px;font-weight:700;color:#e0785a;margin-bottom:4px}
+.content-title{font-size:15px;font-weight:600;color:#5c4033;margin-bottom:2px}
+.content-meta{font-size:11px;color:#8b7d72}
+.content-right{width:40px;height:40px;border-radius:12px;background:rgba(224,120,90,0.1);display:flex;align-items:center;justify-content:center;font-size:18px}
+
+.profile-header{display:flex;align-items:center;gap:16px;margin-bottom:24px}
+.profile-emoji{font-size:64px}
+.profile-info{flex:1}
+.profile-name{font-size:22px;font-weight:900;color:#5c4033}
+.profile-type{font-size:13px;color:#e0785a;font-weight:600;margin-top:2px}
+.profile-badge{display:inline-block;background:rgba(155,114,170,0.1);padding:4px 12px;border-radius:12px;font-size:11px;font-weight:600;color:#9b72aa;margin-top:4px}
+.stage-progress{display:flex;gap:8px;margin-bottom:24px}
+.stage-item{flex:1;text-align:center}
+.stage-dot{width:40px;height:40px;border-radius:50%;margin:0 auto 6px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.stage-dot.done{background:#8fa87a;color:white}
+.stage-dot.current{background:#e0785a;color:white;border:2px solid #e0785a;box-shadow:0 0 0 3px rgba(224,120,90,0.2)}
+.stage-dot.locked{background:rgba(92,64,51,0.06);color:#8b7d72}
+.stage-label{font-size:9px;color:#8b7d72;font-weight:600}
+.menu-item{display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-bottom:1px solid rgba(92,64,51,0.06)}
+.menu-item:last-child{border:none}
+.menu-left{display:flex;align-items:center;gap:14px}
+.menu-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.menu-text{font-size:15px;color:#5c4033;font-weight:500}
+.menu-arrow{color:#8b7d72;font-size:14px}
+
+.bottom-nav{position:sticky;bottom:0;background:#fff9f0;border-radius:24px 24px 0 0;box-shadow:0 -4px 20px rgba(0,0,0,0.04);padding:8px 12px 20px;display:flex;justify-content:space-around;margin-top:8px}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 20px;border-radius:16px;cursor:pointer}
+.nav-item.active{background:rgba(224,120,90,0.1)}
+.nav-icon{font-size:22px}
+.nav-label{font-size:11px;font-weight:600}
+.nav-item.active .nav-label{color:#e0785a;font-weight:700}
+.nav-item .nav-label{color:#8b7d72}
+
+.screen{display:none}
+.screen.active{display:block}
+</style>
+</head><body>
+<div class="phone">
+  <div class="status"><span>11:30</span><span>🔋 5G</span></div>
+  <div class="appbar">
+    <div class="appbar-left"><div class="appbar-icon">🧠</div><div class="appbar-title" style="display:flex;align-items:center;gap:4px"><span style="font-size:12px;font-weight:600;color:#8b7d72">typingself</span><span style="color:#c97b5d;font-weight:400">|</span><span style="font-size:16px">型得你</span></div></div>
+    <div class="appbar-right">⚙️</div>
+  </div>
+
+  <!-- Tab 0: 今日 -->
+  <div id="tab0" class="screen active">
+    <div class="tab-content">
+      <div class="date-header">
+        <span>📅 2026年7月16日 · 星期四</span>
+        <span>INFP 4w5</span>
+      </div>
+      <div class="mood-fun">
+        <div class="mood-question">今日你個腦嘅運作狀態係？</div>
+        <div class="mood-grid">
+          <div class="mood-card-fun"><div class="emoji">🧠</div><div class="label">超載中</div></div>
+          <div class="mood-card-fun"><div class="emoji">⚡</div><div class="label">靈感爆發</div></div>
+          <div class="mood-card-fun active"><div class="emoji">🔋</div><div class="label">慳電mode</div></div>
+          <div class="mood-card-fun"><div class="emoji">🎯</div><div class="label">戰鬥mode</div></div>
+        </div>
+        <div class="mood-result">今日係 <span>慳電mode</span> — 留返啲energy俾自己 🫶</div>
+      </div>
+      <div class="share-card">
+        <div class="share-badge">🎭 INFP 4w5 專屬寸嘴</div>
+        <div class="share-text">「你個腦入面有100個idea，但你既execution capacity得1個。Welcome to INFP life 🫠」</div>
+        <div class="share-context">今日適合：寫低晒啲idea然後唔做。聽日先算。</div>
+        <div class="share-actions">
+          <div class="share-btn coral">📤 Share</div>
+          <div class="share-btn outline">🔄 換一句</div>
+        </div>
+      </div>
+      <div class="journey-card">
+        <div class="journey-left">
+          <div class="journey-tag">⬆ 繼續 Stage 2</div>
+          <div class="journey-title">探索你既 Shadow Type</div>
+        </div>
+        <div class="journey-arrow">→</div>
+      </div>
+      <div class="stats-row">
+        <div class="stat-item"><div class="stat-num">🔥 7</div><div class="stat-label">連續checkin</div></div>
+        <div class="stat-item"><div class="stat-num">👻 3</div><div class="stat-label">Shadow detected</div></div>
+        <div class="stat-item"><div class="stat-num">📌 1/4</div><div class="stat-label">Stage完成</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab 1: 發掘 -->
+  <div id="tab1" class="screen">
+    <div class="sub-tabs">
+      <div class="sub-tab active" onclick="filter(this,'all')">全部</div>
+      <div class="sub-tab inactive" onclick="filter(this,'s1')">Stage 1</div>
+      <div class="sub-tab inactive" onclick="filter(this,'s2')">Stage 2</div>
+      <div class="sub-tab inactive" onclick="filter(this,'s3')">Stage 3</div>
+      <div class="sub-tab inactive" onclick="filter(this,'s4')">Stage 4</div>
+    </div>
+    <div class="tab-content" style="padding-top:0">
+      <div class="content-item"><div class="content-left"><div class="content-tag">🔥 熱門</div><div class="content-title">MBTI x 九型 144組合解讀</div><div class="content-meta">12篇文章 · 3個工具</div></div><div class="content-right">📖</div></div>
+      <div class="content-item"><div class="content-left"><div class="content-tag">Stage 2</div><div class="content-title">你既Shadow Type係咩？</div><div class="content-meta">8篇文章 · 2個工具</div></div><div class="content-right">🌑</div></div>
+      <div class="content-item"><div class="content-left"><div class="content-tag">Stage 3</div><div class="content-title">發展你既Inferior Function</div><div class="content-meta">6篇文章 · 4個工具</div></div><div class="content-right">📈</div></div>
+      <div class="content-item"><div class="content-left"><div class="content-tag">🧪 測試</div><div class="content-title">大五人格 OCEAN 測試</div><div class="content-meta">10題 · 約3分鐘</div></div><div class="content-right">🧪</div></div>
+    </div>
+  </div>
+
+  <!-- Tab 2: 我嘅 -->
+  <div id="tab2" class="screen">
+    <div class="tab-content">
+      <div class="profile-header">
+        <div class="profile-emoji">🦋</div>
+        <div class="profile-info"><div class="profile-name">溫暖既領袖</div><div class="profile-type">ENFJ 5w4</div><div class="profile-badge">已完成 Stage 1</div></div>
+      </div>
+      <div class="stage-progress">
+        <div class="stage-item"><div class="stage-dot done">✓</div><div class="stage-label">了解</div></div>
+        <div class="stage-item"><div class="stage-dot current">2</div><div class="stage-label">陰影</div></div>
+        <div class="stage-item"><div class="stage-dot locked">3</div><div class="stage-label">發展</div></div>
+        <div class="stage-item"><div class="stage-dot locked">4</div><div class="stage-label">Self</div></div>
+      </div>
+      <div class="menu-item"><div class="menu-left"><div class="menu-icon" style="background:rgba(224,120,90,0.12)">🎭</div><span class="menu-text">Shadow Report</span></div><span class="menu-arrow">›</span></div>
+      <div class="menu-item"><div class="menu-left"><div class="menu-icon" style="background:rgba(155,114,170,0.12)">📊</div><span class="menu-text">進度報告</span></div><span class="menu-arrow">›</span></div>
+      <div class="menu-item"><div class="menu-left"><div class="menu-icon" style="background:rgba(212,168,67,0.12)">🔔</div><span class="menu-text">通知設定</span></div><span class="menu-arrow">›</span></div>
+      <div class="menu-item"><div class="menu-left"><div class="menu-icon" style="background:rgba(143,168,122,0.12)">💰</div><span class="menu-text">升級 Premium</span></div><span class="menu-arrow">›</span></div>
+      <div class="menu-item"><div class="menu-left"><div class="menu-icon" style="background:rgba(92,64,51,0.06)">⚙️</div><span class="menu-text">設定</span></div><span class="menu-arrow">›</span></div>
+    </div>
+  </div>
+
+  <div class="bottom-nav">
+    <div class="nav-item active" onclick="switchTab(0)"><span class="nav-icon">🏠</span><span class="nav-label">今日</span></div>
+    <div class="nav-item" onclick="switchTab(1)"><span class="nav-icon">🔍</span><span class="nav-label">發掘</span></div>
+    <div class="nav-item" onclick="switchTab(2)"><span class="nav-icon">👤</span><span class="nav-label">我嘅</span></div>
+  </div>
+</div>
+<script>
+function switchTab(n){
+  document.querySelectorAll('.screen').forEach((s,i)=>s.classList.toggle('active',i===n));
+  document.querySelectorAll('.nav-item').forEach((item,i)=>item.classList.toggle('active',i===n));
+}
+function filter(el){
+  document.querySelectorAll('.sub-tab').forEach(t=>t.className='sub-tab inactive');
+  el.className='sub-tab active';
+}
+</script>
+</body></html>
