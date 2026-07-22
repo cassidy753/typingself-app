@@ -2,57 +2,81 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 // ═══════════════════════════════════════════════════════════════════════
-// Edition 4 — Professional Mobile Reading App Color System
-// Inspired by 微信讀書 × Apple Books
+// Edition 5 — Official Brand Guideline Color System
+// Core Palette: Mindful Blue #73A5C5 + Organic Cream #F5F1E8 + TypingSelf Charcoal #2A2D34
+// Source: Official TypingSelf Brand System v1.0
 // ═══════════════════════════════════════════════════════════════════════
 
 class AppColors {
   // ─── Light Mode — warm neutrals ───
-  static const background = Color(0xFFF8F6F3);   // warm off-white
-  static const surface = Color(0xFFFFFFFF);       // white cards
-  static const border = Color(0xFFE8E6E1);        // subtle border
-  static const divider = Color(0xFFE8E6E1);
+  static const background = Color(0xFFFAFAFA);    // Neutral Background
+  static const surface = Color(0xFFF5F1E8);       // Organic Cream — card bg, menus
+  static const elevated = Color(0xFFFFFFFF);      // White cards
+  static const border = Color(0xFFE0DBCC);        // Input border default
+  static const divider = Color(0xFFE0DBCC);
 
-  // Text
-  static const textPrimary = Color(0xFF2D2D2D);   // near black
-  static const textSecondary = Color(0xFF8E8E93);  // gray
-  static const textMuted = Color(0xFFAEAEB2);      // light gray
+  // Text — TypingSelf Charcoal
+  static const textPrimary = Color(0xFF2A2D34);   // Charcoal — primary text
+  static const textSecondary = Color(0xFF6B7280); // Gray
+  static const textMuted = Color(0xFF9CA3AF);     // Light gray
+  static const textOnPrimary = Color(0xFFFFFFFF); // White text on colored bg
 
-  // New Edition 4 accent palette
-  static const accentEarth = Color(0xFF8B7355);   // warm brown
-  static const accentSage = Color(0xFF7A9E7E);    // muted green
-  static const accentDusty = Color(0xFFB8A9C9);   // muted purple
-  static const accentCoral = Color(0xFFD4735E);   // warm coral
-  static const accentGold = Color(0xFFC9A84C);    // muted gold
+  // ─── PRIMARY ACCENT — Mindful Blue ───
+  static const primary = Color(0xFF73A5C5);        // Mindful Blue — CTA, links, focus
+  static const primaryDark = Color(0xFF4A5A75);   // Focus Slate — focus states
+  static const primaryLight = Color(0xFFB8D4E3);  // Light tint for bg states
 
-  // Legacy aliases (referenced by other screens)
-  static const primary = accentEarth;
-  static const cta = accentCoral;
-  static const purple = accentDusty;
+  // ─── SEMANTIC COLORS ───
+  static const cta = Color(0xFF73A5C5);            // Mindful Blue (alias)
+  static const success = Color(0xFF82C991);        // Growth Green
+  static const error = Color(0xFFE65A6D);          // Cautionary Red
+  static const warning = Color(0xFFE65A6D);
+
+  // Accent / secondary palette
+  static const accentTeal = Color(0xFF66B2B2);     // Active Teal
+  static const accentLavender = Color(0xFFA5A7C5); // Calm Lavender
+  static const accentAmber = Color(0xFFF8E8C6);    // Soft Amber
+
+  // Achievement badges (content-specific)
+  static const badgeSage = Color(0xFF82C991);
+  static const badgeGold = Color(0xFFF8E8C6);
+  static const badgeLavender = Color(0xFFA5A7C5);
+
+  // ─── DARK MODE — Navy Base ───
+  static const darkBackground = Color(0xFF112844);  // Deep Layer Navy
+  static const darkSurface = Color(0xFF1A2238);     // Midnight Navy
+  static const darkElevated = Color(0xFF2A2D34);    // Charcoal elevated
+  static const darkBorder = Color(0xFF3A4055);
+  static const darkTextPrimary = Color(0xFFF5F1E8); // Organic Cream text on dark
+  static const darkTextSecondary = Color(0xFF9CA3AF);
+  static const darkTextMuted = Color(0xFF6B7280);
+  static const darkDivider = Color(0xFF3A4055);
+
+  // Dark mode accent (slightly desaturated for dark bg)
+  static const darkPrimary = Color(0xFF8EC4E0);     // Mindful Blue lightened
+  static const darkSuccess = Color(0xFF82C991);
+  static const darkError = Color(0xFFE65A6D);
+  static const darkAccentTeal = Color(0xFF66B2B2);
+
+  // ─── BACKWARD COMPAT ALIASES (for existing screen references) ───
+  // Edition 4 color names → map to new official palette
+  static const accentEarth = primary;           // was #8B7355, now Mindful Blue
+  static const accentCoral = cta;               // was #D4735E, now Mindful Blue
+  static const accentSage = badgeSage;          // was #7A9E7E, now Growth Green
+  static const accentDusty = badgeLavender;     // was #B8A9C9, now Calm Lavender
+  static const accentGold = Color(0xFFC9A84C);  // keep gold for badges
+  static const purple = badgeLavender;
+  static const sage = badgeSage;
   static const mustard = accentGold;
-  static const sage = accentSage;
-
-  // States
-  static const disabled = Color(0xFFE8E6E1);
-  static const disabledText = Color(0xFFAEAEB2);
-
-  // ─── Dark Mode — deep charcoal ───
-  static const darkBackground = Color(0xFF1C1C1E);
-  static const darkSurface = Color(0xFF2C2C2E);
-  static const darkBorder = Color(0xFF3A3A3C);
-  static const darkTextPrimary = Color(0xFFF5F5F0);
-  static const darkTextSecondary = Color(0xFF8E8E93);
-  static const darkTextMuted = Color(0xFF636366);
-  static const darkDivider = Color(0xFF3A3A3C);
-  static const darkDisabled = Color(0xFF3A3A3C);
-  static const darkDisabledText = Color(0xFF636366);
-
-  // Dark mode accents (slightly desaturated for dark bg)
-  static const darkAccentEarth = Color(0xFFA08565);
-  static const darkAccentSage = Color(0xFF8AB08E);
-  static const darkAccentDusty = Color(0xFFC9B8D9);
-  static const darkAccentCoral = Color(0xFFE0836E);
-  static const darkAccentGold = Color(0xFFD4B85C);
+  static const disabled = Color(0xFFE0DBCC);
+  static const disabledText = Color(0xFF9CA3AF);
+  static const darkAccentEarth = darkPrimary;
+  static const darkAccentCoral = darkError;
+  static const darkAccentSage = darkSuccess;
+  static const darkAccentDusty = Color(0xFFA5A7C5);
+  static const darkAccentGold = Color(0xFFC9A84C);
+  static const darkDisabled = Color(0xFF3A4055);
+  static const darkDisabledText = Color(0xFF6B7280);
 }
 
 // ─── SPACING ───
