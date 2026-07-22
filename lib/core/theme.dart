@@ -42,15 +42,15 @@ class AppColors {
   static const badgeGold = Color(0xFFF8E8C6);
   static const badgeLavender = Color(0xFFA5A7C5);
 
-  // ─── DARK MODE — Navy Base ───
-  static const darkBackground = Color(0xFF112844);  // Deep Layer Navy
-  static const darkSurface = Color(0xFF1A2238);     // Midnight Navy
-  static const darkElevated = Color(0xFF2A2D34);    // Charcoal elevated
-  static const darkBorder = Color(0xFF3A4055);
-  static const darkTextPrimary = Color(0xFFF5F1E8); // Organic Cream text on dark
+  // ─── DARK MODE — #121212 base（非純黑）───
+  static const darkBackground = Color(0xFF121212);  // Material Design 建議 dark bg
+  static const darkSurface = Color(0xFF1E1E1E);     // Card surface
+  static const darkElevated = Color(0xFF2A2D34);    // Elevated surface
+  static const darkBorder = Color(0xFF2A2A2A);      // 1px divider
+  static const darkTextPrimary = Color(0xFFE0E0E0); // 非純白主文字
   static const darkTextSecondary = Color(0xFF9CA3AF);
   static const darkTextMuted = Color(0xFF6B7280);
-  static const darkDivider = Color(0xFF3A4055);
+  static const darkDivider = Color(0xFF2A2A2A);
 
   // Dark mode accent (slightly desaturated for dark bg)
   static const darkPrimary = Color(0xFF8EC4E0);     // Mindful Blue lightened
