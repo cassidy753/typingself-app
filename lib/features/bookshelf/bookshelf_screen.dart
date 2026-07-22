@@ -177,31 +177,18 @@ class _WeeklyGoalCard extends StatelessWidget {
     final hours = (totalReadingMinutes / 60).toStringAsFixed(1);
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
+      padding: const EdgeInsets.fromLTRB(0, 0, 0, 8),
       child: Container(
-        decoration: BoxDecoration(
-          color: isDark ? AppColors.darkSurface : AppColors.surface,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: AppShadows.card,
-        ),
+        decoration: AppBorderless.card(isDark: isDark),
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
-            // Title row
+            // Title row — Typography as Ornament
             Row(
               children: [
-                Container(
-                  width: 32, height: 32,
-                  decoration: BoxDecoration(
-                    color: AppColors.accentEarth.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: const Icon(Icons.auto_stories_rounded, size: 18, color: AppColors.accentEarth),
-                ),
-                const SizedBox(width: 10),
                 Text('本週閱讀目標',
                   style: GoogleFonts.notoSerifTc(
-                    fontSize: 16,
+                    fontSize: 18,
                     fontWeight: FontWeight.w700,
                     color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
                   ),
@@ -209,9 +196,9 @@ class _WeeklyGoalCard extends StatelessWidget {
                 const Spacer(),
                 Text('${weeklyMinutes} / ${goalMinutes} 分鐘',
                   style: GoogleFonts.notoSansTc(
-                    fontSize: 12,
+                    fontSize: 15,
                     fontWeight: FontWeight.w500,
-                    color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
+                    color: isDark ? AppColors.darkTextSecondary : const Color(0xFF333333),
                   ),
                 ),
               ],

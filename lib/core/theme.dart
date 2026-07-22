@@ -90,32 +90,48 @@ class AppSpacing {
   static const double xxxl = 40;
 }
 
-// ─── RADIUS ───
+// ─── RADIUS (Borderless-friendly) ───
 class AppRadius {
-  static const double sm = 12.0;
-  static const double md = 16.0;
-  static const double lg = 20.0;
-  static const double xl = 24.0;
-  static const double xxl = 28.0;
+  static const double sm = 4.0;
+  static const double md = 8.0;
+  static const double lg = 12.0;
+  static const double xl = 16.0;
+  static const double xxl = 20.0;
 }
 
-// ─── SHADOWS ───
+// ─── SHADOWS (Borderless — minimal) ───
 class AppShadows {
-  static List<BoxShadow> get card => [
+  static List<BoxShadow> get card => [];  // Borderless: 冇 shadow
+  static List<BoxShadow> get elevated => [];
+  static List<BoxShadow> get pressed => [
     BoxShadow(
       color: Colors.black.withValues(alpha: 0.04),
-      blurRadius: 12,
-      offset: const Offset(0, 4),
+      blurRadius: 4,
+      offset: const Offset(0, 1),
     ),
   ];
+}
 
-  static List<BoxShadow> get elevated => [
-    BoxShadow(
-      color: Colors.black.withValues(alpha: 0.06),
-      blurRadius: 20,
-      offset: const Offset(0, 6),
-    ),
-  ];
+// ─── BORDERLESS HELPERS ───
+class AppBorderless {
+  /// Card → 冇裝飾 flat container
+  static BoxDecoration card({bool isDark = false}) => BoxDecoration(
+    color: isDark ? null : Colors.white,
+    borderRadius: BorderRadius.circular(AppRadius.md),
+  );
+
+  /// 1px 幼線 divider
+  static Widget divider({bool isDark = false}) => Divider(
+    height: 1,
+    thickness: 1,
+    color: isDark ? const Color(0xFF2A2A2A) : const Color(0xFFE5E7EB),
+  );
+
+  /// 背景 gap（代替 card shadow）
+  static Widget gap({bool isDark = false}) => Container(
+    height: 8,
+    color: isDark ? const Color(0xFF121212) : const Color(0xFFF4F5F6),
+  );
 }
 
 // ─── THEME ───
