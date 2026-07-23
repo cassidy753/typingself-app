@@ -110,21 +110,24 @@ class _SplashScreenState extends State<SplashScreen>
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           // Code (small, subtle)
-                          Text(p.code, style: GoogleFonts.notoSansTc(
+                          Text(p.code, style: TextStyle(
                             fontSize: codeSize.clamp(4, 18), fontWeight: FontWeight.w500,
                             color: p.color.withValues(alpha: 0.5),
                             letterSpacing: 0.08,
+                            fontFamily: 'PingFang TC', fontFamilyFallback: ['Noto Sans TC', 'sans-serif'],
                           )),
                           // Name (large, main)
-                          Text(p.name, style: GoogleFonts.notoSansTc(
+                          Text(p.name, style: TextStyle(
                             fontSize: nameSize.clamp(6, 36), fontWeight: p.weight,
                             color: p.color.withValues(alpha: 0.7),
                             height: 0.9,
+                            fontFamily: 'PingFang TC', fontFamilyFallback: ['Noto Sans TC', 'sans-serif'],
                           )),
                           // Archetype (small, italic)
-                          Text(p.archetype, style: GoogleFonts.notoSansTc(
+                          Text(p.archetype, style: TextStyle(
                             fontSize: archetypeSize.clamp(3, 14), fontWeight: FontWeight.w300,
                             color: p.color.withValues(alpha: 0.35),
+                            fontFamily: 'PingFang TC', fontFamilyFallback: ['Noto Sans TC', 'sans-serif'],
                           )),
                         ],
                       ),
@@ -148,12 +151,12 @@ class _SplashScreenState extends State<SplashScreen>
                             color: AppColors.primary.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(22),
                           ),
-                          child: Center(child: Text('型', style: GoogleFonts.notoSerifTc(fontSize: 36, fontWeight: FontWeight.w900, color: AppColors.primary))),
+                          child: Center(child: Text('型', style: TextStyle(fontSize: 36, fontWeight: FontWeight.w900, color: AppColors.primary, fontFamily: 'PingFang TC', fontFamilyFallback: ['Noto Serif TC', 'serif']))),
                         ),
                         const SizedBox(height: 20),
-                        Text('型得你', style: GoogleFonts.notoSerifTc(fontSize: 34, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
+                        Text('型得你', style: TextStyle(fontSize: 34, fontWeight: FontWeight.w700, color: AppColors.textPrimary, fontFamily: 'PingFang TC', fontFamilyFallback: ['Noto Serif TC', 'serif'])),
                         const SizedBox(height: 10),
-                        Text('通往心靈嘅經典', style: GoogleFonts.notoSerifTc(fontSize: 14, color: AppColors.textSecondary)),
+                        Text('通往心靈嘅經典', style: TextStyle(fontSize: 14, color: AppColors.textSecondary, fontFamily: 'PingFang TC', fontFamilyFallback: ['Noto Serif TC', 'serif'])),
                       ],
                     ),
                   ),
