@@ -5,14 +5,20 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/theme.dart';
 import '../onboarding/greeting_screen.dart';
 
-// ──────────────────────────────────────────────
-// SPLASH SCREEN — animated brain+butterfly logo
-// Checks onboarding_done to skip → home if seen
-// ──────────────────────────────────────────────
+const _types = [
+  'INTJ', 'INTP', 'ENTJ', 'ENTP',
+  'INFJ', 'INFP', 'ENFJ', 'ENFP',
+  'ISTJ', 'ISFJ', 'ESTJ', 'ESFJ',
+  'ISTP', 'ISFP', 'ESTP', 'ESFP',
+  '1w9', '2w1', '2w3', '3w2',
+  '3w4', '4w3', '4w5', '5w4',
+  '5w6', '6w5', '6w7', '7w6',
+  '7w8', '8w7', '8w9', '9w8',
+  '9w1', '1w2',
+];
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
-
   @override
   State<SplashScreen> createState() => _SplashScreenState();
 }
@@ -20,85 +26,49 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
   late final AnimationController _ctrl;
-
-  late final Animation<double> _brainFade;
-  late final Animation<double> _brainScale;
-  late final Animation<double> _butterflyFade;
-  late final Animation<Offset> _butterflySlide;
-  late final Animation<double> _textFade;
+  late final Animation<double> _typesScale;
+  late final Animation<double> _typesFade;
+  late final Animation<double> _logoFade;
+  late final Animation<double> _logoSlide;
 
   @override
   void initState() {
     super.initState();
-
     _ctrl = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 2400),
+      duration: const Duration(milliseconds: 3400),
     );
 
-    // Brain: 0→30% (0–720ms) — fade in + scale up
-    _brainFade = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(
-        parent: _ctrl,
-        curve: const Interval(0.0, 0.3, curve: Curves.easeIn),
-      ),
+    // Phase 1: Types fly past (0%–55%)
+    _typesScale = Tween<double>(begin: 1.8, end: 0.3).animate(
+      CurvedAnimation(parent: _ctrl, curve: const Interval(0.0, 0.45, curve: Curves.easeOutCubic)),
     );
-    _brainScale = Tween<double>(begin: 0.4, end: 1).animate(
-      CurvedAnimation(
-        parent: _ctrl,
-        curve: const Interval(0.0, 0.3, curve: Curves.elasticOut),
-      ),
+    _typesFade = Tween<double>(begin: 1.0, end: 0.0).animate(
+      CurvedAnimation(parent: _ctrl, curve: const Interval(0.35, 0.55, curve: Curves.easeOut)),
     );
 
-    // Butterfly: 25%→60% (600–1440ms) — slide up from brain + fade in
-    _butterflyFade = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(
-        parent: _ctrl,
-        curve: const Interval(0.25, 0.6, curve: Curves.easeOut),
-      ),
+    // Phase 2: Logo appears (50%–85%)
+    _logoFade = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _ctrl, curve: const Interval(0.5, 0.8, curve: Curves.easeIn)),
     );
-    _butterflySlide = Tween<Offset>(
-      begin: const Offset(0, 0.45),
-      end: Offset.zero,
-    ).animate(
-      CurvedAnimation(
-        parent: _ctrl,
-        curve: const Interval(0.25, 0.6, curve: Curves.easeOutCubic),
-      ),
-    );
-
-    // Text: 50%→85% (1200–2040ms) — fade in
-    _textFade = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(
-        parent: _ctrl,
-        curve: const Interval(0.5, 0.85, curve: Curves.easeIn),
-      ),
+    _logoSlide = Tween<double>(begin: 20.0, end: 0.0).animate(
+      CurvedAnimation(parent: _ctrl, curve: const Interval(0.5, 0.8, curve: Curves.easeOutCubic)),
     );
 
     _ctrl.forward();
-
-    // Auto‑navigate after animation finishes
-    Future.delayed(const Duration(milliseconds: 2600), () {
-      if (!mounted) return;
-      _navigateAfterSplash();
-    });
+    Future.delayed(const Duration(milliseconds: 3800), _navigateAfterSplash);
   }
 
   Future<void> _navigateAfterSplash() async {
     final prefs = await SharedPreferences.getInstance();
-    final onboardingDone = prefs.getBool('onboarding_done') ?? false;
+    final profileDone = prefs.getBool('profile_done') ?? false;
 
     if (!mounted) return;
-
-    if (onboardingDone) {
-      Navigator.of(context).pushReplacementNamed('/home');
-    } else {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (_) => const GreetingScreen(),
-        ),
-      );
-    }
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: (_) => profileDone
+        ? const _HomePlaceholder()
+        : const GreetingScreen()),
+    );
   }
 
   @override
@@ -109,337 +79,99 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
-    // Purple → pink/warm gradient (Daebi palette)
     return Scaffold(
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFFEBE0F5), // light purple
-              Color(0xFFF5EDE0), // warm sand
-              Color(0xFFFCE8E0), // light coral
-            ],
-          ),
-        ),
-        child: AnimatedBuilder(
-          animation: _ctrl,
-          builder: (context, _) => SafeArea(
-            child: Column(
-              children: [
-                const Spacer(flex: 2),
-                // ── Brain + Butterfly logo ──
-                SizedBox(
-                  width: 180,
-                  height: 180,
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      // Brain
-                      Opacity(
-                        opacity: _brainFade.value,
-                        child: Transform.scale(
-                          scale: _brainScale.value,
-                          child: const CustomPaint(
-                            size: Size(140, 120),
-                            painter: _BrainPainter(),
-                          ),
-                        ),
-                      ),
-                      // Butterfly (emerges from brain)
-                      Positioned(
-                        top: 30 + _butterflySlide.value.dy * 50,
-                        child: Opacity(
-                          opacity: _butterflyFade.value,
-                          child: const CustomPaint(
-                            size: Size(180, 120),
-                            painter: _ButterflyPainter(),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 16),
-                // ── Tagline ──
-                Opacity(
-                  opacity: _textFade.value,
-                  child: Column(
-                    children: [
-                      Text(
-                        'Typingself',
-                        style: GoogleFonts.notoSerifTc(
-                          fontSize: 32,
-                          fontWeight: FontWeight.w900,
-                          color: AppColors.textPrimary,
-                          letterSpacing: 0.5,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '型得你・人格成長',
+      backgroundColor: AppColors.background,
+      body: AnimatedBuilder(
+        animation: _ctrl,
+        builder: (context, child) {
+          return Stack(
+            children: [
+              // Cloud of MBTI types
+              ...List.generate(_types.length, (i) {
+                final row = (i % 6) - 3;
+                final col = (i ~/ 6) - 3;
+                final random = math.Random(i * 7 + 3);
+                final xOffset = random.nextDouble() * 200 - 100;
+                final yOffset = random.nextDouble() * 300 - 150;
+                return Positioned(
+                  left: MediaQuery.of(context).size.width / 2 + row * 80 + xOffset - 30,
+                  top: MediaQuery.of(context).size.height / 2 + col * 70 + yOffset - 20,
+                  child: Opacity(
+                    opacity: _typesFade.value,
+                    child: Transform.scale(
+                      scale: _typesScale.value,
+                      child: Text(_types[i],
                         style: GoogleFonts.notoSansTc(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textSecondary,
+                          fontSize: 24,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0.08,
+                          color: AppColors.primary.withValues(alpha: 0.6),
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-                const Spacer(flex: 3),
-                // ── Footer ──
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 48),
-                  child: SizedBox(
-                    width: 24,
-                    height: 24,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(
-                        AppColors.purple.withValues(alpha: 0.3),
                       ),
                     ),
                   ),
+                );
+              }),
+
+              // TS Logo
+              Center(
+                child: Opacity(
+                  opacity: _logoFade.value,
+                  child: Transform.translate(
+                    offset: Offset(0, _logoSlide.value),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Seal stamp
+                        Container(
+                          width: 72, height: 72,
+                          decoration: BoxDecoration(
+                            color: AppColors.primary.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Center(
+                            child: Text('型', style: GoogleFonts.notoSerifTc(
+                              fontSize: 32, fontWeight: FontWeight.w900,
+                              color: AppColors.primary,
+                            )),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        Text('型得你',
+                          style: GoogleFonts.notoSerifTc(
+                            fontSize: 32, fontWeight: FontWeight.w700,
+                            color: AppColors.textPrimary,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text('通往心靈嘅經典',
+                          style: GoogleFonts.notoSerifTc(
+                            fontSize: 14,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-              ],
-            ),
-          ),
-        ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
 }
 
-// ──────────────────────────────────────────────
-// CUSTOM PAINTERS — abstract brain + butterfly
-// ──────────────────────────────────────────────
-
-class _BrainPainter extends CustomPainter {
-  const _BrainPainter();
-
+class _HomePlaceholder extends StatelessWidget {
+  const _HomePlaceholder();
   @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = AppColors.purple
-      ..style = PaintingStyle.fill
-      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 1.5);
-
-    final cx = size.width / 2;
-    final cy = size.height / 2;
-    final hw = size.width * 0.38; // half-width of each hemisphere
-    final hh = size.height * 0.38;
-
-    // ── Left hemisphere ──
-    final leftPath = Path()
-      ..moveTo(cx, cy - hh * 0.2)
-      ..cubicTo(
-        cx - hw * 0.2, cy - hh * 1.2,  // control 1
-        cx - hw * 1.3, cy - hh * 0.4,  // control 2
-        cx - hw * 0.9, cy + hh * 0.3,  // end
-      )
-      ..cubicTo(
-        cx - hw * 0.7, cy + hh * 0.7,
-        cx - hw * 0.1, cy + hh * 0.5,
-        cx, cy + hh * 0.1,
-      )
-      ..close();
-    canvas.drawPath(leftPath, paint);
-
-    // ── Right hemisphere ──
-    final rightPath = Path()
-      ..moveTo(cx, cy - hh * 0.2)
-      ..cubicTo(
-        cx + hw * 0.2, cy - hh * 1.2,
-        cx + hw * 1.3, cy - hh * 0.4,
-        cx + hw * 0.9, cy + hh * 0.3,
-      )
-      ..cubicTo(
-        cx + hw * 0.7, cy + hh * 0.7,
-        cx + hw * 0.1, cy + hh * 0.5,
-        cx, cy + hh * 0.1,
-      )
-      ..close();
-    canvas.drawPath(rightPath, paint);
-
-    // ── Central fissure line ──
-    final linePaint = Paint()
-      ..color = AppColors.textPrimary.withValues(alpha: 0.08)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.5;
-    canvas.drawLine(
-      Offset(cx, cy - hh * 0.8),
-      Offset(cx, cy + hh * 0.3),
-      linePaint,
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      body: Center(
+        child: Text('Home Page', style: GoogleFonts.notoSerifTc(fontSize: 18, color: AppColors.textPrimary)),
+      ),
     );
-
-    // ── Gyri / fold lines ──
-    final foldPaint = Paint()
-      ..color = AppColors.textPrimary.withValues(alpha: 0.06)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.0;
-
-    // Left folds
-    for (final y in [-0.3, 0.0, 0.25]) {
-      canvas.drawArc(
-        Rect.fromCenter(center: Offset(cx - hw * 0.45, cy + y * hh), width: hw * 0.6, height: hh * 0.3),
-        math.pi * 0.2,
-        math.pi * 0.6,
-        false,
-        foldPaint,
-      );
-    }
-    // Right folds
-    for (final y in [-0.3, 0.0, 0.25]) {
-      canvas.drawArc(
-        Rect.fromCenter(center: Offset(cx + hw * 0.45, cy + y * hh), width: hw * 0.6, height: hh * 0.3),
-        math.pi * 1.2,
-        math.pi * 0.6,
-        false,
-        foldPaint,
-      );
-    }
   }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
-
-class _ButterflyPainter extends CustomPainter {
-  const _ButterflyPainter();
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final cx = size.width / 2;
-    final cy = size.height / 2 + 10;
-    final sw = size.width * 0.3; // wing span factor
-
-    // ── Left upper wing ──
-    final paint = Paint()
-      ..color = AppColors.cta.withValues(alpha: 0.75)
-      ..style = PaintingStyle.fill;
-    final leftWing = Path()
-      ..moveTo(cx, cy)
-      ..cubicTo(
-        cx - sw * 0.05, cy - sw * 0.9,
-        cx - sw * 1.1, cy - sw * 0.6,
-        cx - sw * 0.8, cy + sw * 0.1,
-      )
-      ..cubicTo(
-        cx - sw * 0.6, cy + sw * 0.3,
-        cx - sw * 0.15, cy + sw * 0.1,
-        cx, cy,
-      )
-      ..close();
-    canvas.drawPath(leftWing, paint);
-
-    // ── Right upper wing ──
-    final rightWing = Path()
-      ..moveTo(cx, cy)
-      ..cubicTo(
-        cx + sw * 0.05, cy - sw * 0.9,
-        cx + sw * 1.1, cy - sw * 0.6,
-        cx + sw * 0.8, cy + sw * 0.1,
-      )
-      ..cubicTo(
-        cx + sw * 0.6, cy + sw * 0.3,
-        cx + sw * 0.15, cy + sw * 0.1,
-        cx, cy,
-      )
-      ..close();
-    canvas.drawPath(rightWing, paint);
-
-    // ── Left lower wing ──
-    paint.color = AppColors.purple.withValues(alpha: 0.5);
-    final leftLower = Path()
-      ..moveTo(cx - sw * 0.1, cy + sw * 0.05)
-      ..cubicTo(
-        cx - sw * 0.3, cy + sw * 0.1,
-        cx - sw * 0.6, cy + sw * 0.5,
-        cx - sw * 0.25, cy + sw * 0.6,
-      )
-      ..cubicTo(
-        cx - sw * 0.1, cy + sw * 0.65,
-        cx, cy + sw * 0.1,
-        cx - sw * 0.1, cy + sw * 0.05,
-      )
-      ..close();
-    canvas.drawPath(leftLower, paint);
-
-    // ── Right lower wing ──
-    final rightLower = Path()
-      ..moveTo(cx + sw * 0.1, cy + sw * 0.05)
-      ..cubicTo(
-        cx + sw * 0.3, cy + sw * 0.1,
-        cx + sw * 0.6, cy + sw * 0.5,
-        cx + sw * 0.25, cy + sw * 0.6,
-      )
-      ..cubicTo(
-        cx + sw * 0.1, cy + sw * 0.65,
-        cx, cy + sw * 0.1,
-        cx + sw * 0.1, cy + sw * 0.05,
-      )
-      ..close();
-    canvas.drawPath(rightLower, paint);
-
-    // ── Body ──
-    final bodyPaint = Paint()
-      ..color = AppColors.textPrimary.withValues(alpha: 0.6)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.5
-      ..strokeCap = StrokeCap.round;
-    final bodyPath = Path()
-      ..moveTo(cx, cy + sw * 0.6)
-      ..lineTo(cx, cy - sw * 0.1);
-    canvas.drawPath(bodyPath, bodyPaint);
-
-    // ── Antennae ──
-    final antennaPaint = Paint()
-      ..color = AppColors.textPrimary.withValues(alpha: 0.35)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.2
-      ..strokeCap = StrokeCap.round;
-    // Left antenna
-    final leftAntenna = Path()
-      ..moveTo(cx, cy - sw * 0.1)
-      ..cubicTo(
-        cx - sw * 0.15, cy - sw * 0.3,
-        cx - sw * 0.25, cy - sw * 0.45,
-        cx - sw * 0.3, cy - sw * 0.5,
-      );
-    canvas.drawPath(leftAntenna, antennaPaint);
-    // Right antenna
-    final rightAntenna = Path()
-      ..moveTo(cx, cy - sw * 0.1)
-      ..cubicTo(
-        cx + sw * 0.15, cy - sw * 0.3,
-        cx + sw * 0.25, cy - sw * 0.45,
-        cx + sw * 0.3, cy - sw * 0.5,
-      );
-    canvas.drawPath(rightAntenna, antennaPaint);
-
-    // ── Wing vein details ──
-    final veinPaint = Paint()
-      ..color = AppColors.textPrimary.withValues(alpha: 0.08)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 0.8;
-    // Left wing veins
-    for (final angle in [0.2, 0.4, 0.6]) {
-      final vx = cx - sw * 0.7 * angle;
-      final vy = cy - sw * 0.7 * (1 - angle);
-      canvas.drawLine(Offset(cx, cy), Offset(vx, vy), veinPaint);
-    }
-    // Right wing veins
-    for (final angle in [0.2, 0.4, 0.6]) {
-      final vx = cx + sw * 0.7 * angle;
-      final vy = cy - sw * 0.7 * (1 - angle);
-      canvas.drawLine(Offset(cx, cy), Offset(vx, vy), veinPaint);
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
