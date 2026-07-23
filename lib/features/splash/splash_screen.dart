@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/theme.dart';
 import '../onboarding/greeting_screen.dart';
 import 'type_data.dart';
+import '../../core/brain_butterfly_painter.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -148,12 +149,22 @@ class _SplashScreenState extends State<SplashScreen>
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(22),
-                          child: Image.asset(
-                            'assets/images/logo_brain_butterfly.png',
-                            width: 80, height: 80,
-                            fit: BoxFit.cover,
+                        // Brain + Butterfly stacked
+                        SizedBox(
+                          width: 80, height: 85,
+                          child: Stack(
+                            children: [
+                              Positioned(left: 0, right: 0, bottom: 0,
+                                child: SizedBox(width: 80, height: 70,
+                                  child: CustomPaint(painter: const BrainPainter()),
+                                ),
+                              ),
+                              Positioned(left: 0, right: 0, top: 0,
+                                child: SizedBox(width: 80, height: 55,
+                                  child: CustomPaint(painter: const ButterflyPainter()),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                         const SizedBox(height: 20),
