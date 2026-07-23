@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/theme.dart';
+import '../../core/animations.dart';
 import 'intro_screen.dart';
 
 class GreetingScreen extends StatelessWidget {
@@ -83,9 +84,7 @@ class GreetingScreen extends StatelessWidget {
                 width: double.infinity,
                 child: FilledButton(
                   onPressed: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => const IntroScreen()),
-                    );
+                    Navigator.of(context).push(createFlipRoute(const IntroScreen()));
                   },
                   child: const Text('開始旅程'),
                 ),
