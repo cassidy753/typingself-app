@@ -148,13 +148,13 @@ class _SplashScreenState extends State<SplashScreen>
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Container(
-                          width: 80, height: 80,
-                          decoration: BoxDecoration(
-                            color: AppColors.primary.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(22),
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(22),
+                          child: Image.network(
+                            'https://v3b.fal.media/files/b/0aa36b6e/JUjOZEZcPljMY8HwJ6lDe_a61xpwZu.png',
+                            width: 80, height: 80,
+                            fit: BoxFit.cover,
                           ),
-                          child: Center(child: Text('型', style: TextStyle(fontSize: 36, fontWeight: FontWeight.w900, color: AppColors.primary, fontFamily: 'PingFang TC', fontFamilyFallback: ['Noto Serif TC', 'serif']))),
                         ),
                         const SizedBox(height: 20),
                         Text('型得你', style: TextStyle(fontSize: 34, fontWeight: FontWeight.w700, color: AppColors.textPrimary, fontFamily: 'PingFang TC', fontFamilyFallback: ['Noto Serif TC', 'serif'])),
