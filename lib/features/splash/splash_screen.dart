@@ -25,14 +25,14 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   void initState() {
     super.initState();
-    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 7000));
+    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 5500));
 
     _progress = CurvedAnimation(parent: _ctrl, curve: Curves.linear);
     _logoOpacity = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _ctrl, curve: const Interval(0.25, 0.6, curve: Curves.easeIn)),
+      CurvedAnimation(parent: _ctrl, curve: const Interval(0.2, 0.5, curve: Curves.easeIn)),
     );
     _logoSlide = Tween<double>(begin: 24.0, end: 0.0).animate(
-      CurvedAnimation(parent: _ctrl, curve: const Interval(0.25, 0.6, curve: Curves.easeOutCubic)),
+      CurvedAnimation(parent: _ctrl, curve: const Interval(0.2, 0.5, curve: Curves.easeOutCubic)),
     );
 
     // Assign each type a random screen starting position
@@ -48,7 +48,7 @@ class _SplashScreenState extends State<SplashScreen>
     Future.delayed(const Duration(milliseconds: 400), () {
       if (mounted) _ctrl.forward();
     });
-    Future.delayed(const Duration(milliseconds: 7900), _navigate);
+    Future.delayed(const Duration(milliseconds: 6300), _navigate);
   }
 
   Future<void> _navigate() async {
@@ -167,10 +167,8 @@ class _SplashScreenState extends State<SplashScreen>
                             ],
                           ),
                         ),
-                        const SizedBox(height: 20),
-                        Text('型得你', style: TextStyle(fontSize: 34, fontWeight: FontWeight.w700, color: AppColors.textPrimary, fontFamily: 'PingFang TC', fontFamilyFallback: ['Noto Serif TC', 'serif'])),
-                        const SizedBox(height: 10),
-                        Text('通往心靈嘅經典', style: TextStyle(fontSize: 14, color: AppColors.textSecondary, fontFamily: 'PingFang TC', fontFamilyFallback: ['Noto Serif TC', 'serif'])),
+                        const SizedBox(height: 16),
+                        Text('Typingself | 型得你', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w700, color: AppColors.textPrimary, fontFamily: 'PingFang TC', fontFamilyFallback: ['Noto Serif TC', 'serif'])),
                       ],
                     ),
                   ),
