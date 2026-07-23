@@ -151,16 +151,16 @@ class _SplashScreenState extends State<SplashScreen>
                       children: [
                         // Brain + Butterfly stacked
                         SizedBox(
-                          width: 80, height: 85,
+                          width: 140, height: 145,
                           child: Stack(
                             children: [
                               Positioned(left: 0, right: 0, bottom: 0,
-                                child: SizedBox(width: 80, height: 70,
+                                child: SizedBox(width: 140, height: 120,
                                   child: CustomPaint(painter: const BrainPainter()),
                                 ),
                               ),
                               Positioned(left: 0, right: 0, top: 0,
-                                child: SizedBox(width: 80, height: 55,
+                                child: SizedBox(width: 140, height: 95,
                                   child: CustomPaint(painter: const ButterflyPainter()),
                                 ),
                               ),
