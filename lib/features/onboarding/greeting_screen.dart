@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/theme.dart';
+import 'intro_screen.dart';
 
 class GreetingScreen extends StatelessWidget {
   const GreetingScreen({super.key});
@@ -83,7 +84,7 @@ class GreetingScreen extends StatelessWidget {
                 child: FilledButton(
                   onPressed: () {
                     Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => const _IntroPlaceholder()),
+                      MaterialPageRoute(builder: (_) => const IntroScreen()),
                     );
                   },
                   child: const Text('開始旅程'),
@@ -94,19 +95,6 @@ class GreetingScreen extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-}
-
-// Temporary placeholder for Intro page
-class _IntroPlaceholder extends StatelessWidget {
-  const _IntroPlaceholder();
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(child: Center(
-        child: Text('Intro Page', style: GoogleFonts.notoSerifTc(fontSize: 18)),
-      )),
     );
   }
 }
