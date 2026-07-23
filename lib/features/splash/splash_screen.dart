@@ -43,8 +43,11 @@ class _SplashScreenState extends State<SplashScreen>
       );
     });
 
-    _ctrl.forward();
-    Future.delayed(const Duration(milliseconds: 4000), _navigate);
+    // Small delay for CanvasKit font loading
+    Future.delayed(const Duration(milliseconds: 400), () {
+      if (mounted) _ctrl.forward();
+    });
+    Future.delayed(const Duration(milliseconds: 4400), _navigate);
   }
 
   Future<void> _navigate() async {
@@ -87,8 +90,8 @@ class _SplashScreenState extends State<SplashScreen>
 
                 final halfW = MediaQuery.of(context).size.width / 2;
                 final halfH = MediaQuery.of(context).size.height / 2;
-                final screenX = halfW + (p.x * 70 + ps.offsetX) * scale;
-                final screenY = halfH + (p.y * 45 + ps.offsetY) * scale;
+                final screenX = halfW + (p.x * 120 + ps.offsetX) * scale;
+                final screenY = halfH + (p.y * 80 + ps.offsetY) * scale;
                 final blur = (zPos * 1.8).clamp(0.0, 15.0);
                 final alpha = zPos > 0 ? (1.0 - clamped * 0.7).clamp(0.0, 1.0) : 0.0;
 
