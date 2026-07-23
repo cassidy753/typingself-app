@@ -2,81 +2,73 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 // ═══════════════════════════════════════════════════════════════════════
-// Edition 5 — Official Brand Guideline Color System
-// Core Palette: Mindful Blue #73A5C5 + Organic Cream #F5F1E8 + TypingSelf Charcoal #2A2D34
-// Source: Official TypingSelf Brand System v1.0
+// Classic Edition — 經典 · 心靈 · 悟
+// Core: 舊紙 #F5F0E8 · 墨色 #2C2416 · 硃砂紅 #A04030 · 金色 #B8944B
 // ═══════════════════════════════════════════════════════════════════════
 
 class AppColors {
-  // ─── Light Mode — warm neutrals ───
-  static const background = Color(0xFFFAFAFA);    // Neutral Background
-  static const surface = Color(0xFFF5F1E8);       // Organic Cream — card bg, menus
-  static const elevated = Color(0xFFFFFFFF);      // White cards
-  static const border = Color(0xFFE0DBCC);        // Input border default
-  static const divider = Color(0xFFE0DBCC);
+  static const background = Color(0xFFF5F0E8);     // 舊紙
+  static const surface = Color(0xFFFFFBF5);        // 新紙
+  static const elevated = Color(0xFFFFFFFF);       // 白
+  static const border = Color(0xFFEDE5D8);         // 淺墨邊
+  static const divider = Color(0xFFEDE5D8);
+  static const gap = Color(0xFFF0EAE0);            // 自然分隔色
 
-  // Text — TypingSelf Charcoal
-  static const textPrimary = Color(0xFF2A2D34);   // Charcoal — primary text
-  static const textSecondary = Color(0xFF6B7280); // Gray
-  static const textMuted = Color(0xFF9CA3AF);     // Light gray
-  static const textOnPrimary = Color(0xFFFFFFFF); // White text on colored bg
+  // Text
+  static const textPrimary = Color(0xFF2C2416);    // 濃墨
+  static const textSecondary = Color(0xFF6B5E4A);  // 淡墨
+  static const textMuted = Color(0xFFB8AFA0);      // 更淡墨
+  static const textOnPrimary = Color(0xFFF5F0E8);  // 舊紙色 on accent bg
 
-  // ─── PRIMARY ACCENT — Mindful Blue ───
-  static const primary = Color(0xFF73A5C5);        // Mindful Blue — CTA, links, focus
-  static const primaryDark = Color(0xFF4A5A75);   // Focus Slate — focus states
-  static const primaryLight = Color(0xFFB8D4E3);  // Light tint for bg states
+  // Accents
+  static const primary = Color(0xFFA04030);         // 硃砂紅 — CTA/印章
+  static const gold = Color(0xFFB8944B);            // 金色
+  static const ink = Color(0xFF2C2416);             // 墨色
+  static const success = Color(0xFF6B8F6B);         // 沉穩綠
+  static const error = Color(0xFFA04030);           // 硃砂紅
 
-  // ─── SEMANTIC COLORS ───
-  static const cta = Color(0xFF73A5C5);            // Mindful Blue (alias)
-  static const success = Color(0xFF82C991);        // Growth Green
-  static const error = Color(0xFFE65A6D);          // Cautionary Red
-  static const warning = Color(0xFFE65A6D);
+  // ─── BACKWARD COMPAT ALIASES ───
+  static const cta = primary;
+  static const accentEarth = primary;
+  static const accentCoral = primary;
+  static const accentSage = success;
+  static const accentDusty = Color(0xFFB8A9C9);
+  static const accentGold = gold;
+  static const purple = accentDusty;
+  static const sage = success;
+  static const mustard = gold;
+  static const accentTeal = Color(0xFF66B2B2);
+  static const accentLavender = accentDusty;
+  static const accentAmber = Color(0xFFF8E8C6);
+  static const badgeSage = success;
+  static const badgeGold = gold;
+  static const badgeLavender = accentDusty;
+  static const disabled = border;
+  static const disabledText = textMuted;
 
-  // Accent / secondary palette
-  static const accentTeal = Color(0xFF66B2B2);     // Active Teal
-  static const accentLavender = Color(0xFFA5A7C5); // Calm Lavender
-  static const accentAmber = Color(0xFFF8E8C6);    // Soft Amber
+  // Dark Mode — 夜讀
+  static const darkBackground = Color(0xFF1A1510);  // 墨硯
+  static const darkSurface = Color(0xFF241E18);     // 深紙
+  static const darkElevated = Color(0xFF2C2416);    // 濃墨
+  static const darkTextPrimary = Color(0xFFD4C9B0); // 舊書頁
+  static const darkTextSecondary = Color(0xFFA0907A);
+  static const darkTextMuted = Color(0xFF7A6B5A);
+  static const darkPrimary = Color(0xFFC06050);     // 硃砂 light
+  static const darkGold = Color(0xFFD4B85C);        // 金 light
 
-  // Achievement badges (content-specific)
-  static const badgeSage = Color(0xFF82C991);
-  static const badgeGold = Color(0xFFF8E8C6);
-  static const badgeLavender = Color(0xFFA5A7C5);
-
-  // ─── DARK MODE — #121212 base（非純黑）───
-  static const darkBackground = Color(0xFF121212);  // Material Design 建議 dark bg
-  static const darkSurface = Color(0xFF1E1E1E);     // Card surface
-  static const darkElevated = Color(0xFF2A2D34);    // Elevated surface
-  static const darkBorder = Color(0xFF2A2A2A);      // 1px divider
-  static const darkTextPrimary = Color(0xFFE0E0E0); // 非純白主文字
-  static const darkTextSecondary = Color(0xFF9CA3AF);
-  static const darkTextMuted = Color(0xFF6B7280);
-  static const darkDivider = Color(0xFF2A2A2A);
-
-  // Dark mode accent (slightly desaturated for dark bg)
-  static const darkPrimary = Color(0xFF8EC4E0);     // Mindful Blue lightened
-  static const darkSuccess = Color(0xFF82C991);
-  static const darkError = Color(0xFFE65A6D);
-  static const darkAccentTeal = Color(0xFF66B2B2);
-
-  // ─── BACKWARD COMPAT ALIASES (for existing screen references) ───
-  // Edition 4 color names → map to new official palette
-  static const accentEarth = primary;           // was #8B7355, now Mindful Blue
-  static const accentCoral = cta;               // was #D4735E, now Mindful Blue
-  static const accentSage = badgeSage;          // was #7A9E7E, now Growth Green
-  static const accentDusty = badgeLavender;     // was #B8A9C9, now Calm Lavender
-  static const accentGold = Color(0xFFC9A84C);  // keep gold for badges
-  static const purple = badgeLavender;
-  static const sage = badgeSage;
-  static const mustard = accentGold;
-  static const disabled = Color(0xFFE0DBCC);
-  static const disabledText = Color(0xFF9CA3AF);
+  // Dark mode backward compat
   static const darkAccentEarth = darkPrimary;
-  static const darkAccentCoral = darkError;
-  static const darkAccentSage = darkSuccess;
+  static const darkAccentCoral = darkPrimary;
+  static const darkAccentSage = Color(0xFF6B8F6B);
   static const darkAccentDusty = Color(0xFFA5A7C5);
-  static const darkAccentGold = Color(0xFFC9A84C);
-  static const darkDisabled = Color(0xFF3A4055);
+  static const darkAccentGold = darkGold;
+  static const darkBorder = Color(0xFF3A3A3C);
+  static const darkDisabled = Color(0xFF3A3A3C);
   static const darkDisabledText = Color(0xFF6B7280);
+  static const darkDivider = divider;
+  static const darkSuccess = success;
+  static const darkError = error;
+  static const darkAccentTeal = Color(0xFF66B2B2);
 }
 
 // ─── SPACING ───
@@ -90,47 +82,33 @@ class AppSpacing {
   static const double xxxl = 40;
 }
 
-// ─── RADIUS (Borderless-friendly) ───
+// ─── RADIUS ───
 class AppRadius {
   static const double sm = 4.0;
   static const double md = 8.0;
   static const double lg = 12.0;
   static const double xl = 16.0;
-  static const double xxl = 20.0;
 }
 
-// ─── SHADOWS (Borderless — minimal) ───
+// ─── SHADOWS (Borderless = none) ───
 class AppShadows {
-  static List<BoxShadow> get card => [];  // Borderless: 冇 shadow
+  static List<BoxShadow> get card => [];
   static List<BoxShadow> get elevated => [];
-  static List<BoxShadow> get pressed => [
-    BoxShadow(
-      color: Colors.black.withValues(alpha: 0.04),
-      blurRadius: 4,
-      offset: const Offset(0, 1),
-    ),
-  ];
 }
 
-// ─── BORDERLESS HELPERS ───
+// ─── APP BORDERLESS HELPERS ───
 class AppBorderless {
-  /// Card → 冇裝飾 flat container
   static BoxDecoration card({bool isDark = false}) => BoxDecoration(
     color: isDark ? null : Colors.white,
-    borderRadius: BorderRadius.circular(AppRadius.md),
+    borderRadius: BorderRadius.circular(8),
   );
-
-  /// 1px 幼線 divider
   static Widget divider({bool isDark = false}) => Divider(
-    height: 1,
-    thickness: 1,
-    color: isDark ? const Color(0xFF2A2A2A) : const Color(0xFFE5E7EB),
+    height: 1, thickness: 1,
+    color: isDark ? const Color(0xFF3A3A3C) : const Color(0xFFEDE5D8),
   );
-
-  /// 背景 gap（代替 card shadow）
   static Widget gap({bool isDark = false}) => Container(
     height: 8,
-    color: isDark ? const Color(0xFF121212) : const Color(0xFFF4F5F6),
+    color: isDark ? const Color(0xFF1A1510) : const Color(0xFFF0EAE0),
   );
 }
 
@@ -142,16 +120,16 @@ class AppTheme {
       brightness: Brightness.light,
       scaffoldBackgroundColor: AppColors.background,
       colorScheme: ColorScheme.light(
-        primary: AppColors.accentEarth,
-        onPrimary: Colors.white,
-        primaryContainer: AppColors.accentEarth.withValues(alpha: 0.1),
-        secondary: AppColors.accentCoral,
-        onSecondary: Colors.white,
+        primary: AppColors.primary,
+        onPrimary: AppColors.textOnPrimary,
+        primaryContainer: AppColors.primary.withValues(alpha: 0.1),
+        secondary: AppColors.gold,
+        onSecondary: AppColors.textPrimary,
         surface: AppColors.surface,
         onSurface: AppColors.textPrimary,
-        error: const Color(0xFFEF4444),
+        error: AppColors.error,
       ),
-      textTheme: GoogleFonts.notoSansTcTextTheme().apply(
+      textTheme: GoogleFonts.notoSerifTcTextTheme().apply(
         bodyColor: AppColors.textPrimary,
         displayColor: AppColors.textPrimary,
       ),
@@ -163,24 +141,22 @@ class AppTheme {
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
-          backgroundColor: AppColors.accentEarth,
-          foregroundColor: Colors.white,
-          minimumSize: const Size(double.infinity, 52),
+          backgroundColor: AppColors.primary,
+          foregroundColor: AppColors.textOnPrimary,
+          minimumSize: const Size(double.infinity, 48),
           padding: const EdgeInsets.symmetric(horizontal: 24),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: BorderRadius.circular(8),
           ),
-          textStyle: GoogleFonts.notoSansTc(
-            fontSize: 17, fontWeight: FontWeight.w700,
+          textStyle: GoogleFonts.notoSerifTc(
+            fontSize: 15, fontWeight: FontWeight.w600,
           ),
-          disabledBackgroundColor: AppColors.disabled,
-          disabledForegroundColor: AppColors.disabledText,
         ),
       ),
       snackBarTheme: SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(8),
         ),
       ),
     );
@@ -192,16 +168,16 @@ class AppTheme {
       brightness: Brightness.dark,
       scaffoldBackgroundColor: AppColors.darkBackground,
       colorScheme: ColorScheme.dark(
-        primary: AppColors.darkAccentEarth,
+        primary: AppColors.darkPrimary,
         onPrimary: AppColors.darkBackground,
-        primaryContainer: AppColors.darkAccentEarth.withValues(alpha: 0.1),
-        secondary: AppColors.darkAccentCoral,
-        onSecondary: Colors.white,
+        primaryContainer: AppColors.darkPrimary.withValues(alpha: 0.15),
+        secondary: AppColors.darkGold,
+        onSecondary: AppColors.darkTextPrimary,
         surface: AppColors.darkSurface,
         onSurface: AppColors.darkTextPrimary,
-        error: const Color(0xFFEF4444),
+        error: AppColors.error,
       ),
-      textTheme: GoogleFonts.notoSansTcTextTheme().apply(
+      textTheme: GoogleFonts.notoSerifTcTextTheme().apply(
         bodyColor: AppColors.darkTextPrimary,
         displayColor: AppColors.darkTextPrimary,
       ),
@@ -213,24 +189,22 @@ class AppTheme {
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
-          backgroundColor: AppColors.darkAccentEarth,
-          foregroundColor: Colors.white,
-          minimumSize: const Size(double.infinity, 52),
+          backgroundColor: AppColors.darkPrimary,
+          foregroundColor: AppColors.darkBackground,
+          minimumSize: const Size(double.infinity, 48),
           padding: const EdgeInsets.symmetric(horizontal: 24),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: BorderRadius.circular(8),
           ),
-          textStyle: GoogleFonts.notoSansTc(
-            fontSize: 17, fontWeight: FontWeight.w700,
+          textStyle: GoogleFonts.notoSerifTc(
+            fontSize: 15, fontWeight: FontWeight.w600,
           ),
-          disabledBackgroundColor: AppColors.darkDisabled,
-          disabledForegroundColor: AppColors.darkDisabledText,
         ),
       ),
       snackBarTheme: SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(8),
         ),
       ),
     );
