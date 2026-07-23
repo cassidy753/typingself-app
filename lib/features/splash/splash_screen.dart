@@ -25,14 +25,14 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   void initState() {
     super.initState();
-    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 3500));
+    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 7000));
 
     _progress = CurvedAnimation(parent: _ctrl, curve: Curves.linear);
     _logoOpacity = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _ctrl, curve: const Interval(0.5, 0.85, curve: Curves.easeIn)),
+      CurvedAnimation(parent: _ctrl, curve: const Interval(0.25, 0.6, curve: Curves.easeIn)),
     );
     _logoSlide = Tween<double>(begin: 24.0, end: 0.0).animate(
-      CurvedAnimation(parent: _ctrl, curve: const Interval(0.5, 0.85, curve: Curves.easeOutCubic)),
+      CurvedAnimation(parent: _ctrl, curve: const Interval(0.25, 0.6, curve: Curves.easeOutCubic)),
     );
 
     // Assign each type a random screen starting position
@@ -48,7 +48,7 @@ class _SplashScreenState extends State<SplashScreen>
     Future.delayed(const Duration(milliseconds: 400), () {
       if (mounted) _ctrl.forward();
     });
-    Future.delayed(const Duration(milliseconds: 4400), _navigate);
+    Future.delayed(const Duration(milliseconds: 7900), _navigate);
   }
 
   Future<void> _navigate() async {
@@ -151,16 +151,16 @@ class _SplashScreenState extends State<SplashScreen>
                       children: [
                         // Brain + Butterfly stacked
                         SizedBox(
-                          width: 140, height: 145,
+                          width: 200, height: 200,
                           child: Stack(
                             children: [
                               Positioned(left: 0, right: 0, bottom: 0,
-                                child: SizedBox(width: 140, height: 120,
+                                child: SizedBox(width: 200, height: 165,
                                   child: CustomPaint(painter: const BrainPainter()),
                                 ),
                               ),
                               Positioned(left: 0, right: 0, top: 0,
-                                child: SizedBox(width: 140, height: 95,
+                                child: SizedBox(width: 200, height: 130,
                                   child: CustomPaint(painter: const ButterflyPainter()),
                                 ),
                               ),
