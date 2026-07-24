@@ -1,5 +1,4 @@
 import 'dart:math' as math;
-import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -26,7 +25,6 @@ class _SplashScreenState extends State<SplashScreen>
   void initState() {
     super.initState();
     _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 5500));
-
     _progress = CurvedAnimation(parent: _ctrl, curve: Curves.linear);
     _logoOpacity = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _ctrl, curve: const Interval(0.2, 0.5, curve: Curves.easeIn)),
@@ -34,8 +32,6 @@ class _SplashScreenState extends State<SplashScreen>
     _logoSlide = Tween<double>(begin: 24.0, end: 0.0).animate(
       CurvedAnimation(parent: _ctrl, curve: const Interval(0.2, 0.5, curve: Curves.easeOutCubic)),
     );
-
-    // Assign each type a random screen starting position
     _particles = List.generate(typeData.length, (i) {
       final r = math.Random(i);
       return _ParticleState(
@@ -43,8 +39,6 @@ class _SplashScreenState extends State<SplashScreen>
         offsetY: (r.nextDouble() - 0.5) * 60,
       );
     });
-
-    // Small delay for CanvasKit font loading
     Future.delayed(const Duration(milliseconds: 400), () {
       if (mounted) _ctrl.forward();
     });
@@ -82,57 +76,34 @@ class _SplashScreenState extends State<SplashScreen>
               ...List.generate(typeData.length, (i) {
                 final p = typeData[i];
                 final ps = _particles[i];
-
                 final rawProgress = _progress.value * 1.4 * p.speed;
                 final clamped = rawProgress.clamp(0.0, 1.0);
                 final zPos = p.z - (p.z + 2.0) * clamped;
                 const persp = 0.08;
                 final scale = zPos > 0 ? (1.0 / (1.0 + zPos * persp)) : 0.0;
-
                 final halfW = MediaQuery.of(context).size.width / 2;
                 final halfH = MediaQuery.of(context).size.height / 2;
                 final screenX = halfW + (p.x * 120 + ps.offsetX) * scale;
                 final screenY = halfH + (p.y * 80 + ps.offsetY) * scale;
-                final blur = (zPos * 1.8).clamp(0.0, 15.0);
                 final alpha = zPos > 0 ? (1.0 - clamped * 0.7).clamp(0.0, 1.0) : 0.0;
-
                 if (alpha <= 0 || scale <= 0) return const SizedBox.shrink();
-
                 final nameSize = p.baseSize * scale;
                 final codeSize = (p.baseSize * 0.5) * scale;
                 final archetypeSize = (p.baseSize * 0.45) * scale;
 
-                return Positioned(
-                  left: screenX - nameSize,
-                  top: screenY - nameSize * 0.5,
-                  child: Opacity(
-                    opacity: alpha,
-                    child: ImageFiltered(
-                      imageFilter: ui.ImageFilter.blur(sigmaX: blur, sigmaY: blur),
+                return RepaintBoundary(
+                  child: Positioned(
+                    left: screenX - nameSize,
+                    top: screenY - nameSize * 0.5,
+                    child: Opacity(
+                      opacity: alpha,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          // Code (small, subtle)
-                          Text(p.code, style: TextStyle(
-                            fontSize: codeSize.clamp(4, 18), fontWeight: FontWeight.w500,
-                            color: p.color.withValues(alpha: 0.5),
-                            letterSpacing: 0.08,
-                            fontFamily: 'PingFang TC', fontFamilyFallback: ['Noto Sans TC', 'sans-serif'],
-                          )),
-                          // Name (large, main)
-                          Text(p.name, style: TextStyle(
-                            fontSize: nameSize.clamp(6, 36), fontWeight: p.weight,
-                            color: p.color.withValues(alpha: 0.7),
-                            height: 0.9,
-                            fontFamily: 'PingFang TC', fontFamilyFallback: ['Noto Sans TC', 'sans-serif'],
-                          )),
-                          // Archetype (small, italic)
-                          Text(p.archetype, style: TextStyle(
-                            fontSize: archetypeSize.clamp(3, 14), fontWeight: FontWeight.w300,
-                            color: p.color.withValues(alpha: 0.35),
-                            fontFamily: 'PingFang TC', fontFamilyFallback: ['Noto Sans TC', 'sans-serif'],
-                          )),
+                          Text(p.code, style: TextStyle(fontSize: codeSize.clamp(4, 18), fontWeight: FontWeight.w500, color: p.color.withValues(alpha: 0.5), letterSpacing: 0.08, fontFamily: 'PingFang TC', fontFamilyFallback: ['Noto Sans TC', 'sans-serif'])),
+                          Text(p.name, style: TextStyle(fontSize: nameSize.clamp(6, 36), fontWeight: p.weight, color: p.color.withValues(alpha: 0.7), height: 0.9, fontFamily: 'PingFang TC', fontFamilyFallback: ['Noto Sans TC', 'sans-serif'])),
+                          Text(p.archetype, style: TextStyle(fontSize: archetypeSize.clamp(3, 14), fontWeight: FontWeight.w300, color: p.color.withValues(alpha: 0.35), fontFamily: 'PingFang TC', fontFamilyFallback: ['Noto Sans TC', 'sans-serif'])),
                         ],
                       ),
                     ),
@@ -149,7 +120,6 @@ class _SplashScreenState extends State<SplashScreen>
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        // Brain + Butterfly stacked
                         SizedBox(
                           width: 200, height: 200,
                           child: Stack(
