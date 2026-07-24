@@ -78,7 +78,7 @@ class _SplashScreenState extends State<SplashScreen>
                 final sx = w2 + (p.x * 120 + ps.offsetX) * scale;
                 final sy = h2 + (p.y * 80 + ps.offsetY) * scale;
                 final alpha = zPos > 0 ? (1.0 - raw * 0.7).clamp(0.0, 1.0) : 0.0;
-                if (alpha <= 0 || scale <= 0) return const SizedBox.shrink();
+                if (alpha <= 0 || scale <= 0) return const SizedBox(width: 0, height: 0);
                 final ns = p.baseSize * scale;
                 return Positioned(
                   left: sx - ns,
