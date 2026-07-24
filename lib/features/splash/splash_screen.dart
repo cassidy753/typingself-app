@@ -168,7 +168,11 @@ class _SplashScreenState extends State<SplashScreen>
                           ),
                         ),
                         const SizedBox(height: 16),
-                        Text('Typingself | 型得你', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w700, color: AppColors.textPrimary, fontFamily: 'PingFang TC', fontFamilyFallback: ['Noto Serif TC', 'serif'])),
+                        Text.rich(TextSpan(children: [
+                          TextSpan(text: 'Typingself', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w600, color: AppColors.textPrimary, fontFamily: 'Inter', fontFamilyFallback: ['SF Pro Display', 'sans-serif'])),
+                          TextSpan(text: ' | ', style: TextStyle(fontSize: 28, color: AppColors.gold, fontFamily: 'Inter', fontFamilyFallback: ['sans-serif'])),
+                          TextSpan(text: '型得你', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w700, color: AppColors.textPrimary, fontFamily: 'PingFang TC', fontFamilyFallback: ['Noto Serif TC', 'serif'])),
+                        ])),
                       ],
                     ),
                   ),
