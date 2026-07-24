@@ -36,10 +36,11 @@ class _SplashScreenState extends State<SplashScreen>
       final r = math.Random(i);
       return _ParticleState(offsetX: (r.nextDouble() - 0.5) * 80, offsetY: (r.nextDouble() - 0.5) * 60);
     });
-    Future.delayed(const Duration(milliseconds: 400), () {
+    // Delay for font loading
+    Future.delayed(const Duration(milliseconds: 1200), () {
       if (mounted) _ctrl.forward();
     });
-    Future.delayed(const Duration(milliseconds: 6300), _navigate);
+    Future.delayed(const Duration(milliseconds: 7100), _navigate);
   }
 
   Future<void> _navigate() async {
@@ -83,8 +84,9 @@ class _SplashScreenState extends State<SplashScreen>
                 return Positioned(
                   left: sx - ns,
                   top: sy - ns * 0.5,
-                  child: Opacity(
-                    opacity: alpha,
+                  child: RepaintBoundary(
+                    child: Opacity(
+                      opacity: alpha,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
@@ -94,6 +96,7 @@ class _SplashScreenState extends State<SplashScreen>
                         Text(p.archetype, style: TextStyle(fontSize: (p.baseSize * 0.45 * scale).clamp(3, 14), fontWeight: FontWeight.w300, color: p.color.withValues(alpha: 0.35), fontFamily: 'PingFang TC', fontFamilyFallback: ['Noto Sans TC', 'sans-serif'])),
                       ],
                     ),
+                  ),
                   ),
                 );
               }),
