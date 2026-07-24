@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'core/theme.dart';
+import 'core/settings_service.dart';
 import 'features/home/home_screen.dart';
 import 'features/splash/splash_screen.dart';
 import 'features/bookshelf/bookshelf_screen.dart';
