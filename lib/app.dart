@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'core/theme.dart';
-import 'core/settings_service.dart';
-import 'core/fixed_frame.dart';
+import 'features/home/home_screen.dart';
 import 'features/splash/splash_screen.dart';
 import 'features/bookshelf/bookshelf_screen.dart';
 import 'features/explore_v2/explore_grid_screen.dart';
@@ -65,7 +64,7 @@ class _TypingselfAppState extends State<TypingselfApp> {
       themeMode: _darkMode ? ThemeMode.dark : ThemeMode.light,
       home: const SplashScreen(),
       routes: {
-        '/home': (_) => FixedFrame(child: AppRoot(onThemeChanged: _refreshTheme)),
+        '/home': (_) => const HomeScreen(),
       },
     );
   }

@@ -48,9 +48,13 @@ class _SplashScreenState extends State<SplashScreen>
     final prefs = await SharedPreferences.getInstance();
     final profileDone = prefs.getBool('profile_done') ?? false;
     if (!mounted) return;
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (_) => profileDone ? const _HomePlaceholder() : const GreetingScreen()),
-    );
+    if (profileDone) {
+      Navigator.of(context).pushReplacementNamed('/home');
+    } else {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => const GreetingScreen()),
+      );
+    }
   }
 
   @override
