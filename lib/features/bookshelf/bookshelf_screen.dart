@@ -84,7 +84,9 @@ class _BookshelfScreenState extends State<BookshelfScreen> {
     final weeklyProgress = (weeklyMinutes / weeklyGoalMinutes).clamp(0.0, 1.0);
 
     return Container(
-      color: isDark ? AppColors.darkBackground : AppColors.background,
+      decoration: BoxDecoration(
+        gradient: isDark ? null : AppColors.backgroundGradient(),
+      ),
       child: CustomScrollView(
         slivers: [
           // ── Weekly Reading Goal Card (Apple Books style) ──
@@ -187,7 +189,7 @@ class _WeeklyGoalCard extends StatelessWidget {
             Row(
               children: [
                 Text('本週閱讀目標',
-                  style: GoogleFonts.notoSerifTc(
+                  style: GoogleFonts.notoSansTc(
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
                     color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
@@ -198,7 +200,7 @@ class _WeeklyGoalCard extends StatelessWidget {
                   style: GoogleFonts.notoSansTc(
                     fontSize: 15,
                     fontWeight: FontWeight.w500,
-                    color: isDark ? AppColors.darkTextSecondary : const Color(0xFF333333),
+                    color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
                   ),
                 ),
               ],
@@ -218,15 +220,15 @@ class _WeeklyGoalCard extends StatelessWidget {
                         child: CircularProgressIndicator(
                           value: weeklyProgress,
                           strokeWidth: 5,
-                          backgroundColor: isDark ? AppColors.darkBorder : AppColors.border,
-                          valueColor: const AlwaysStoppedAnimation<Color>(AppColors.accentEarth),
+                          backgroundColor: isDark ? AppColors.darkBorder : Colors.black.withValues(alpha: 0.06),
+                          valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
                         ),
                       ),
                       Text('${(weeklyProgress * 100).round()}%',
                         style: GoogleFonts.notoSansTc(
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
-                          color: AppColors.accentEarth,
+                          color: AppColors.primary,
                         ),
                       ),
                     ],
@@ -347,12 +349,12 @@ class _FilterChips extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   decoration: BoxDecoration(
                     color: active
-                        ? AppColors.accentEarth.withValues(alpha: 0.1)
+                        ? AppColors.primary.withValues(alpha: 0.12)
                         : (isDark ? AppColors.darkSurface : Colors.white),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
                       color: active
-                          ? AppColors.accentEarth.withValues(alpha: 0.3)
+                          ? AppColors.primary.withValues(alpha: 0.3)
                           : (isDark ? AppColors.darkBorder : AppColors.border),
                     ),
                   ),
@@ -364,7 +366,7 @@ class _FilterChips extends StatelessWidget {
                           fontSize: 13,
                           fontWeight: active ? FontWeight.w600 : FontWeight.w500,
                           color: active
-                              ? AppColors.accentEarth
+                              ? AppColors.primary
                               : (isDark ? AppColors.darkTextSecondary : AppColors.textSecondary),
                         ),
                       ),
@@ -373,7 +375,7 @@ class _FilterChips extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
                         decoration: BoxDecoration(
                           color: active
-                              ? AppColors.accentEarth.withValues(alpha: 0.15)
+                              ? AppColors.primary.withValues(alpha: 0.15)
                               : (isDark ? AppColors.darkBorder : AppColors.border),
                           borderRadius: BorderRadius.circular(10),
                         ),
@@ -382,7 +384,7 @@ class _FilterChips extends StatelessWidget {
                             fontSize: 10,
                             fontWeight: FontWeight.w600,
                             color: active
-                                ? AppColors.accentEarth
+                                ? AppColors.ink
                                 : (isDark ? AppColors.darkTextSecondary : AppColors.textMuted),
                           ),
                         ),
@@ -425,7 +427,6 @@ class _BookCard extends StatelessWidget {
           decoration: BoxDecoration(
             color: isDark ? AppColors.darkSurface : AppColors.surface,
             borderRadius: BorderRadius.circular(16),
-            boxShadow: AppShadows.card,
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -508,8 +509,8 @@ class _BookCard extends StatelessWidget {
                       child: LinearProgressIndicator(
                         value: isCompleted ? 1.0 : 0.0,
                         minHeight: 4,
-                        backgroundColor: AppColors.accentDusty.withValues(alpha: 0.1),
-                        valueColor: const AlwaysStoppedAnimation<Color>(AppColors.accentDusty),
+                        backgroundColor: AppColors.primary.withValues(alpha: 0.1),
+                        valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
                       ),
                     ),
                   ],

@@ -98,7 +98,7 @@ class _ZodiacResultScreenState extends State<ZodiacResultScreen>
                         style: GoogleFonts.notoSerifTc(
                             fontSize: 16,
                             fontWeight: FontWeight.w700,
-                            color: AppColors.purple)),
+                            color: AppColors.primary)),
                     const SizedBox(height: 4),
                     Text('${r.birthDate}  ${r.birthTime}  ${r.location}',
                         style: GoogleFonts.notoSansTc(
@@ -126,7 +126,7 @@ class _ZodiacResultScreenState extends State<ZodiacResultScreen>
                       en: ZodiacCalculator.signEn[r.risingSign] ?? '',
                       traits: risingInfo?.appearance ?? '',
                       subText: risingInfo?.summary ?? '',
-                      color: AppColors.mustard,
+                      color: AppColors.gold,
                     ),
                     const SizedBox(height: 12),
 
@@ -138,7 +138,7 @@ class _ZodiacResultScreenState extends State<ZodiacResultScreen>
                       en: ZodiacCalculator.signEn[r.moonSign] ?? '',
                       traits: moonInfo?.emotionalPattern ?? '',
                       subText: moonInfo?.summary ?? '',
-                      color: AppColors.purple,
+                      color: AppColors.primary,
                     ),
                     const SizedBox(height: 20),
 
@@ -191,7 +191,7 @@ class _ZodiacResultScreenState extends State<ZodiacResultScreen>
                           '',
                           risingInfo.summary,
                         ],
-                        color: AppColors.mustard,
+                        color: AppColors.gold,
                       ),
                     const SizedBox(height: 12),
 
@@ -206,7 +206,7 @@ class _ZodiacResultScreenState extends State<ZodiacResultScreen>
                           '',
                           moonInfo.summary,
                         ],
-                        color: AppColors.purple,
+                        color: AppColors.primary,
                       ),
 
                     const SizedBox(height: 24),
@@ -218,7 +218,7 @@ class _ZodiacResultScreenState extends State<ZodiacResultScreen>
                       child: FilledButton(
                         onPressed: () => Navigator.of(context).pop(),
                         style: FilledButton.styleFrom(
-                          backgroundColor: AppColors.purple,
+                          backgroundColor: AppColors.primary,
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(24)),

@@ -3,6 +3,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'core/theme.dart';
 import 'core/settings_service.dart';
+import 'features/audio/bgm_service.dart';
+import 'features/audio/bgm_player.dart';
 import 'features/home/home_screen.dart';
 import 'features/splash/splash_screen.dart';
 import 'features/bookshelf/bookshelf_screen.dart';
@@ -34,6 +36,7 @@ class _TypingselfAppState extends State<TypingselfApp> {
 
   Future<void> _loadTheme() async {
     await SettingsService().init();
+    BgmService().init(); // init BGM state from persisted setting
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       _darkMode = prefs.getBool('dark_mode') ?? false;
@@ -162,7 +165,11 @@ class _TabItem {
   const _TabItem(this.icon, this.activeIcon, this.label);
 }
 
-// ──────── MAIN SHELL 4 (Edition 4 — Apple Books style) ────────
+// ═══════════════════════════════════════════════════════════════════════
+// MainShell4 — 經典·心靈·悟 Nav Shell
+// Old paper bg, warm surface nav bar, cinnabar red accent
+// ═══════════════════════════════════════════════════════════════════════
+
 class MainShell4 extends StatefulWidget {
   final String mbti;
   final String ennea;
@@ -251,27 +258,37 @@ class _MainShell4State extends State<MainShell4> with SingleTickerProviderStateM
     final accent = accentColors[_tab];
 
     return Scaffold(
-      backgroundColor: isDark ? AppColors.darkBackground : AppColors.background,
-      body: Column(
+      body: Stack(
         children: [
-          // ── Thin AppBar (Apple Books style) ──
-          _buildAppBar(isDark, accent),
-
-          // ── Page content ──
-          Expanded(
-            child: PageView(
-              controller: _pageCtrl,
-              physics: const ClampingScrollPhysics(),
-              onPageChanged: (i) => setState(() => _tab = i),
+          Container(
+            decoration: BoxDecoration(
+              gradient: isDark ? null : AppColors.backgroundGradient(),
+            ),
+            child: Column(
               children: [
-                BookshelfScreen(key: const ValueKey('b'), mbti: widget.mbti, ennea: widget.ennea),
-                ExploreGridScreen(key: const ValueKey('e'), mbti: widget.mbti, ennea: widget.ennea, onRetakeTest: widget.onRetakeTest),
-                FeedScreen(key: const ValueKey('f'), mbti: widget.mbti, ennea: widget.ennea),
-                ProfileV2Screen(key: const ValueKey('p'), mbti: widget.mbti, ennea: widget.ennea,
-                  onRetakeTest: widget.onRetakeTest, onThemeChanged: widget.onThemeChanged),
+                // ── Thin AppBar (Apple Books style) ──
+                _buildAppBar(isDark, accent),
+
+                // ── Page content ──
+                Expanded(
+                  child: PageView(
+                    controller: _pageCtrl,
+                    physics: const ClampingScrollPhysics(),
+                    onPageChanged: (i) => setState(() => _tab = i),
+                    children: [
+                      BookshelfScreen(key: const ValueKey('b'), mbti: widget.mbti, ennea: widget.ennea),
+                      ExploreGridScreen(key: const ValueKey('e'), mbti: widget.mbti, ennea: widget.ennea, onRetakeTest: widget.onRetakeTest),
+                      FeedScreen(key: const ValueKey('f'), mbti: widget.mbti, ennea: widget.ennea),
+                      ProfileV2Screen(key: const ValueKey('p'), mbti: widget.mbti, ennea: widget.ennea,
+                        onRetakeTest: widget.onRetakeTest, onThemeChanged: widget.onThemeChanged),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
+          // ── BGM Player floating button ──
+          const BgmPlayerWidget(),
         ],
       ),
       bottomNavigationBar: _buildBottomNav(isDark, accent),
@@ -304,22 +321,22 @@ class _MainShell4State extends State<MainShell4> with SingleTickerProviderStateM
                     Container(
                       width: 26, height: 26,
                       decoration: BoxDecoration(
-                        color: accent.withValues(alpha: 0.12),
+                        color: AppColors.primary.withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(7),
                       ),
                       child: Center(
                         child: Text('TS',
-                          style: GoogleFonts.notoSerifTc(
+                          style: GoogleFonts.notoSansTc(
                             fontSize: 10,
                             fontWeight: FontWeight.w900,
-                            color: accent,
+                            color: AppColors.primary,
                           ),
                         ),
                       ),
                     ),
                     const SizedBox(width: 6),
                     Text('型得你',
-                      style: GoogleFonts.notoSerifTc(
+                      style: GoogleFonts.notoSansTc(
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
                         color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
@@ -358,7 +375,7 @@ class _MainShell4State extends State<MainShell4> with SingleTickerProviderStateM
       child: SafeArea(
         top: false,
         child: SizedBox(
-          height: 56,
+          height: 60,
           child: Row(
             children: List.generate(4, (i) {
               final active = _tab == i;
@@ -380,34 +397,34 @@ class _MainShell4State extends State<MainShell4> with SingleTickerProviderStateM
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        // Active indicator dot
-                        AnimatedContainer(
-                          duration: const Duration(milliseconds: 250),
-                          width: active ? 20 : 0,
-                          height: 3,
-                          margin: const EdgeInsets.only(bottom: 4),
-                          decoration: BoxDecoration(
-                            color: accent,
-                            borderRadius: BorderRadius.circular(2),
-                          ),
-                        ),
                         // Icon
                         Icon(
                           active ? t.activeIcon : t.icon,
-                          size: 22,
+                          size: 24,
                           color: active
-                              ? accent
+                              ? AppColors.primary
                               : (isDark ? AppColors.darkTextMuted : AppColors.textMuted),
                         ),
-                        const SizedBox(height: 2),
+                        const SizedBox(height: 3),
                         // Label
                         Text(t.label,
-                          style: TextStyle(
+                          style: GoogleFonts.notoSansTc(
                             fontSize: 10,
                             fontWeight: active ? FontWeight.w600 : FontWeight.w400,
                             color: active
-                                ? accent
+                                ? AppColors.primary
                                 : (isDark ? AppColors.darkTextMuted : AppColors.textMuted),
+                          ),
+                        ),
+                        // Active indicator dot
+                        AnimatedContainer(
+                          duration: const Duration(milliseconds: 250),
+                          width: active ? 16 : 0,
+                          height: 3,
+                          margin: const EdgeInsets.only(top: 3),
+                          decoration: BoxDecoration(
+                            color: AppColors.primary,
+                            borderRadius: BorderRadius.circular(2),
                           ),
                         ),
                       ],

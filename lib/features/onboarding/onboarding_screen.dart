@@ -98,15 +98,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFFEBE0F5), // light purple / lavender mist
-              Color(0xFFFCE8E0), // light coral / warm pink
-            ],
-          ),
+        decoration: BoxDecoration(
+          gradient: AppColors.backgroundGradient(),
         ),
         child: SafeArea(
           child: Stack(
@@ -135,7 +128,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           child: Container(
                             width: 36, height: 36,
                             decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.6),
+                              color: AppColors.gap,
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: const Icon(Icons.arrow_back_rounded, size: 18, color: AppColors.textPrimary),
@@ -154,8 +147,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           height: 8,
                           decoration: BoxDecoration(
                             color: _currentPage == i
-                                ? AppColors.purple
-                                : Colors.white.withValues(alpha: 0.5),
+                                ? AppColors.primary
+                                : AppColors.divider.withValues(alpha: 0.6),
                             borderRadius: BorderRadius.circular(4),
                           ),
                         )),
@@ -168,7 +161,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           child: Container(
                             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                             decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.6),
+                              color: AppColors.divider.withValues(alpha: 0.6),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Text(
@@ -242,19 +235,12 @@ class _Page1KnowYourself extends StatelessWidget {
               width: 120,
               height: 120,
               decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF9B72AA), Color(0xFFE0785A)],
+                gradient: LinearGradient(
+                  colors: [AppColors.primary, AppColors.gold],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
                 borderRadius: BorderRadius.circular(32),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.purple.withValues(alpha: 0.3),
-                    blurRadius: 24,
-                    offset: const Offset(0, 8),
-                  ),
-                ],
               ),
               child: const Center(
                 child: Text('🧠🦋', style: TextStyle(fontSize: 48)),
@@ -418,8 +404,8 @@ class _Page2IntroSystems extends StatelessWidget {
             child: const _SystemIntroCard(
               emoji: '🧠',
               title: 'MBTI 16型人格',
-              description: '分析你嘅性格傾向 — 你係外向定內向？直覺定實感？\n理性定感性？規劃定隨性？',
-              colors: const [Color(0xFF9B72AA), Color(0xFFB388D0)],
+              description: '分析你嘅性格傾向 — 你係外向定內向？直覺定實感？\\n理性定感性？規劃定隨性？',
+              accent: AppColors.primary,
             ),
           ),
           const SizedBox(height: 16),
@@ -441,8 +427,8 @@ class _Page2IntroSystems extends StatelessWidget {
             child: const _SystemIntroCard(
               emoji: '🌀',
               title: '九型人格 Enneagram',
-              description: '探索你嘅內在動機同核心恐懼 —\n你係完美型？助人型？成就型？定係其他？',
-              colors: const [Color(0xFFD4A843), Color(0xFFE8C97A)],
+              description: '探索你嘅內在動機同核心恐懼 —\\n你係完美型？助人型？成就型？定係其他？',
+              accent: AppColors.gold,
             ),
           ),
 
@@ -655,13 +641,13 @@ class _Page3AssessmentOrSkip extends StatelessWidget {
 
 class _SystemIntroCard extends StatelessWidget {
   final String emoji, title, description;
-  final List<Color> colors;
+  final Color accent;
 
   const _SystemIntroCard({
     required this.emoji,
     required this.title,
     required this.description,
-    required this.colors,
+    required this.accent,
   });
 
   @override
@@ -670,27 +656,8 @@ class _SystemIntroCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            colors[0].withValues(alpha: 0.10),
-            Colors.white.withValues(alpha: 0.20),
-            colors[1].withValues(alpha: 0.06),
-          ],
-        ),
+        color: AppColors.elevated,
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(
-          color: colors[0].withValues(alpha: 0.30),
-          width: 1.5,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: colors[0].withValues(alpha: 0.12),
-            blurRadius: 16,
-            offset: const Offset(0, 4),
-          ),
-        ],
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -699,11 +666,7 @@ class _SystemIntroCard extends StatelessWidget {
             width: 52,
             height: 52,
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: colors,
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
+              color: accent.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(16),
             ),
             child: Center(
@@ -763,9 +726,9 @@ class _OnboardingVersionCard extends StatelessWidget {
   });
 
   Color get _accentColor {
-    if (accentKey == '快測') return AppColors.sage;
-    if (accentKey == '標準') return AppColors.mustard;
-    return AppColors.purple; // 深度
+    if (accentKey == '快測') return AppColors.success;
+    if (accentKey == '標準') return AppColors.gold;
+    return AppColors.primary; // 深度
   }
 
   String get _badgeText {
@@ -950,13 +913,13 @@ class _OnboardingVersionCard extends StatelessWidget {
 class _OnboardingRadialGlowPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-    const glowColor = Color(0xFFD4C4E8);
+    const glowColor = AppColors.gap;
     final gradient = RadialGradient(
       center: const Alignment(0, -0.1),
       radius: 0.65,
       colors: [
-        glowColor.withValues(alpha: 0.25),
-        glowColor.withValues(alpha: 0.08),
+        glowColor.withValues(alpha: 0.20),
+        glowColor.withValues(alpha: 0.06),
         glowColor.withValues(alpha: 0.0),
       ],
     );
@@ -970,12 +933,12 @@ class _OnboardingRadialGlowPainter extends CustomPainter {
       );
     canvas.drawRect(Offset.zero & size, paint);
 
-    const coralColor = Color(0xFFE8A090);
+    const coralColor = AppColors.accentWarm;
     final coralGradient = RadialGradient(
       center: const Alignment(0.7, 0.9),
       radius: 0.8,
       colors: [
-        coralColor.withValues(alpha: 0.12),
+        coralColor.withValues(alpha: 0.10),
         coralColor.withValues(alpha: 0.0),
       ],
     );
@@ -983,12 +946,12 @@ class _OnboardingRadialGlowPainter extends CustomPainter {
       ..shader = coralGradient.createShader(Offset.zero & size);
     canvas.drawRect(Offset.zero & size, paint2);
 
-    const highlightColor = Color(0xFFFFFAF0);
+    const highlightColor = AppColors.elevated;
     final highlightGradient = RadialGradient(
       center: const Alignment(-0.8, -0.8),
       radius: 0.5,
       colors: [
-        highlightColor.withValues(alpha: 0.20),
+        highlightColor.withValues(alpha: 0.15),
         highlightColor.withValues(alpha: 0.0),
       ],
     );

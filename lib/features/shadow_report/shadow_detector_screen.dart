@@ -82,7 +82,7 @@ class _ShadowDetectorScreenState extends State<ShadowDetectorScreen>
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
-                          AppColors.purple.withValues(alpha: 0.2),
+                          AppColors.primary.withValues(alpha: 0.2),
                           AppColors.cta.withValues(alpha: 0.08),
                         ],
                         begin: Alignment.topLeft,
@@ -91,7 +91,7 @@ class _ShadowDetectorScreenState extends State<ShadowDetectorScreen>
                       borderRadius: BorderRadius.circular(32),
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.purple.withValues(alpha: 0.15),
+                          color: AppColors.primary.withValues(alpha: 0.15),
                           blurRadius: 40,
                           spreadRadius: 4,
                         ),
@@ -135,10 +135,10 @@ class _ShadowDetectorScreenState extends State<ShadowDetectorScreen>
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   decoration: BoxDecoration(
-                    color: AppColors.purple.withValues(alpha: 0.1),
+                    color: AppColors.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                      color: AppColors.purple.withValues(alpha: 0.2),
+                      color: AppColors.primary.withValues(alpha: 0.2),
                     ),
                   ),
                   child: Text(
@@ -146,7 +146,7 @@ class _ShadowDetectorScreenState extends State<ShadowDetectorScreen>
                     style: GoogleFonts.notoSansTc(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.purple,
+                      color: AppColors.primary,
                     ),
                   ),
                 ).animate(delay: 400.ms).fadeIn(duration: 400.ms),
@@ -185,7 +185,7 @@ class _ShadowDetectorScreenState extends State<ShadowDetectorScreen>
                   child: FilledButton(
                     onPressed: _revealShadow,
                     style: FilledButton.styleFrom(
-                      backgroundColor: AppColors.purple,
+                      backgroundColor: AppColors.primary,
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(24),
@@ -237,7 +237,7 @@ class _ShadowDetectorScreenState extends State<ShadowDetectorScreen>
           width: 40,
           height: 40,
           decoration: BoxDecoration(
-            color: AppColors.purple.withValues(alpha: 0.08),
+            color: AppColors.primary.withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Center(child: Text(emoji, style: const TextStyle(fontSize: 20))),

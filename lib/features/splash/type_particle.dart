@@ -1,4 +1,4 @@
-import 'dart:ui' show Color;
+import 'package:flutter/material.dart' show Color, FontWeight;
 
 class TypeParticle {
   final String code;       // INTJ

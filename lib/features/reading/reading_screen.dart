@@ -10,6 +10,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../core/theme.dart';
 import '../../core/settings_service.dart';
 import 'reading_content.dart';
+import 'recommendation_engine.dart';
 
 class ReadingScreen extends StatefulWidget {
   final ReadingBook book;
@@ -111,8 +112,8 @@ class _ReadingScreenState extends State<ReadingScreen> {
             child: LinearProgressIndicator(
               value: _progress,
               minHeight: 2,
-              backgroundColor: AppColors.accentEarth.withValues(alpha: 0.08),
-              valueColor: const AlwaysStoppedAnimation<Color>(AppColors.accentEarth),
+              backgroundColor: AppColors.primary.withValues(alpha: 0.08),
+              valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
             ),
           ),
 
@@ -130,7 +131,7 @@ class _ReadingScreenState extends State<ReadingScreen> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
-                        color: AppColors.accentEarth.withValues(alpha: 0.06),
+                        color: AppColors.primary.withValues(alpha: 0.06),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Text(
@@ -138,7 +139,7 @@ class _ReadingScreenState extends State<ReadingScreen> {
                         style: GoogleFonts.notoSansTc(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.accentEarth,
+                          color: AppColors.primary,
                         ),
                       ),
                     ),
@@ -212,9 +213,10 @@ class _ReadingScreenState extends State<ReadingScreen> {
                     // ── Related books recommendation ──
                     _RelatedBooksSection(
                       currentBookId: widget.book.id,
-                      books: ReadingContentProvider.getRecommended(
-                        widget.book.mbtiType.isNotEmpty ? widget.book.mbtiType : null,
-                        widget.book.enneaType.isNotEmpty ? widget.book.enneaType : null,
+                      books: RecommendationEngine.getRelated(
+                        currentBook: widget.book,
+                        userMbti: widget.book.mbtiType.isNotEmpty ? widget.book.mbtiType : null,
+                        userEnnea: widget.book.enneaType.isNotEmpty ? widget.book.enneaType : null,
                       ),
                       onTap: (book) {
                         Navigator.of(context).pushReplacement(
@@ -307,7 +309,7 @@ class _NavButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = isPrimary ? AppColors.accentEarth : AppColors.textSecondary;
+    final color = isPrimary ? AppColors.primary : AppColors.textSecondary;
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -370,10 +372,10 @@ class _SettingsBar extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: AppColors.accentEarth.withValues(alpha: 0.08),
+                  color: AppColors.primary.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Icon(Icons.text_decrease, size: 18, color: AppColors.accentEarth),
+                child: const Icon(Icons.text_decrease, size: 18, color: AppColors.primary),
               ),
             ),
             const SizedBox(width: 6),
@@ -386,10 +388,10 @@ class _SettingsBar extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: AppColors.accentEarth.withValues(alpha: 0.08),
+                  color: AppColors.primary.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Icon(Icons.text_increase, size: 18, color: AppColors.accentEarth),
+                child: const Icon(Icons.text_increase, size: 18, color: AppColors.primary),
               ),
             ),
 
@@ -460,13 +462,13 @@ class _RelatedBooksSection extends StatelessWidget {
             Container(
               width: 24, height: 24,
               decoration: BoxDecoration(
-                color: AppColors.accentSage.withValues(alpha: 0.12),
+                color: AppColors.primary.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(7),
               ),
-              child: const Icon(Icons.auto_stories_rounded, size: 14, color: AppColors.accentSage),
+              child: const Icon(Icons.auto_stories_rounded, size: 14, color: AppColors.primary),
             ),
             const SizedBox(width: 8),
-            Text('相關推薦',
+            Text('為你推薦',
               style: GoogleFonts.notoSerifTc(
                 fontSize: 18, fontWeight: FontWeight.w800, color: AppColors.textPrimary)),
           ],
@@ -479,7 +481,7 @@ class _RelatedBooksSection extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppColors.accentSage.withValues(alpha: 0.04),
+                color: AppColors.primary.withValues(alpha: 0.04),
                 borderRadius: BorderRadius.circular(14),
                 border: Border.all(color: AppColors.accentSage.withValues(alpha: 0.1)),
               ),
@@ -559,10 +561,10 @@ class _FeedbackButtonsState extends State<_FeedbackButtons> {
                 duration: const Duration(milliseconds: 200),
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 decoration: BoxDecoration(
-                  color: active ? AppColors.accentEarth.withValues(alpha: 0.1) : Colors.transparent,
+                  color: active ? AppColors.primary.withValues(alpha: 0.1) : Colors.transparent,
                   borderRadius: BorderRadius.circular(14),
                   border: active
-                      ? Border.all(color: AppColors.accentEarth.withValues(alpha: 0.25))
+                      ? Border.all(color: AppColors.primary.withValues(alpha: 0.25))
                       : null,
                 ),
                 child: Column(
@@ -572,7 +574,7 @@ class _FeedbackButtonsState extends State<_FeedbackButtons> {
                     Text(b.$2,
                       style: GoogleFonts.notoSansTc(
                         fontSize: 11, fontWeight: FontWeight.w500,
-                        color: active ? AppColors.accentEarth : AppColors.textMuted)),
+                        color: active ? AppColors.primary : AppColors.textMuted)),
                   ],
                 ),
               ),

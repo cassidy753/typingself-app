@@ -57,7 +57,9 @@ class _ExploreGridScreenState extends State<ExploreGridScreen> {
     final completedIds = SettingsService().getCompletedBookIds();
 
     return Container(
-      color: isDark ? AppColors.darkBackground : AppColors.background,
+      decoration: BoxDecoration(
+        gradient: isDark ? null : AppColors.backgroundGradient(),
+      ),
       child: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
         child: Column(
@@ -171,10 +173,10 @@ class _FeaturedSection extends StatelessWidget {
             Container(
               width: 28, height: 28,
               decoration: BoxDecoration(
-                color: AppColors.accentGold.withValues(alpha: 0.12),
+                color: AppColors.primary.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Icon(Icons.auto_awesome_rounded, size: 16, color: AppColors.accentGold),
+              child: const Icon(Icons.auto_awesome_rounded, size: 16, color: AppColors.primary),
             ),
             const SizedBox(width: 8),
             Text('本週精選',
@@ -223,7 +225,6 @@ class _FeaturedCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: isDark ? AppColors.darkSurface : AppColors.surface,
           borderRadius: BorderRadius.circular(16),
-          boxShadow: AppShadows.elevated,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -282,7 +283,6 @@ class _SearchBar extends StatelessWidget {
         color: isDark ? AppColors.darkSurface : AppColors.surface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.border),
-        boxShadow: AppShadows.card,
       ),
       child: TextField(
         controller: controller,
@@ -336,7 +336,7 @@ class _ComboMap extends StatelessWidget {
             Container(
               width: 28, height: 28,
               decoration: BoxDecoration(
-                color: AppColors.accentDusty.withValues(alpha: 0.12),
+                color: AppColors.primary.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: const Icon(Icons.grid_view_rounded, size: 16, color: AppColors.accentDusty),
@@ -500,7 +500,6 @@ class _BookSearchTile extends StatelessWidget {
           color: isDark ? AppColors.darkSurface : AppColors.surface,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.border),
-          boxShadow: AppShadows.card,
         ),
         child: Row(
           children: [
@@ -603,7 +602,6 @@ class _HorizontalBookCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: isDark ? AppColors.darkSurface : AppColors.surface,
           borderRadius: BorderRadius.circular(16),
-          boxShadow: AppShadows.card,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

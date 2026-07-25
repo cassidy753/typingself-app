@@ -644,7 +644,7 @@ class _ExploreHeader extends StatelessWidget {
         border: Border.all(color: Colors.white.withValues(alpha: 0.5)),
         boxShadow: [
           BoxShadow(
-            color: AppColors.purple.withValues(alpha: 0.08),
+            color: AppColors.primary.withValues(alpha: 0.08),
             blurRadius: 20,
             offset: const Offset(0, 4),
           ),
@@ -783,7 +783,7 @@ class _ContentCard extends StatelessWidget {
           ),
           boxShadow: [
             BoxShadow(
-              color: AppColors.purple.withValues(alpha: locked ? 0.03 : 0.06),
+              color: AppColors.primary.withValues(alpha: locked ? 0.03 : 0.06),
               blurRadius: 12,
               offset: const Offset(0, 3),
             ),

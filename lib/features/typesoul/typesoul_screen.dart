@@ -119,7 +119,7 @@ class _TypeSoulScreenState extends State<TypeSoulScreen>
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
             decoration: BoxDecoration(
-              color: AppColors.purple.withValues(alpha: 0.1),
+              color: AppColors.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Text(
@@ -127,7 +127,7 @@ class _TypeSoulScreenState extends State<TypeSoulScreen>
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
-                color: AppColors.purple,
+                color: AppColors.primary,
               ),
             ),
           ),
@@ -179,7 +179,7 @@ class _TypeSoulScreenState extends State<TypeSoulScreen>
             '🎯 超能力',
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: ts.superpowers.map((sp) => _bulletItem(sp, AppColors.sage)).toList(),
+              children: ts.superpowers.map((sp) => _bulletItem(sp, AppColors.success)).toList(),
             ),
             delay: 200,
           ),
@@ -260,9 +260,9 @@ class _TypeSoulScreenState extends State<TypeSoulScreen>
                 width: double.infinity,
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: AppColors.mustard.withValues(alpha: 0.08),
+                  color: AppColors.gold.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.mustard.withValues(alpha: 0.2)),
+                  border: Border.all(color: AppColors.gold.withValues(alpha: 0.2)),
                 ),
                 child: Text(
                   ts.roastMode.replaceAll('\\n', '\n'),
@@ -417,7 +417,7 @@ class _TypeSoulScreenState extends State<TypeSoulScreen>
             width: 22,
             height: 22,
             decoration: BoxDecoration(
-              color: AppColors.purple.withValues(alpha: 0.15),
+              color: AppColors.primary.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(6),
             ),
             child: Center(
@@ -426,7 +426,7 @@ class _TypeSoulScreenState extends State<TypeSoulScreen>
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.purple,
+                  color: AppColors.primary,
                 ),
               ),
             ),

@@ -199,10 +199,10 @@ class _GrowthProgressScreenState extends State<GrowthProgressScreen> {
         Color color;
         if (avgDiff <= 2.5) {
           label = '練習難度偏低，下一步可以挑戰大啲';
-          color = AppColors.sage;
+          color = AppColors.success;
         } else if (avgDiff <= 3.5) {
           label = '難度適中，你呢個節奏好好';
-          color = AppColors.mustard;
+          color = AppColors.gold;
         } else {
           label = '練習偏難，可以考慮降低難度，唔好迫自己';
           color = AppColors.cta;

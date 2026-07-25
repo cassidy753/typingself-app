@@ -79,7 +79,7 @@ class _ShadowReportScreenState extends State<ShadowReportScreen> {
                     height: 8,
                     decoration: BoxDecoration(
                       color: _currentPage == i
-                          ? AppColors.purple
+                          ? AppColors.primary
                           : AppColors.border,
                       borderRadius: BorderRadius.circular(4),
                     ),
@@ -133,7 +133,7 @@ class _ShadowReportScreenState extends State<ShadowReportScreen> {
       style: GoogleFonts.notoSansTc(
         fontSize: 12,
         fontWeight: active ? FontWeight.w700 : FontWeight.w400,
-        color: active ? AppColors.purple : AppColors.textMuted,
+        color: active ? AppColors.primary : AppColors.textMuted,
       ),
       child: Text(label),
     );
@@ -218,7 +218,7 @@ class _PersonaPage extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
                   decoration: BoxDecoration(
-                    color: AppColors.purple.withValues(alpha: 0.1),
+                    color: AppColors.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(14),
                   ),
                   child: Text(
@@ -226,7 +226,7 @@ class _PersonaPage extends StatelessWidget {
                     style: GoogleFonts.notoSansTc(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.purple,
+                      color: AppColors.primary,
                     ),
                   ),
                 ),
@@ -361,7 +361,7 @@ class _ShadowPage extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: AppColors.purple.withValues(alpha: 0.1),
+              color: AppColors.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Text(
@@ -369,7 +369,7 @@ class _ShadowPage extends StatelessWidget {
               style: GoogleFonts.notoSansTc(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
-                color: AppColors.purple,
+                color: AppColors.primary,
               ),
             ),
           ),
@@ -400,10 +400,10 @@ class _ShadowPage extends StatelessWidget {
             width: double.infinity,
             padding: const EdgeInsets.all(18),
             decoration: BoxDecoration(
-              color: AppColors.purple.withValues(alpha: 0.06),
+              color: AppColors.primary.withValues(alpha: 0.06),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: AppColors.purple.withValues(alpha: 0.12),
+                color: AppColors.primary.withValues(alpha: 0.12),
               ),
             ),
             child: Row(
@@ -468,8 +468,8 @@ class _ShadowPage extends StatelessWidget {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  AppColors.sage.withValues(alpha: 0.12),
-                  AppColors.sage.withValues(alpha: 0.04),
+                  AppColors.success.withValues(alpha: 0.12),
+                  AppColors.success.withValues(alpha: 0.04),
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
@@ -486,7 +486,7 @@ class _ShadowPage extends StatelessWidget {
                     s.growthHint,
                     style: GoogleFonts.notoSansTc(
                       fontSize: 13,
-                      color: AppColors.sage,
+                      color: AppColors.success,
                       height: 1.6,
                     ),
                   ),
@@ -542,7 +542,7 @@ class _DefensePage extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: AppColors.mustard.withValues(alpha: 0.1),
+              color: AppColors.gold.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Text(
@@ -550,7 +550,7 @@ class _DefensePage extends StatelessWidget {
               style: GoogleFonts.notoSansTc(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
-                color: AppColors.mustard,
+                color: AppColors.gold,
               ),
             ),
           ),
@@ -612,7 +612,7 @@ class _DefensePage extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
-              color: AppColors.mustard.withValues(alpha: 0.1),
+              color: AppColors.gold.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
@@ -620,7 +620,7 @@ class _DefensePage extends StatelessWidget {
               style: GoogleFonts.notoSansTc(
                 fontSize: 10,
                 fontWeight: FontWeight.w600,
-                color: AppColors.mustard,
+                color: AppColors.gold,
               ),
             ),
           ),
@@ -653,7 +653,7 @@ class _DefensePage extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: AppColors.mustard.withValues(alpha: 0.06),
+              color: AppColors.gold.withValues(alpha: 0.06),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Row(
@@ -688,7 +688,7 @@ class _DefensePage extends StatelessWidget {
                   d.alternative,
                   style: GoogleFonts.notoSansTc(
                     fontSize: 12,
-                    color: AppColors.sage,
+                    color: AppColors.success,
                     height: 1.5,
                   ),
                 ),
@@ -728,7 +728,7 @@ class _RepressedPage extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: AppColors.sage.withValues(alpha: 0.1),
+              color: AppColors.success.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Text(
@@ -736,7 +736,7 @@ class _RepressedPage extends StatelessWidget {
               style: GoogleFonts.notoSansTc(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
-                color: AppColors.sage,
+                color: AppColors.success,
               ),
             ),
           ),
@@ -768,7 +768,7 @@ class _RepressedPage extends StatelessWidget {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  AppColors.purple.withValues(alpha: 0.1),
+                  AppColors.primary.withValues(alpha: 0.1),
                   AppColors.cta.withValues(alpha: 0.05),
                 ],
                 begin: Alignment.topLeft,
@@ -880,7 +880,7 @@ class _RepressedPage extends StatelessWidget {
               Container(
                 width: 32, height: 32,
                 decoration: BoxDecoration(
-                  color: AppColors.sage.withValues(alpha: 0.12),
+                  color: AppColors.success.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: const Center(child: Text('🧠', style: TextStyle(fontSize: 16))),
@@ -946,7 +946,7 @@ class _RepressedPage extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: AppColors.sage.withValues(alpha: 0.08),
+              color: AppColors.success.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Row(
@@ -963,7 +963,7 @@ class _RepressedPage extends StatelessWidget {
                         style: GoogleFonts.notoSansTc(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.sage,
+                          color: AppColors.success,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -973,7 +973,7 @@ class _RepressedPage extends StatelessWidget {
                           '• $e',
                           style: GoogleFonts.notoSansTc(
                             fontSize: 12,
-                            color: AppColors.sage,
+                            color: AppColors.success,
                             height: 1.5,
                           ),
                         ),

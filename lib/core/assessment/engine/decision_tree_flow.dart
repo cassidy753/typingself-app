@@ -334,9 +334,9 @@ class _DecisionTreeFlowState extends State<DecisionTreeFlow>
         children: dims.map((dim) {
           final conf = _state.dimensionConfidence[dim] ?? 0;
           final barColor = conf > 0.6
-              ? AppColors.sage
+              ? AppColors.success
               : conf > 0.35
-                  ? AppColors.mustard
+                  ? AppColors.gold
                   : AppColors.cta.withValues(alpha: 0.6);
 
           return Expanded(

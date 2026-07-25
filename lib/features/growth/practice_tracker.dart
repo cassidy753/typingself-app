@@ -82,7 +82,7 @@ class _DailyPracticeCardState extends State<DailyPracticeCard> {
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: _done ? AppColors.sage.withValues(alpha: 0.4) : AppColors.border,
+          color: _done ? AppColors.success.withValues(alpha: 0.4) : AppColors.border,
         ),
       ),
       child: Column(
@@ -94,10 +94,10 @@ class _DailyPracticeCardState extends State<DailyPracticeCard> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: AppColors.sage.withValues(alpha: 0.12),
+                  color: AppColors.success.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Text('🌱', style: TextStyle(fontSize: 20, color: AppColors.sage)),
+                child: Text('🌱', style: TextStyle(fontSize: 20, color: AppColors.success)),
               ),
               const SizedBox(width: 10),
               Expanded(
@@ -122,7 +122,7 @@ class _DailyPracticeCardState extends State<DailyPracticeCard> {
                   return Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
-                      color: AppColors.mustard.withValues(alpha: 0.12),
+                      color: AppColors.gold.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
@@ -131,7 +131,7 @@ class _DailyPracticeCardState extends State<DailyPracticeCard> {
                         Text('🔥', style: TextStyle(fontSize: 14)),
                         const SizedBox(width: 4),
                         Text('$streak', style: GoogleFonts.notoSansTc(
-                          fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.mustard,
+                          fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.gold,
                         )),
                       ],
                     ),
@@ -221,13 +221,13 @@ class _DailyPracticeCardState extends State<DailyPracticeCard> {
             child: ElevatedButton(
               onPressed: _done ? null : _toggle,
               style: ElevatedButton.styleFrom(
-                backgroundColor: _done ? AppColors.sage : AppColors.cta,
+                backgroundColor: _done ? AppColors.success : AppColors.cta,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                 textStyle: GoogleFonts.notoSansTc(fontSize: 15, fontWeight: FontWeight.w700),
-                disabledBackgroundColor: AppColors.sage.withValues(alpha: 0.15),
-                disabledForegroundColor: AppColors.sage,
+                disabledBackgroundColor: AppColors.success.withValues(alpha: 0.15),
+                disabledForegroundColor: AppColors.success,
               ),
               child: Text(_done ? '✅ 今日做咗！' : '✅ 完成練習'),
             ),
@@ -276,15 +276,15 @@ class _DailyPracticeCardState extends State<DailyPracticeCard> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(height: 20, width: 120, decoration: BoxDecoration(
-            color: AppColors.skeleton, borderRadius: BorderRadius.circular(6),
+            color: AppColors.disabled, borderRadius: BorderRadius.circular(6),
           )),
           const SizedBox(height: 16),
           Container(height: 60, width: double.infinity, decoration: BoxDecoration(
-            color: AppColors.skeleton, borderRadius: BorderRadius.circular(16),
+            color: AppColors.disabled, borderRadius: BorderRadius.circular(16),
           )),
           const SizedBox(height: 16),
           Container(height: 20, width: double.infinity, decoration: BoxDecoration(
-            color: AppColors.skeleton, borderRadius: BorderRadius.circular(12),
+            color: AppColors.disabled, borderRadius: BorderRadius.circular(12),
           )),
         ],
       ),
@@ -326,7 +326,7 @@ class StreakRow extends StatelessWidget {
                         Text('🔥', style: TextStyle(fontSize: 24)),
                         const SizedBox(width: 6),
                         Text('$streak', style: GoogleFonts.notoSerifTc(
-                          fontSize: 28, fontWeight: FontWeight.w900, color: AppColors.mustard,
+                          fontSize: 28, fontWeight: FontWeight.w900, color: AppColors.gold,
                         )),
                       ],
                     ),

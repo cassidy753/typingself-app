@@ -8,7 +8,7 @@ class BrainPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = AppColors.purple
+      ..color = AppColors.primary
       ..style = PaintingStyle.fill
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 1.5);
 
@@ -66,7 +66,7 @@ class ButterflyPainter extends CustomPainter {
       ..cubicTo(cx + sw * 0.6, cy + sw * 0.3, cx + sw * 0.15, cy + sw * 0.1, cx, cy)..close(), paint);
 
     // Lower wings
-    paint.color = AppColors.purple.withValues(alpha: 0.5);
+    paint.color = AppColors.primary.withValues(alpha: 0.5);
     canvas.drawPath(Path()
       ..moveTo(cx - sw * 0.1, cy + sw * 0.05)
       ..cubicTo(cx - sw * 0.3, cy + sw * 0.1, cx - sw * 0.6, cy + sw * 0.5, cx - sw * 0.25, cy + sw * 0.6)

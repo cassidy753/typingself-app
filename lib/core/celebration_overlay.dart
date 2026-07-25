@@ -111,21 +111,16 @@ class _CelebrationOverlayState extends State<CelebrationOverlay>
   Color _randomColor() {
     // Daebi palette + extended range for celebration variety
     const colors = [
-      Color(0xFFE0785A), // Coral
-      Color(0xFFD4A843), // Mustard
-      Color(0xFF9B72AA), // Purple
-      Color(0xFF8FA87A), // Sage
-      Color(0xFFFF6B9D), // Pink
-      Color(0xFF6BC5D0), // Teal
-      Color(0xFFFFB347), // Orange
-      Color(0xFFE8505B), // Red
-      Color(0xFF5C7AFF), // Blue
-      Color(0xFFFFD93D), // Gold
-      Color(0xFFAD6BFF), // Violet
-      Color(0xFF2ECC71), // Emerald
-      Color(0xFFFF8A5C), // Peach
-      Color(0xFF7ED6DF), // Sky
-      Color(0xFFF8A5C2), // Rose
+      AppColors.cta,           // Cinnabar red
+      AppColors.gold,           // Gold
+      AppColors.primary,        // Primary
+      AppColors.success,        // Sage green
+      AppColors.accentTeal,     // Teal
+      AppColors.accentWarm,     // Warm sand
+      AppColors.success,        // Emerald
+      AppColors.accentDusty,    // Lavender
+      AppColors.gold,           // Gold
+      AppColors.cta,            // Coral red
     ];
     return colors[_random.nextInt(colors.length)];
   }

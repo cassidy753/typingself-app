@@ -196,7 +196,7 @@ class _NamingScreenState extends ConsumerState<NamingScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 40),
             decoration: BoxDecoration(
               gradient: const LinearGradient(
-                colors: [AppColors.primary, Color(0xFF5B21B6)],
+                colors: [AppColors.primary, AppColors.primary],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -299,7 +299,7 @@ class _NamingScreenState extends ConsumerState<NamingScreen> {
             width: double.infinity,
             height: 52,
             child: FilledButton.icon(
-              onPressed: () => ShareCard.share(context, name),
+              onPressed: () => shareResultCard('ENFJ', '5w4'),
               icon: const Icon(Icons.share, size: 18),
               label: Text('分享俾朋友', style: GoogleFonts.notoSansTc(
                 fontSize: 15, fontWeight: FontWeight.w600,

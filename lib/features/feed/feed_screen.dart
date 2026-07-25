@@ -44,7 +44,9 @@ class _FeedScreenState extends State<FeedScreen> {
         .toList();
 
     return Container(
-      color: isDark ? AppColors.darkBackground : AppColors.background,
+      decoration: BoxDecoration(
+        gradient: isDark ? null : AppColors.backgroundGradient(),
+      ),
       child: CustomScrollView(
         slivers: [
           // ── Header ──
@@ -55,7 +57,7 @@ class _FeedScreenState extends State<FeedScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('動態',
-                    style: GoogleFonts.notoSerifTc(
+                    style: GoogleFonts.notoSansTc(
                       fontSize: 24, fontWeight: FontWeight.w900,
                       color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary)),
                   const SizedBox(height: 4),
@@ -92,7 +94,7 @@ class _FeedScreenState extends State<FeedScreen> {
                   ),
                   const SizedBox(width: 8),
                   Text('閱讀紀錄',
-                    style: GoogleFonts.notoSerifTc(
+                    style: GoogleFonts.notoSansTc(
                       fontSize: 18, fontWeight: FontWeight.w800,
                       color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary)),
                 ],
@@ -176,7 +178,6 @@ class _AchievementSection extends StatelessWidget {
         decoration: BoxDecoration(
           color: isDark ? AppColors.darkSurface : AppColors.surface,
           borderRadius: BorderRadius.circular(18),
-          boxShadow: AppShadows.card,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -186,10 +187,10 @@ class _AchievementSection extends StatelessWidget {
                 Container(
                   width: 28, height: 28,
                   decoration: BoxDecoration(
-                    color: AppColors.accentGold.withValues(alpha: 0.12),
+                    color: AppColors.primary.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Icon(Icons.emoji_events_rounded, size: 16, color: AppColors.accentGold),
+                  child: const Icon(Icons.emoji_events_rounded, size: 16, color: AppColors.primary),
                 ),
                 const SizedBox(width: 8),
                 Text('成就',
@@ -239,11 +240,11 @@ class _AchievementBadge extends StatelessWidget {
         width: 82,
         padding: const EdgeInsets.symmetric(vertical: 8),
         decoration: BoxDecoration(
-          color: AppColors.accentGold.withValues(alpha: achievement.unlocked ? 0.08 : 0.03),
+          color: AppColors.primary.withValues(alpha: achievement.unlocked ? 0.08 : 0.03),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: achievement.unlocked
-                ? AppColors.accentGold.withValues(alpha: 0.2)
+                ? AppColors.primary.withValues(alpha: 0.2)
                 : AppColors.border,
           ),
         ),
@@ -285,7 +286,6 @@ class _TimelineSection extends StatelessWidget {
           decoration: BoxDecoration(
             color: isDark ? AppColors.darkSurface : AppColors.surface,
             borderRadius: BorderRadius.circular(18),
-            boxShadow: AppShadows.card,
           ),
           child: Column(
             children: [
@@ -383,7 +383,7 @@ class _TimelineItem extends StatelessWidget {
                 Container(
                   width: 32, height: 32,
                   decoration: BoxDecoration(
-                    color: AppColors.accentEarth.withValues(alpha: 0.1),
+                    color: AppColors.primary.withValues(alpha: 0.12),
                     shape: BoxShape.circle,
                   ),
                   child: Center(child: Text(entry.emoji, style: const TextStyle(fontSize: 14))),
@@ -392,7 +392,7 @@ class _TimelineItem extends StatelessWidget {
                   Expanded(
                     child: Container(
                       width: 2,
-                      color: AppColors.accentEarth.withValues(alpha: 0.12),
+                      color: AppColors.primary.withValues(alpha: 0.12),
                     ),
                   ),
               ],
@@ -408,7 +408,6 @@ class _TimelineItem extends StatelessWidget {
                 color: isDark ? AppColors.darkSurface : AppColors.surface,
                 borderRadius: BorderRadius.circular(14),
                 border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.border),
-                boxShadow: AppShadows.card,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

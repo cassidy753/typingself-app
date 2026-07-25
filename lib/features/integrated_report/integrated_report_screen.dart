@@ -185,7 +185,7 @@ class _IntegratedReportScreenState extends State<IntegratedReportScreen>
             _buildStageCard(
               icon: '🌑',
               title: '面具 · 陰影 · 防禦',
-              color: AppColors.purple,
+              color: AppColors.primary,
               delay: 200,
               child: _buildShadowSection(_shadowReport!),
             ),
@@ -198,7 +198,7 @@ class _IntegratedReportScreenState extends State<IntegratedReportScreen>
             _buildStageCard(
               icon: '🌱',
               title: '每日成長練習',
-              color: AppColors.sage,
+              color: AppColors.success,
               delay: 300,
               child: _buildGrowthSection(),
             ),
@@ -230,7 +230,7 @@ class _IntegratedReportScreenState extends State<IntegratedReportScreen>
         gradient: LinearGradient(
           colors: [
             AppColors.cta.withValues(alpha: 0.85),
-            AppColors.purple.withValues(alpha: 0.75),
+            AppColors.primary.withValues(alpha: 0.75),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -299,11 +299,11 @@ class _IntegratedReportScreenState extends State<IntegratedReportScreen>
               const SizedBox(width: 8),
               Container(width: 20, height: 1, color: Colors.white.withValues(alpha: 0.3)),
               const SizedBox(width: 8),
-              _progressDot('② 暗影', AppColors.purple),
+              _progressDot('② 暗影', AppColors.primary),
               const SizedBox(width: 8),
               Container(width: 20, height: 1, color: Colors.white.withValues(alpha: 0.3)),
               const SizedBox(width: 8),
-              _progressDot('③ 成長', AppColors.sage),
+              _progressDot('③ 成長', AppColors.success),
             ],
           ),
         ],
@@ -345,7 +345,7 @@ class _IntegratedReportScreenState extends State<IntegratedReportScreen>
         // Superpowers (top 2)
         _miniHeader('🎯 超能力'),
         const SizedBox(height: 6),
-        ...ts.superpowers.take(2).map((sp) => _bulletItem(sp, AppColors.sage)),
+        ...ts.superpowers.take(2).map((sp) => _bulletItem(sp, AppColors.success)),
         if (ts.superpowers.length > 2)
           Text('+${ts.superpowers.length - 2} 更多…', style: TextStyle(
             fontSize: 11, color: AppColors.textMuted, fontStyle: FontStyle.italic,
@@ -438,9 +438,9 @@ class _IntegratedReportScreenState extends State<IntegratedReportScreen>
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: AppColors.purple.withValues(alpha: 0.08),
+            color: AppColors.primary.withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: AppColors.purple.withValues(alpha: 0.15)),
+            border: Border.all(color: AppColors.primary.withValues(alpha: 0.15)),
           ),
           child: Row(
             children: [
@@ -450,7 +450,7 @@ class _IntegratedReportScreenState extends State<IntegratedReportScreen>
                 child: Text(
                   sr.shadowPattern.growthHint,
                   style: GoogleFonts.notoSansTc(
-                    fontSize: 12, color: AppColors.purple, height: 1.5,
+                    fontSize: 12, color: AppColors.primary, height: 1.5,
                   ),
                 ),
               ),
@@ -476,16 +476,16 @@ class _IntegratedReportScreenState extends State<IntegratedReportScreen>
             width: double.infinity,
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: AppColors.sage.withValues(alpha: 0.08),
+              color: AppColors.success.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: AppColors.sage.withValues(alpha: 0.2)),
+              border: Border.all(color: AppColors.success.withValues(alpha: 0.2)),
             ),
             child: Row(
               children: [
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: AppColors.sage.withValues(alpha: 0.12),
+                    color: AppColors.success.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Text('🕶️', style: TextStyle(fontSize: 20)),
@@ -554,7 +554,7 @@ class _IntegratedReportScreenState extends State<IntegratedReportScreen>
           children: [
             _statChip('🔥', '連續 $_streak 日', AppColors.cta),
             const SizedBox(width: 8),
-            _statChip('✅', '共 $_totalPractices 次', AppColors.sage),
+            _statChip('✅', '共 $_totalPractices 次', AppColors.success),
           ],
         ),
         const SizedBox(height: 14),
@@ -565,9 +565,9 @@ class _IntegratedReportScreenState extends State<IntegratedReportScreen>
             width: double.infinity,
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: AppColors.mustard.withValues(alpha: 0.08),
+              color: AppColors.gold.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.mustard.withValues(alpha: 0.15)),
+              border: Border.all(color: AppColors.gold.withValues(alpha: 0.15)),
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -580,7 +580,7 @@ class _IntegratedReportScreenState extends State<IntegratedReportScreen>
                     children: [
                       Text('壓力預警（Inferior Grip）',
                         style: GoogleFonts.notoSansTc(
-                          fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.mustard,
+                          fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.gold,
                         ),
                       ),
                       const SizedBox(height: 2),
@@ -619,7 +619,7 @@ class _IntegratedReportScreenState extends State<IntegratedReportScreen>
           gradient: LinearGradient(
             colors: [
               AppColors.cta.withValues(alpha: 0.08),
-              AppColors.purple.withValues(alpha: 0.06),
+              AppColors.primary.withValues(alpha: 0.06),
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
@@ -843,9 +843,9 @@ ${_typeSoul?.coreDescription.replaceAll('\\n', ' ').substring(0, (_typeSoul?.cor
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.purple.withValues(alpha: 0.06),
+        color: AppColors.primary.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.purple.withValues(alpha: 0.12)),
+        border: Border.all(color: AppColors.primary.withValues(alpha: 0.12)),
       ),
       child: Row(
         children: [
@@ -872,7 +872,7 @@ ${_typeSoul?.coreDescription.replaceAll('\\n', ' ').substring(0, (_typeSoul?.cor
                 Text(label2, style: TextStyle(fontSize: 10, color: AppColors.textMuted)),
                 const SizedBox(height: 3),
                 Text(value2, style: GoogleFonts.notoSerifTc(
-                  fontSize: 16, fontWeight: FontWeight.w800, color: AppColors.purple,
+                  fontSize: 16, fontWeight: FontWeight.w800, color: AppColors.primary,
                 )),
               ],
             ),

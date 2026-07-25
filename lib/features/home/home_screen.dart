@@ -91,7 +91,6 @@ class _TabHome extends StatelessWidget {
               decoration: BoxDecoration(
                 color: AppColors.surface,
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: AppColors.divider),
               ),
               child: Column(
                 children: [
@@ -137,16 +136,9 @@ class _TabHome extends StatelessWidget {
               decoration: BoxDecoration(
                 color: AppColors.surface,
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: AppColors.divider),
               ),
-              child: Row(children: [
-                Text('♌️', style: TextStyle(fontSize: 28)),
-                const SizedBox(width: 12),
-                Expanded(child: Text('今日獅子座：你嘅直覺會帶你去啱嘅方向。耳朵要打開。', style: GoogleFonts.notoSerifTc(fontSize: 13, height: 1.5, color: AppColors.textSecondary))),
-                const SizedBox(width: 8),
-                Icon(Icons.share_rounded, size: 16, color: AppColors.textMuted),
-              ]),
             ),
+            const SizedBox(height: 24),
           ],
         ),
       ),
@@ -166,7 +158,6 @@ class _TabHome extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppColors.divider),
       ),
       child: Row(children: [
         Expanded(child: Text(q, style: GoogleFonts.notoSerifTc(fontSize: 13, color: AppColors.textPrimary))),

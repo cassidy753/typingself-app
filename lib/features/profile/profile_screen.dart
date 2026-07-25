@@ -809,9 +809,9 @@ class _IntegratedReportCTA extends StatelessWidget {
             children: [
               _stageBadge('① 型格', AppColors.cta),
               const SizedBox(width: 8),
-              _stageBadge('② 暗影', AppColors.purple),
+              _stageBadge('② 暗影', AppColors.primary),
               const SizedBox(width: 8),
-              _stageBadge('③ 成長', AppColors.sage),
+              _stageBadge('③ 成長', AppColors.success),
             ],
           ),
         ],

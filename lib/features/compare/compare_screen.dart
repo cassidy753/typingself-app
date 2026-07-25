@@ -1121,7 +1121,7 @@ class _ComparisonSection extends StatelessWidget {
         return Container(
           width: 28, height: 28,
           decoration: BoxDecoration(
-            color: AppColors.sage.withValues(alpha: 0.15),
+            color: AppColors.success.withValues(alpha: 0.15),
             borderRadius: BorderRadius.circular(8),
           ),
           child: const Center(child: Icon(Icons.check_circle, size: 16, color: Color(0xFF8FA87A))),
@@ -1130,7 +1130,7 @@ class _ComparisonSection extends StatelessWidget {
         return Container(
           width: 28, height: 28,
           decoration: BoxDecoration(
-            color: AppColors.mustard.withValues(alpha: 0.15),
+            color: AppColors.gold.withValues(alpha: 0.15),
             borderRadius: BorderRadius.circular(8),
           ),
           child: const Center(child: Icon(Icons.remove_circle, size: 16, color: Color(0xFFD4A843))),

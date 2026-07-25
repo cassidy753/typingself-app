@@ -75,15 +75,8 @@ class _AssessmentIntroScreenState extends State<AssessmentIntroScreen>
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFFEBE0F5), // light purple / lavender mist
-              Color(0xFFFCE8E0), // light coral / warm pink
-            ],
-          ),
+        decoration: BoxDecoration(
+          gradient: AppColors.backgroundGradient(),
         ),
         child: SafeArea(
           child: Stack(
@@ -283,9 +276,9 @@ class _VersionCard extends StatelessWidget {
   });
 
   Color get _accentColor {
-    if (accentKey == '快測') return AppColors.sage;
-    if (accentKey == '標準') return AppColors.mustard;
-    return AppColors.purple; // 深度
+    if (accentKey == '快測') return AppColors.success;
+    if (accentKey == '標準') return AppColors.gold;
+    return AppColors.primary; // 深度
   }
 
   String get _badgeText {

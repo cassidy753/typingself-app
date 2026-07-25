@@ -54,7 +54,9 @@ class _ProfileV2ScreenState extends State<ProfileV2Screen> {
     final allBooks = ReadingContentProvider.allBooks;
 
     return Container(
-      color: isDark ? AppColors.darkBackground : AppColors.background,
+      decoration: BoxDecoration(
+        gradient: isDark ? null : AppColors.backgroundGradient(),
+      ),
       child: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(20, 16, 20, 40),
         child: Column(
@@ -62,7 +64,7 @@ class _ProfileV2ScreenState extends State<ProfileV2Screen> {
           children: [
             // ── Header ──
             Text('我',
-              style: GoogleFonts.notoSerifTc(
+              style: GoogleFonts.notoSansTc(
                 fontSize: 24, fontWeight: FontWeight.w900,
                 color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary)),
             const SizedBox(height: 16),
@@ -91,10 +93,10 @@ class _ProfileV2ScreenState extends State<ProfileV2Screen> {
                 Container(
                   width: 24, height: 24,
                   decoration: BoxDecoration(
-                    color: AppColors.accentEarth.withValues(alpha: 0.12),
+                    color: AppColors.primary.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(7),
                   ),
-                  child: const Icon(Icons.settings_outlined, size: 14, color: AppColors.accentEarth),
+                  child: const Icon(Icons.settings_outlined, size: 14, color: AppColors.ink),
                 ),
                 const SizedBox(width: 8),
                 Text('設定',
@@ -212,7 +214,7 @@ class _ProfileV2ScreenState extends State<ProfileV2Screen> {
             const SizedBox(height: 8),
             _ActionTile(
               icon: Icons.assignment_rounded,
-              iconColor: AppColors.accentEarth,
+              iconColor: AppColors.ink,
               title: '完整人格報告',
               subtitle: 'MBTI 九型深度分析',
               onTap: () {},
@@ -246,20 +248,13 @@ class _TypeCard extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppColors.accentEarth,
-            AppColors.accentEarth.withValues(alpha: 0.85),
+            AppColors.primary,
+            AppColors.gold,
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.accentEarth.withValues(alpha: 0.3),
-            blurRadius: 20,
-            offset: const Offset(0, 6),
-          ),
-        ],
       ),
       child: Column(
         children: [
@@ -354,7 +349,6 @@ class _StatsDashboard extends StatelessWidget {
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkSurface : AppColors.surface,
         borderRadius: BorderRadius.circular(20),
-        boxShadow: AppShadows.card,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -364,14 +358,14 @@ class _StatsDashboard extends StatelessWidget {
               Container(
                 width: 24, height: 24,
                 decoration: BoxDecoration(
-                  color: AppColors.accentEarth.withValues(alpha: 0.12),
+                  color: AppColors.primary.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(7),
                 ),
-                child: const Icon(Icons.bar_chart_rounded, size: 14, color: AppColors.accentEarth),
+                child: const Icon(Icons.bar_chart_rounded, size: 14, color: AppColors.ink),
               ),
               const SizedBox(width: 8),
               Text('閱讀統計',
-                style: GoogleFonts.notoSerifTc(
+                style: GoogleFonts.notoSansTc(
                   fontSize: 16, fontWeight: FontWeight.w800,
                   color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary)),
             ],
@@ -406,8 +400,8 @@ class _StatsDashboard extends StatelessWidget {
             child: LinearProgressIndicator(
               value: totalBooks > 0 ? completedBooks / totalBooks : 0,
               minHeight: 8,
-              backgroundColor: AppColors.accentEarth.withValues(alpha: 0.1),
-              valueColor: const AlwaysStoppedAnimation<Color>(AppColors.accentEarth),
+              backgroundColor: AppColors.ink.withValues(alpha: 0.1),
+              valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
             ),
           ),
           const SizedBox(height: 6),
@@ -419,7 +413,7 @@ class _StatsDashboard extends StatelessWidget {
                   color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary)),
               Text('$completedBooks/$totalBooks',
                 style: GoogleFonts.notoSansTc(fontSize: 12, fontWeight: FontWeight.w600,
-                  color: AppColors.accentEarth)),
+                  color: AppColors.ink)),
             ],
           ),
         ],
@@ -479,7 +473,6 @@ class _SettingsTile extends StatelessWidget {
           color: isDark ? AppColors.darkSurface : AppColors.surface,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.border),
-          boxShadow: AppShadows.card,
         ),
         child: Row(
           children: [
@@ -527,11 +520,10 @@ class _FontSizeTile extends StatelessWidget {
         color: isDark ? AppColors.darkSurface : AppColors.surface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.border),
-        boxShadow: AppShadows.card,
       ),
       child: Row(
         children: [
-          const Icon(Icons.text_fields_rounded, size: 20, color: AppColors.accentEarth),
+          const Icon(Icons.text_fields_rounded, size: 20, color: AppColors.primary),
           const SizedBox(width: 12),
           Text('字體大小',
             style: GoogleFonts.notoSansTc(fontSize: 15, fontWeight: FontWeight.w600,
@@ -542,10 +534,10 @@ class _FontSizeTile extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.all(6),
               decoration: BoxDecoration(
-                color: AppColors.accentEarth.withValues(alpha: 0.08),
+                color: AppColors.primary.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Icon(Icons.text_decrease, size: 16, color: AppColors.accentEarth),
+              child: const Icon(Icons.text_decrease, size: 16, color: AppColors.ink),
             ),
           ),
           SizedBox(
@@ -555,9 +547,9 @@ class _FontSizeTile extends StatelessWidget {
                 trackHeight: 4,
                 thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
                 overlayShape: const RoundSliderOverlayShape(overlayRadius: 16),
-                activeTrackColor: AppColors.accentEarth,
-                inactiveTrackColor: AppColors.accentEarth.withValues(alpha: 0.15),
-                thumbColor: AppColors.accentEarth,
+                activeTrackColor: AppColors.primary,
+                inactiveTrackColor: AppColors.primary.withValues(alpha: 0.15),
+                thumbColor: AppColors.primary,
               ),
               child: Slider(
                 value: currentSize,
@@ -573,16 +565,16 @@ class _FontSizeTile extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.all(6),
               decoration: BoxDecoration(
-                color: AppColors.accentEarth.withValues(alpha: 0.08),
+                color: AppColors.primary.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Icon(Icons.text_increase, size: 16, color: AppColors.accentEarth),
+              child: const Icon(Icons.text_increase, size: 16, color: AppColors.ink),
             ),
           ),
           const SizedBox(width: 4),
           Text('${currentSize.round()}',
             style: GoogleFonts.notoSansTc(fontSize: 13, fontWeight: FontWeight.w600,
-              color: AppColors.accentEarth)),
+              color: AppColors.ink)),
         ],
       ),
     );
@@ -611,7 +603,6 @@ class _AgeSelector extends StatelessWidget {
         color: isDark ? AppColors.darkSurface : AppColors.surface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.border),
-        boxShadow: AppShadows.card,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -706,7 +697,6 @@ class _ActionTile extends StatelessWidget {
           color: isDark ? AppColors.darkSurface : AppColors.surface,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.border),
-          boxShadow: AppShadows.card,
         ),
         child: Row(
           children: [

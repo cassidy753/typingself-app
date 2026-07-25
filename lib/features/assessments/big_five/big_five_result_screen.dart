@@ -107,7 +107,7 @@ class _BigFiveResultScreenState extends State<BigFiveResultScreen>
                       width: double.infinity,
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: AppColors.purple.withValues(alpha: 0.1),
+                        color: AppColors.primary.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Column(
@@ -125,7 +125,7 @@ class _BigFiveResultScreenState extends State<BigFiveResultScreen>
                                         style: GoogleFonts.notoSansTc(
                                             fontSize: 14,
                                             fontWeight: FontWeight.w600,
-                                            color: AppColors.purple)),
+                                            color: AppColors.primary)),
                                     const SizedBox(height: 2),
                                     Text(
                                         '根據你嘅大五profile推測：${r.suggestedMbtiCorrelation} 傾向',
@@ -147,7 +147,7 @@ class _BigFiveResultScreenState extends State<BigFiveResultScreen>
                       width: double.infinity,
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: AppColors.mustard.withValues(alpha: 0.12),
+                        color: AppColors.gold.withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Row(
@@ -287,8 +287,8 @@ class _BigFiveResultScreenState extends State<BigFiveResultScreen>
 
   Color _barColor(double score) {
     if (score >= 65) return AppColors.cta;
-    if (score >= 35) return AppColors.mustard;
-    return AppColors.sage;
+    if (score >= 35) return AppColors.gold;
+    return AppColors.success;
   }
 }
 

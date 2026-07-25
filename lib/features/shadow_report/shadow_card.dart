@@ -55,7 +55,7 @@ $shadowName
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppColors.purple.withValues(alpha: 0.85),
+            AppColors.primary.withValues(alpha: 0.85),
             AppColors.cta.withValues(alpha: 0.75),
           ],
           begin: Alignment.topLeft,
@@ -64,7 +64,7 @@ $shadowName
         borderRadius: BorderRadius.circular(32),
         boxShadow: [
           BoxShadow(
-            color: AppColors.purple.withValues(alpha: 0.3),
+            color: AppColors.primary.withValues(alpha: 0.3),
             blurRadius: 40,
             offset: const Offset(0, 16),
           ),

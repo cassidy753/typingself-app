@@ -64,13 +64,13 @@ extension _TemperamentColors on MbtiTemperament {
   Color get accent {
     switch (this) {
       case MbtiTemperament.analyst:
-        return AppColors.purple;
+        return AppColors.primary;
       case MbtiTemperament.diplomat:
         return AppColors.cta;
       case MbtiTemperament.sentinel:
-        return AppColors.sage;
+        return AppColors.success;
       case MbtiTemperament.explorer:
-        return AppColors.mustard;
+        return AppColors.gold;
     }
   }
 
@@ -931,7 +931,7 @@ class _AssessmentResultScreenState
   // ─── Actions ─────────────────────────────────────────────────────────
 
   Widget _buildActions() {
-    final accent = _mbtiVisuals[widget.mbti]?.temperament.accent ?? AppColors.purple;
+    final accent = _mbtiVisuals[widget.mbti]?.temperament.accent ?? AppColors.primary;
     return Column(
       children: [
         // ── Guidance section header ──
@@ -1083,7 +1083,7 @@ class _AssessmentResultScreenState
       ),
       backgroundColor: AppColors.surface,
       builder: (ctx) => _ReminderBottomSheet(
-        accent: _mbtiVisuals[widget.mbti]?.temperament.accent ?? AppColors.purple,
+        accent: _mbtiVisuals[widget.mbti]?.temperament.accent ?? AppColors.primary,
         onSchedule: _scheduleReminder,
       ),
     );
@@ -1126,7 +1126,7 @@ class _AssessmentResultScreenState
             content: Text('✅ 已設定每日 $timeLabel 提醒'),
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-            backgroundColor: AppColors.sage,
+            backgroundColor: AppColors.success,
             duration: const Duration(seconds: 2),
           ),
         );

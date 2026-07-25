@@ -8,6 +8,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/theme.dart';
 import '../../core/analytics_service.dart';
+import '../../core/settings_service.dart';
+import '../audio/bgm_service.dart';
 import '../daily_quote/zodiac_service.dart';
 import '../legal/privacy_policy_screen.dart';
 import '../legal/terms_screen.dart';
@@ -35,6 +37,7 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   bool _consented = false;
   bool _darkMode = false;
+  bool _bgmEnabled = false;
   String? _zodiac;
   bool _loaded = false;
 
@@ -49,6 +52,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     setState(() {
       _consented = prefs.getBool('consent_given') ?? false;
       _darkMode = prefs.getBool('dark_mode') ?? false;
+      _bgmEnabled = SettingsService().bgmEnabled;
       _zodiac = prefs.getString('zodiac_sign');
       _loaded = true;
     });
@@ -69,6 +73,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
       // Trigger a full rebuild by popping back
       Navigator.of(context).pop();
     }
+  }
+
+  Future<void> _toggleBgm(bool value) async {
+    BgmService().setEnabled(value);
+    setState(() => _bgmEnabled = value);
   }
 
   Future<void> _setZodiac(String sign) async {
@@ -156,11 +165,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
             _SettingsContent(
               consented: _consented,
               darkMode: _darkMode,
+              bgmEnabled: _bgmEnabled,
               zodiac: _zodiac,
               accent: widget.accent,
               accentBg: widget.accentBg,
               onConsentChanged: () => _showConsentDialog(),
               onDarkModeChanged: _toggleDarkMode,
+              onBgmChanged: _toggleBgm,
               onZodiacChanged: _setZodiac,
               onRetakeTest: widget.onRetakeTest,
             ),
@@ -297,21 +308,25 @@ class _NoTestCard extends StatelessWidget {
 class _SettingsContent extends StatelessWidget {
   final bool consented;
   final bool darkMode;
+  final bool bgmEnabled;
   final String? zodiac;
   final Color accent, accentBg;
   final VoidCallback onConsentChanged;
   final ValueChanged<bool> onDarkModeChanged;
+  final ValueChanged<bool> onBgmChanged;
   final ValueChanged<String> onZodiacChanged;
   final VoidCallback? onRetakeTest;
 
   const _SettingsContent({
     required this.consented,
     required this.darkMode,
+    required this.bgmEnabled,
     required this.zodiac,
     required this.accent,
     required this.accentBg,
     required this.onConsentChanged,
     required this.onDarkModeChanged,
+    required this.onBgmChanged,
     required this.onZodiacChanged,
     this.onRetakeTest,
   });
@@ -409,6 +424,27 @@ class _SettingsContent extends StatelessWidget {
               Switch(
                 value: darkMode,
                 onChanged: onDarkModeChanged,
+                activeColor: accent,
+              ),
+            ],
+          ),
+
+          const Divider(height: 16),
+
+          // ── BGM / Background Music ──
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('背景音樂', style: GoogleFonts.notoSansTc(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
+                  Text('播放放鬆背景音樂', style: GoogleFonts.notoSansTc(fontSize: 14, color: AppColors.textSecondary)),
+                ],
+              ),
+              Switch(
+                value: bgmEnabled,
+                onChanged: onBgmChanged,
                 activeColor: accent,
               ),
             ],

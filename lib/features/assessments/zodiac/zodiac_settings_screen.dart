@@ -122,8 +122,8 @@ class _ZodiacSettingsScreenState extends State<ZodiacSettingsScreen> {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    AppColors.purple.withValues(alpha: 0.2),
-                    AppColors.purple.withValues(alpha: 0.05),
+                  AppColors.primary.withValues(alpha: 0.2),
+                    AppColors.primary.withValues(alpha: 0.05),
                   ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
@@ -224,7 +224,7 @@ class _ZodiacSettingsScreenState extends State<ZodiacSettingsScreen> {
               child: FilledButton(
                 onPressed: _showResult,
                 style: FilledButton.styleFrom(
-                  backgroundColor: AppColors.purple,
+                  backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(24)),

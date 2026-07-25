@@ -19,6 +19,7 @@ class SettingsService {
   static const _keyFontSize = 'font_size';
   static const _keyLanguageStyle = 'language_style';
   static const _keyAgeFilter = 'age_filter';
+  static const _keyBgmEnabled = 'bgm_enabled';
 
   Future<void> init() async {
     _prefs = await SharedPreferences.getInstance();
@@ -103,4 +104,8 @@ class SettingsService {
   // ─── Streak ───
   int get streakDays => _p.getInt('streak_days') ?? 0;
   set streakDays(int v) => _p.setInt('streak_days', v);
+
+  // ─── BGM / Background Music ───
+  bool get bgmEnabled => _p.getBool(_keyBgmEnabled) ?? false;
+  set bgmEnabled(bool v) => _p.setBool(_keyBgmEnabled, v);
 }

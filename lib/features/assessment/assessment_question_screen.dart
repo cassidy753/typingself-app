@@ -224,15 +224,8 @@ class _AssessmentQuestionScreenState extends State<AssessmentQuestionScreen>
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFFEBE0F5), // light purple / lavender mist
-              Color(0xFFFCE8E0), // light coral / warm pink
-            ],
-          ),
+        decoration: BoxDecoration(
+          gradient: AppColors.backgroundGradient(),
         ),
         child: SafeArea(
           child: Column(
@@ -277,7 +270,7 @@ class _AssessmentQuestionScreenState extends State<AssessmentQuestionScreen>
                                     gradient: LinearGradient(
                                       colors: [
                                         AppColors.cta,
-                                        AppColors.purple.withValues(alpha: 0.7),
+                                        AppColors.primary.withValues(alpha: 0.7),
                                       ],
                                     ),
                                     borderRadius: BorderRadius.circular(6),
@@ -349,13 +342,6 @@ class _AssessmentQuestionScreenState extends State<AssessmentQuestionScreen>
                               decoration: BoxDecoration(
                                 color: Colors.white.withValues(alpha: 0.88),
                                 borderRadius: BorderRadius.circular(24),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: AppColors.purple.withValues(alpha: 0.08),
-                                    blurRadius: 20,
-                                    offset: const Offset(0, 4),
-                                  ),
-                                ],
                               ),
                               child: Text(
                                 _currentQuestion.text,
